@@ -1,0 +1,426 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { CashUpRecord, TeamMember, Invoice } from '../types';
+import { formatDate, generateId } from '../utils';
+import { db } from '../services/database';
+import { DollarSign, CreditCard, Wallet, TrendingUp, AlertTriangle, Calculator, FileText, Camera, Upload, X, Check } from 'lucide-react';
+
+interface FinanceViewProps {
+  records: CashUpRecord[];
+  staff: TeamMember[];
+}
+
+const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
+  const [activeTab, setActiveTab] = useState<'history' | 'entry' | 'invoices'>('history');
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  
+  // Invoice Form State
+  const [newInvoice, setNewInvoice] = useState<Partial<Invoice>>({
+      type: 'invoice',
+      date: new Date(),
+      status: 'pending'
+  });
+
+  useEffect(() => {
+      setInvoices(db.getInvoices());
+  }, []);
+
+  const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Unknown';
+
+  const startCamera = async () => {
+      setIsCameraOpen(true);
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+          }
+      } catch (err) {
+          console.error("Error accessing camera:", err);
+          alert("Could not access camera. Please check permissions.");
+          setIsCameraOpen(false);
+      }
+  };
+
+  const stopCamera = () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+          const stream = videoRef.current.srcObject as MediaStream;
+          stream.getTracks().forEach(track => track.stop());
+          videoRef.current.srcObject = null;
+      }
+      setIsCameraOpen(false);
+  };
+
+  const captureImage = () => {
+      if (videoRef.current) {
+          const canvas = document.createElement('canvas');
+          canvas.width = videoRef.current.videoWidth;
+          canvas.height = videoRef.current.videoHeight;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+              ctx.drawImage(videoRef.current, 0, 0);
+              const dataUrl = canvas.toDataURL('image/jpeg');
+              setCapturedImage(dataUrl);
+              stopCamera();
+          }
+      }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setCapturedImage(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
+  const saveInvoice = () => {
+      if (!newInvoice.supplierName || !newInvoice.amount) return;
+      
+      const invoice: Invoice = {
+          id: generateId(),
+          supplierName: newInvoice.supplierName,
+          reference: newInvoice.reference || 'N/A',
+          amount: Number(newInvoice.amount),
+          date: new Date(newInvoice.date || new Date()),
+          type: newInvoice.type as 'invoice' | 'delivery',
+          status: 'pending',
+          imageUrl: capturedImage || undefined
+      };
+      
+      db.saveInvoice(invoice);
+      setInvoices(db.getInvoices());
+      
+      // Reset form
+      setNewInvoice({ type: 'invoice', date: new Date(), status: 'pending' });
+      setCapturedImage(null);
+  };
+
+  return (
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
+       <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Finance & Cash Up</h2>
+          <p className="text-gray-500 dark:text-gray-400">Daily takings, reconciliation, and invoices.</p>
+        </div>
+        <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
+            <button 
+              onClick={() => setActiveTab('history')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+            >
+              History
+            </button>
+            <button 
+              onClick={() => setActiveTab('entry')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'entry' ? 'bg-white dark:bg-slate-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+            >
+              New Entry
+            </button>
+            <button 
+              onClick={() => setActiveTab('invoices')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'invoices' ? 'bg-white dark:bg-slate-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+            >
+              Invoices & Delivery
+            </button>
+        </div>
+      </div>
+
+      {activeTab === 'history' && (
+        <div className="space-y-6">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                 <div className="flex items-center space-x-3 mb-2">
+                    <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><DollarSign className="w-5 h-5"/></div>
+                    <span className="text-sm text-gray-500">Weekly Cash</span>
+                 </div>
+                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$1,460.00</div>
+              </div>
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                 <div className="flex items-center space-x-3 mb-2">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><CreditCard className="w-5 h-5"/></div>
+                    <span className="text-sm text-gray-500">Weekly Eftpos</span>
+                 </div>
+                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$4,340.50</div>
+              </div>
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                 <div className="flex items-center space-x-3 mb-2">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg"><TrendingUp className="w-5 h-5"/></div>
+                    <span className="text-sm text-gray-500">Total Takings</span>
+                 </div>
+                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$5,800.50</div>
+              </div>
+           </div>
+
+           <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+             <table className="w-full text-left">
+                <thead className="bg-gray-50 dark:bg-slate-900/50 text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700">
+                    <tr>
+                        <th className="px-6 py-4">Date</th>
+                        <th className="px-6 py-4">Staff</th>
+                        <th className="px-6 py-4">Eftpos</th>
+                        <th className="px-6 py-4">Cash</th>
+                        <th className="px-6 py-4">Variance</th>
+                        <th className="px-6 py-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                    {records.map(rec => (
+                        <tr key={rec.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{formatDate(rec.date)}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                                <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-600 flex items-center justify-center text-xs mr-2 font-bold">{getStaffName(rec.staffId).charAt(0)}</span>
+                                {getStaffName(rec.staffId)}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">${rec.eftposTotal.toFixed(2)}</td>
+                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">${rec.cashTotal.toFixed(2)}</td>
+                            <td className={`px-6 py-4 text-sm font-bold ${rec.variance === 0 ? 'text-green-500' : rec.variance < 0 ? 'text-red-500' : 'text-blue-500'}`}>
+                                {rec.variance === 0 ? '-' : `$${rec.variance.toFixed(2)}`}
+                            </td>
+                            <td className="px-6 py-4">
+                                {rec.variance === 0 ? (
+                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Balanced</span>
+                                ) : (
+                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                        <AlertTriangle className="w-3 h-3 mr-1" /> Review
+                                    </span>
+                                )}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+             </table>
+           </div>
+        </div>
+      )}
+
+      {activeTab === 'entry' && (
+        <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+              <Calculator className="w-5 h-5 mr-2 text-indigo-500" /> End of Day Cash Up
+           </h3>
+           <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                 <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Opening Float</label>
+                    <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                        <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
+                    </div>
+                 </div>
+                 <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payouts / Petty Cash</label>
+                    <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                        <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
+                    </div>
+                 </div>
+              </div>
+
+              <div className="border-t border-gray-100 dark:border-slate-700 pt-6">
+                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Terminals</h4>
+                 <div className="grid grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EFTPOS Total</label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                            <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cash In Drawer</label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                            <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
+                        </div>
+                    </div>
+                 </div>
+              </div>
+
+              <div>
+                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
+                 <textarea rows={3} className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Explain variances or issues..."></textarea>
+              </div>
+
+              <div className="pt-4 flex justify-end">
+                 <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none transition-all">Submit Cash Up</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {activeTab === 'invoices' && (
+          <div className="space-y-8">
+              {/* Scan / Upload Section */}
+              <div className="bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <Camera className="w-5 h-5 mr-2 text-indigo-500" /> Scan or Upload Invoice
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Left: Capture Interface */}
+                      <div className="space-y-4">
+                          <div className="aspect-video bg-black rounded-lg overflow-hidden relative flex items-center justify-center border-2 border-dashed border-gray-400 dark:border-slate-600">
+                              {isCameraOpen ? (
+                                  <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                              ) : capturedImage ? (
+                                  <img src={capturedImage} alt="Captured" className="w-full h-full object-contain" />
+                              ) : (
+                                  <div className="text-center p-6">
+                                      <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                                      <p className="text-gray-500 text-sm">Camera inactive</p>
+                                  </div>
+                              )}
+                              
+                              {capturedImage && (
+                                  <button onClick={() => setCapturedImage(null)} className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70">
+                                      <X className="w-4 h-4" />
+                                  </button>
+                              )}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                              {!isCameraOpen ? (
+                                  <>
+                                    <button onClick={startCamera} className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                        <Camera className="w-4 h-4" /> <span>Use Camera</span>
+                                    </button>
+                                    <label className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors cursor-pointer">
+                                        <Upload className="w-4 h-4" /> <span>Upload File</span>
+                                        <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileUpload} />
+                                    </label>
+                                  </>
+                              ) : (
+                                  <>
+                                    <button onClick={captureImage} className="flex-1 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">Capture</button>
+                                    <button onClick={stopCamera} className="px-4 py-2.5 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-white rounded-lg">Cancel</button>
+                                  </>
+                              )}
+                          </div>
+                      </div>
+
+                      {/* Right: Details Form */}
+                      <div className="space-y-4">
+                          <h4 className="font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-slate-700 pb-2">Document Details</h4>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                  <label className="block text-xs font-medium text-gray-500 mb-1">Document Type</label>
+                                  <select 
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    value={newInvoice.type}
+                                    onChange={e => setNewInvoice({...newInvoice, type: e.target.value as any})}
+                                  >
+                                      <option value="invoice">Invoice</option>
+                                      <option value="delivery">Delivery Slip</option>
+                                  </select>
+                              </div>
+                              <div>
+                                  <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
+                                  <input 
+                                    type="date" 
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    value={newInvoice.date ? newInvoice.date.toISOString().substr(0,10) : ''}
+                                    onChange={e => setNewInvoice({...newInvoice, date: new Date(e.target.value)})}
+                                  />
+                              </div>
+                          </div>
+
+                          <div>
+                              <label className="block text-xs font-medium text-gray-500 mb-1">Supplier Name</label>
+                              <input 
+                                type="text" 
+                                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                placeholder="e.g. Gourmet Foods"
+                                value={newInvoice.supplierName || ''}
+                                onChange={e => setNewInvoice({...newInvoice, supplierName: e.target.value})}
+                              />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                  <label className="block text-xs font-medium text-gray-500 mb-1">Reference No.</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    placeholder="INV-..."
+                                    value={newInvoice.reference || ''}
+                                    onChange={e => setNewInvoice({...newInvoice, reference: e.target.value})}
+                                  />
+                              </div>
+                              <div>
+                                  <label className="block text-xs font-medium text-gray-500 mb-1">Total Amount ($)</label>
+                                  <input 
+                                    type="number" 
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    placeholder="0.00"
+                                    value={newInvoice.amount || ''}
+                                    onChange={e => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})}
+                                  />
+                              </div>
+                          </div>
+
+                          <button 
+                            onClick={saveInvoice}
+                            disabled={!capturedImage && !newInvoice.amount}
+                            className="w-full py-2.5 bg-indigo-600 disabled:bg-gray-300 disabled:dark:bg-slate-700 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                          >
+                              <Check className="w-4 h-4 mr-2" /> Save Record
+                          </button>
+                      </div>
+                  </div>
+              </div>
+
+              {/* Invoices List */}
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+                      <h3 className="font-bold text-gray-900 dark:text-white">Recent Uploads</h3>
+                      <button className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">View All</button>
+                  </div>
+                  <table className="w-full text-left">
+                      <thead className="bg-gray-50 dark:bg-slate-900/50 text-xs uppercase text-gray-500 dark:text-gray-400">
+                          <tr>
+                              <th className="px-6 py-3">Date</th>
+                              <th className="px-6 py-3">Type</th>
+                              <th className="px-6 py-3">Supplier</th>
+                              <th className="px-6 py-3">Reference</th>
+                              <th className="px-6 py-3 text-right">Amount</th>
+                              <th className="px-6 py-3 text-right">Status</th>
+                          </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                          {invoices.map(inv => (
+                              <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30">
+                                  <td className="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">{formatDate(new Date(inv.date))}</td>
+                                  <td className="px-6 py-3">
+                                      <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${inv.type === 'invoice' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                                          {inv.type}
+                                      </span>
+                                  </td>
+                                  <td className="px-6 py-3 text-sm font-medium text-gray-900 dark:text-white">{inv.supplierName}</td>
+                                  <td className="px-6 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">{inv.reference}</td>
+                                  <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">${inv.amount.toFixed(2)}</td>
+                                  <td className="px-6 py-3 text-right">
+                                      <span className={`text-xs font-semibold ${inv.status === 'paid' ? 'text-green-600' : 'text-amber-600'}`}>
+                                          {inv.status.toUpperCase()}
+                                      </span>
+                                  </td>
+                              </tr>
+                          ))}
+                          {invoices.length === 0 && (
+                              <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-500">No invoices scanned yet.</td></tr>
+                          )}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      )}
+    </div>
+  );
+};
+
+export default FinanceView;

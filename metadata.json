@@ -1,0 +1,7 @@
+{
+  "name": "_CTOS-beta",
+  "description": "Comprehensive venue management system featuring Roster, Stock, Finance, POS integration, and Dual-Mode (Office/FOH) interfaces.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
