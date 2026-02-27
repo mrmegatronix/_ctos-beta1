@@ -91,7 +91,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
         </div>
 
         <div className="p-4 bg-gray-50 dark:bg-slate-900 text-center text-xs text-gray-400">
-           Use your 2-digit or 4-digit staff ID code to sign in.
+           <div>Use your 2-digit or 4-digit staff ID code to sign in.</div>
+           <div className="mt-2 opacity-50">Build: {(window as any).__COMMIT_INFO__ || 'Development'}</div>
         </div>
       </div>
     </div>
