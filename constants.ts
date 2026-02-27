@@ -6,7 +6,7 @@ import { addDays, getStartOfWeek } from './utils';
 export const TEAM_MEMBERS: TeamMember[] = [
   { 
     id: 'rob', name: 'Robert', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert', color: 'slate', visible: true,
-    role: 'Duty Manager', email: 'robert@coasters.com', phone: '021 555 0101', address: '12 Seaside Ave', pinCode: '11' 
+    role: 'Duty Manager', email: 'robert@coasters.com', phone: '021 555 0101', address: '12 Seaside Ave', pinCode: '11', isDemo: true
   },
   { 
     id: 'bia', name: 'Bianca', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bianca', color: 'rose', visible: true,
@@ -154,7 +154,8 @@ export const INITIAL_EVENTS: CalendarEvent[] = [
     attendeeIds: ['rob', 'bia'],
     description: 'Weekly sync.',
     isMeeting: true,
-    type: 'event'
+    type: 'event',
+    isDemo: true
   },
   {
     id: 'e2',
@@ -164,14 +165,15 @@ export const INITIAL_EVENTS: CalendarEvent[] = [
     attendeeIds: ['nic'],
     description: 'Beverage delivery check-in.',
     isMeeting: false,
-    type: 'event'
+    type: 'event',
+    isDemo: true
   }
 ];
 
 export const INITIAL_BOOKINGS: Booking[] = [
-  { id: 'b1', customerName: 'John Smith', time: setTime(today, 19, 0), guests: 4, table: 'T4', phone: '555-0001', status: 'confirmed' },
-  { id: 'b2', customerName: 'Alice Wong', time: setTime(today, 19, 30), guests: 2, table: 'T2', phone: '555-0002', status: 'seated' },
-  { id: 'b3', customerName: 'Bob Jones', time: setTime(today, 20, 0), guests: 6, table: 'T8', phone: '555-0003', status: 'pending' },
+  { id: 'b1', customerName: 'John Smith', time: setTime(today, 19, 0), guests: 4, table: 'T4', phone: '555-0001', status: 'confirmed', isDemo: true },
+  { id: 'b2', customerName: 'Alice Wong', time: setTime(today, 19, 30), guests: 2, table: 'T2', phone: '555-0002', status: 'seated', isDemo: true },
+  { id: 'b3', customerName: 'Bob Jones', time: setTime(today, 20, 0), guests: 6, table: 'T8', phone: '555-0003', status: 'pending', isDemo: true },
 ];
 
 // --- RAW PRODUCT CSV DATA ---

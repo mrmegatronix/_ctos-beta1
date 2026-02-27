@@ -7,7 +7,9 @@ import {
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
   BookOpen, ShieldAlert, Umbrella, Tv, Loader2
 } from 'lucide-react';
-import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem } from './types';
+import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry } from './types';
+import MediaView from './components/MediaView';
+import TimesheetsView from './components/TimesheetsView';
 import { db } from './services/database';
 import { 
   addDays, getStartOfWeek, formatTime, 
@@ -16,22 +18,22 @@ import {
 import { HOURS, INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE } from './constants';
 import EventModal from './components/EventModal';
 import AIAssistant from './components/AIAssistant';
+import DashboardView from './components/DashboardView';
 import RosterView from './components/RosterView';
-import BookingsView from './components/BookingsView';
-import StockView from './components/StockView';
 import StaffDirectory from './components/StaffDirectory';
-import SuppliersView from './components/SuppliersView';
-import MaintenanceView from './components/MaintenanceView';
+import FinanceView from './components/FinanceView';
+import BookingsView from './components/BookingsView';
 import EntertainmentView from './components/EntertainmentView';
 import FunctionsView from './components/FunctionsView';
-import FinanceView from './components/FinanceView';
-import BrowserView from './components/BrowserView';
-import DocumentsView from './components/DocumentsView';
+import TVScheduleView from './components/TVScheduleView';
 import RecipesView from './components/RecipesView';
+import StockView from './components/StockView';
+import SuppliersView from './components/SuppliersView';
+import MaintenanceView from './components/MaintenanceView';
 import IncidentLogView from './components/IncidentLogView';
 import LostAndFoundView from './components/LostAndFoundView';
-import TVScheduleView from './components/TVScheduleView';
-import DashboardView from './components/DashboardView';
+import BrowserView from './components/BrowserView';
+import DocumentsView from './components/DocumentsView';
 import LoginScreen from './components/LoginScreen';
 import ActionToolbar from './components/ActionToolbar';
 import { parseNaturalLanguageCommand } from './services/geminiService';
@@ -66,6 +68,8 @@ const App: React.FC = () => {
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
   const [lostFound, setLostFound] = useState<LostItem[]>([]);
   const [tvSchedule, setTVSchedule] = useState<TVScheduleItem[]>([]);
+  const [mediaSlides, setMediaSlides] = useState<MediaSlide[]>([]);
+  const [timesheetEntries, setTimesheetEntries] = useState<TimesheetEntry[]>([]);
 
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -229,6 +233,12 @@ const App: React.FC = () => {
       }
   };
 
+  const handleSaveTimesheet = async (entry: TimesheetEntry) => {
+    // To be implemented with db.saveTimesheet
+    setTimesheetEntries(prev => [...prev, entry]);
+    showNotification("Timesheet saved", 'success');
+  };
+
   const handleGoogleSync = async () => {
     setIsImporting(true);
     try {
@@ -389,8 +399,11 @@ const App: React.FC = () => {
       return <LoginScreen staff={teamMembers} onLogin={handleLogin} />;
   }
 
+
+
+  // Add a global class for demo highlighting to the main container
   return (
-    <div className={`flex h-screen flex-col bg-white dark:bg-slate-900 transition-colors duration-200 ${isFohMode ? 'text-lg' : ''}`}>
+    <div className={`flex h-screen flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300 ${isFohMode ? 'text-lg' : ''} demo-highlighting-active`}>
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-4 ${notification.type === 'success' ? 'bg-gray-900 text-white dark:bg-white dark:text-slate-900' : 'bg-red-500 text-white'}`}>
           {notification.message}
@@ -482,35 +495,73 @@ const App: React.FC = () => {
                ) : (
                    /* OFFICE MODE MENU */
                    <>
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Management</div>
                     <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                          <Home className="w-5 h-5" /><span>Dashboard</span>
                     </button>
+
+                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Staff & Rosters</div>
+                    {[
+                        { id: 'roster', label: 'Shift Roster', icon: ClipboardList },
+                        { id: 'staff', label: 'Staff Directory', icon: Users },
+                        { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
+                    ].map((item) => (
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        </button>
+                    ))}
+
+                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Financials</div>
+                    {[
+                        { id: 'finance', label: 'Cash Up / Finance', icon: DollarSign },
+                    ].map((item) => (
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        </button>
+                    ))}
+
+                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Bookings & Entertainment</div>
                     {[
                         { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
-                        { id: 'roster', label: 'Roster', icon: ClipboardList },
-                        { id: 'finance', label: 'Finance', icon: DollarSign },
-                        { id: 'stock', label: 'Stock', icon: Boxes },
-                        { id: 'bookings', label: 'Bookings', icon: Utensils },
+                        { id: 'bookings', label: 'Reservations', icon: Utensils },
+                        { id: 'entertainment', label: 'Music & Events', icon: Music },
+                        { id: 'functions', label: 'Private Functions', icon: PartyPopper },
+                    ].map((item) => (
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        </button>
+                    ))}
+
+                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Media & Adverts</div>
+                    {[
+                        { id: 'media', label: 'Adverts & Slides', icon: Share2 },
+                        { id: 'tvschedule', label: 'TV Guide', icon: Tv },
                         { id: 'recipes', label: 'Recipe Book', icon: BookOpen },
-                        { id: 'tvschedule', label: 'TV Schedule', icon: Tv },
+                    ].map((item) => (
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        </button>
+                    ))}
+
+                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Operations</div>
+                    {[
+                        { id: 'stock', label: 'Inventory / Stock', icon: Boxes },
+                        { id: 'suppliers', label: 'Suppliers', icon: Truck },
+                        { id: 'maintenance', label: 'Maintenance / Issues', icon: Wrench },
                         { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
                         { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
-                        { id: 'browser', label: 'Web / POS', icon: Globe },
-                        { id: 'documents', label: 'Files / Docs', icon: FolderOpen },
-                        { id: 'staff', label: 'Staff', icon: Users },
-                        { id: 'suppliers', label: 'Suppliers', icon: Truck },
-                        { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-                        { id: 'entertainment', label: 'Entertainment', icon: Music },
-                        { id: 'functions', label: 'Functions', icon: PartyPopper },
                     ].map((item) => (
-                        <button 
-                            key={item.id}
-                            onClick={() => setCurrentModule(item.id as AppModule)}
-                            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}
-                        >
-                            <item.icon className="w-5 h-5" />
-                            <span>{item.label}</span>
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        </button>
+                    ))}
+
+                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Tools</div>
+                    {[
+                        { id: 'browser', label: 'Web / POS', icon: Globe },
+                        { id: 'documents', label: 'Docs & Files', icon: FolderOpen },
+                    ].map((item) => (
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
                         </button>
                     ))}
                    </>
@@ -627,6 +678,9 @@ const App: React.FC = () => {
           {currentModule === 'incidents' && <IncidentLogView incidents={incidents} staff={teamMembers} currentUser={currentUser} onSave={handleSaveIncident} />}
           {currentModule === 'lostfound' && <LostAndFoundView items={lostFound} staff={teamMembers} currentUser={currentUser} onSave={handleSaveLostItem} />}
           {currentModule === 'tvschedule' && <TVScheduleView schedule={tvSchedule} onSave={handleSaveTVSchedule} />}
+
+          {currentModule === 'media' && <MediaView />}
+          {currentModule === 'timesheets' && <TimesheetsView staff={teamMembers} shifts={shifts} onSave={handleSaveTimesheet} />}
 
           {currentModule === 'entertainment' && <EntertainmentView events={entertainmentEvents} />}
           {currentModule === 'functions' && <FunctionsView functions={functionBookings} onSaveFunction={handleSaveFunction} />}

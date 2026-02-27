@@ -21,7 +21,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({ staff }) => {
 
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
          {staff.map(member => (
-           <div key={member.id} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+           <div key={member.id} className={`bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group ${member.isDemo ? 'demo-highlight' : ''}`}>
              
              {/* Decorative Background */}
              <div className={`absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-${member.color}-50 to-transparent dark:from-${member.color}-900/20`}></div>

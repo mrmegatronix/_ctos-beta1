@@ -106,7 +106,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                        <p className="text-slate-500">No bookings for the rest of the day.</p>
                    ) : (
                        upcomingBookings.slice(0, 5).map(b => (
-                           <div key={b.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
+                           <div key={b.id} className={`flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl ${b.isDemo ? 'demo-highlight' : ''}`}>
                                <div className="flex items-center space-x-3">
                                    <div className="font-bold text-slate-900 dark:text-white">{formatTime(b.time)}</div>
                                    <div>
@@ -255,7 +255,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                              <div className="text-center py-8 text-gray-400">No events scheduled for today.</div>
                         ) : (
                             todaysEvents.map(event => (
-                                <div key={event.id} className="flex items-start p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors border-l-4 border-indigo-500 bg-gray-50/50 dark:bg-slate-800">
+                                <div key={event.id} className={`flex items-start p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors border-l-4 border-indigo-500 bg-gray-50/50 dark:bg-slate-800 ${event.isDemo ? 'demo-highlight' : ''}`}>
                                     <div className="min-w-[80px] font-bold text-gray-900 dark:text-white">{formatTime(event.start)}</div>
                                     <div>
                                         <div className="font-semibold text-gray-900 dark:text-white">{event.title}</div>
@@ -292,7 +292,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                              </thead>
                              <tbody>
                                  {lowStock.slice(0,5).map(item => (
-                                     <tr key={item.id} className="border-b border-gray-100 dark:border-slate-700/50 last:border-0">
+                                     <tr key={item.id} className={`border-b border-gray-100 dark:border-slate-700/50 last:border-0 ${item.isDemo ? 'demo-highlight' : ''}`}>
                                          <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{item.name}</td>
                                          <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.quantity} {item.unit}</td>
                                          <td className="px-4 py-3 text-red-600 font-bold text-xs">Low Stock</td>
@@ -315,7 +315,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Pending Maintenance</h3>
                      <div className="space-y-3">
                          {tasks.filter(t => t.status !== 'completed').slice(0,4).map(task => (
-                             <div key={task.id} className="p-3 border border-gray-100 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-900/30">
+                             <div key={task.id} className={`p-3 border border-gray-100 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-900/30 ${task.isDemo ? 'demo-highlight' : ''}`}>
                                  <div className="flex justify-between items-start mb-1">
                                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${task.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{task.priority}</span>
                                      <span className="text-xs text-gray-400">{formatDate(task.createdAt)}</span>

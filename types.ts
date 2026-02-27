@@ -5,7 +5,7 @@ export enum ViewMode {
   MONTH = 'Month'
 }
 
-export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule';
+export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets';
 
 export type AppMode = 'OFFICE' | 'FOH';
 
@@ -49,6 +49,7 @@ export interface RosterShift {
   start: Date;
   end: Date;
   role: string; 
+  isDemo?: boolean;
 }
 
 export interface LeaveRequest {
@@ -102,6 +103,7 @@ export interface MaintenanceTask {
   assignedTo?: string; 
   dueDate?: Date;
   createdAt: Date;
+  isDemo?: boolean;
 }
 
 export interface EntertainmentEvent {
@@ -228,4 +230,76 @@ export interface AIResponse {
 export interface TimeSlot {
   hour: number;
   label: string;
+}
+
+export interface MediaSlide {
+  id: string;
+  name: string;
+  url: string;
+  type: 'weather' | 'slides' | 'chase-the-ace' | 'billboard';
+  isActive: boolean;
+  isDemo?: boolean;
+}
+
+export interface TimesheetEntry {
+  id: string;
+  staffId: string;
+  date: Date;
+  hoursWorked: number;
+  notes?: string;
+  isVerified: boolean;
+  isDemo?: boolean;
+}
+
+// Add isDemo to existing interfaces where needed
+export interface TeamMember {
+  id: string;
+  name: string;
+  avatar: string;
+  color: string;
+  visible: boolean;
+  role: StaffRole;
+  email?: string;
+  phone?: string;
+  address?: string;
+  pinCode: string;
+  isDemo?: boolean;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  description?: string;
+  attendeeIds: string[];
+  location?: string;
+  isMeeting?: boolean;
+  source?: 'local' | 'google';
+  type?: 'event' | 'shift';
+  isDemo?: boolean;
+}
+
+export interface StockItem {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  minLevel: number; 
+  price: number;
+  isDemo?: boolean;
+}
+
+export interface Booking {
+  id: string;
+  customerName: string;
+  time: Date;
+  guests: number;
+  table: string;
+  phone: string;
+  status: 'confirmed' | 'pending' | 'seated' | 'completed';
+  notes?: string;
+  source?: 'nowbookit' | 'phone' | 'walkin';
+  isDemo?: boolean;
 }

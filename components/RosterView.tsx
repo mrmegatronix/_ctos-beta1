@@ -109,7 +109,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                      )}
 
                      {dayShifts.map(shift => (
-                         <div key={shift.id} className="relative z-10 bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-700 rounded p-1.5 mb-1 text-xs shadow-sm">
+                         <div key={shift.id} className={`relative z-10 bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-700 rounded p-1.5 mb-1 text-xs shadow-sm ${shift.isDemo ? 'demo-highlight' : ''}`}>
                              <div className="font-semibold text-indigo-800 dark:text-indigo-200">{formatTime(shift.start)} - {formatTime(shift.end)}</div>
                              <div className="text-indigo-600 dark:text-indigo-300 truncate">{shift.role}</div>
                          </div>

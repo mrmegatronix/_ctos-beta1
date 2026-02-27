@@ -77,7 +77,7 @@ const StockView: React.FC<StockViewProps> = ({ items, onUpdateQuantity }) => {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {items.map(item => (
-                <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{item.name}</td>
                   <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                     <span className="px-2 py-1 rounded bg-gray-100 dark:bg-slate-700 text-xs">{item.category}</span>

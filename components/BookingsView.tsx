@@ -39,7 +39,7 @@ const BookingsView: React.FC<BookingsViewProps> = ({ bookings }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {bookings.map(booking => (
-          <div key={booking.id} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div key={booking.id} className={`bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-shadow ${booking.isDemo ? 'demo-highlight' : ''}`}>
             <div className="flex justify-between items-start mb-4">
               <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 ${getStatusColor(booking.status)}`}>
                  {getStatusIcon(booking.status)}

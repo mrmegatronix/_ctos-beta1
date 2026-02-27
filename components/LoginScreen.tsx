@@ -92,7 +92,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
 
         <div className="p-4 bg-gray-50 dark:bg-slate-900 text-center text-xs text-gray-400">
            <div>Use your 2-digit or 4-digit staff ID code to sign in.</div>
-           <div className="mt-2 opacity-50">Build: {(window as any).__COMMIT_INFO__ || 'Development'}</div>
+           <button onClick={() => alert('Please contact Management to reset your PIN.')} className="mt-2 text-indigo-500 hover:underline">Forgot PIN / Request Access</button>
+           <div className="mt-2 opacity-30">Build: {(window as any).__COMMIT_INFO__ || 'Development'}</div>
         </div>
       </div>
     </div>
