@@ -13,7 +13,7 @@ import {
   addDays, getStartOfWeek, formatTime, 
   isSameDay, formatDate, generateId 
 } from './utils';
-import { HOURS } from './constants';
+import { HOURS, INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE } from './constants';
 import EventModal from './components/EventModal';
 import AIAssistant from './components/AIAssistant';
 import RosterView from './components/RosterView';
@@ -83,9 +83,11 @@ const App: React.FC = () => {
   // --- Initialization (async — loads from Firestore) ---
   useEffect(() => {
     const loadData = async () => {
+      const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), ms));
+      
       try {
-        // Initialize DB (seeds if needed)
-        await db.init();
+        // Initialize DB with a timeout to prevent hanging when Firestore is unreachable
+        await Promise.race([db.init(), timeout(10000)]);
 
         // Load all data in parallel
         const [
@@ -93,23 +95,26 @@ const App: React.FC = () => {
           stockData, bookingsData, suppliersData, maintenanceData,
           entertainmentData, functionsData, financeData, filesData,
           recipesData, incidentsData, lostFoundData, tvData
-        ] = await Promise.all([
-          db.getStaff(),
-          db.getEvents(),
-          db.getShifts(),
-          db.getLeaveRequests(),
-          db.getStock(),
-          db.getBookings(),
-          db.getSuppliers(),
-          db.getMaintenance(),
-          db.getEntertainment(),
-          db.getFunctions(),
-          db.getFinance(),
-          db.getFiles(),
-          db.getRecipes(),
-          db.getIncidents(),
-          db.getLostFound(),
-          db.getTVSchedule(),
+        ] = await Promise.race([
+          Promise.all([
+            db.getStaff(),
+            db.getEvents(),
+            db.getShifts(),
+            db.getLeaveRequests(),
+            db.getStock(),
+            db.getBookings(),
+            db.getSuppliers(),
+            db.getMaintenance(),
+            db.getEntertainment(),
+            db.getFunctions(),
+            db.getFinance(),
+            db.getFiles(),
+            db.getRecipes(),
+            db.getIncidents(),
+            db.getLostFound(),
+            db.getTVSchedule(),
+          ]),
+          timeout(10000) as Promise<never>,
         ]);
 
         setTeamMembers(staffData);
@@ -129,7 +134,24 @@ const App: React.FC = () => {
         setLostFound(lostFoundData);
         setTVSchedule(tvData);
       } catch (err) {
-        console.error('[CTOS] Failed to load data from Firestore:', err);
+        console.warn('[CTOS] Firestore unavailable, loading offline data:', err);
+        // Fall back to initial constants data so the app is still usable
+        setTeamMembers(TEAM_MEMBERS);
+        setEvents(INITIAL_EVENTS);
+        setShifts(INITIAL_SHIFTS);
+        setLeaveRequests(INITIAL_LEAVE);
+        setStockItems(INITIAL_STOCK);
+        setBookings(INITIAL_BOOKINGS);
+        setSuppliers(INITIAL_SUPPLIERS);
+        setMaintenanceTasks(INITIAL_MAINTENANCE);
+        setEntertainmentEvents(INITIAL_ENTERTAINMENT);
+        setFunctionBookings(INITIAL_FUNCTIONS);
+        setFinanceRecords(INITIAL_FINANCE);
+        setFiles(INITIAL_FILES);
+        setRecipes(INITIAL_RECIPES);
+        setIncidents(INITIAL_INCIDENTS);
+        setLostFound(INITIAL_LOST_FOUND);
+        setTVSchedule(INITIAL_TV_SCHEDULE);
       } finally {
         setIsLoading(false);
       }

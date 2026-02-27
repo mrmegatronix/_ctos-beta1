@@ -2,9 +2,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { TeamMember, CalendarEvent } from "../types";
 
 const getGeminiClient = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
-    console.warn("API Key not found in environment variables.");
+    console.warn("API Key not found in environment variables (VITE_GEMINI_API_KEY).");
     return null;
   }
   return new GoogleGenAI({ apiKey });
