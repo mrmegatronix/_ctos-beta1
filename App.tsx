@@ -83,6 +83,20 @@ const App: React.FC = () => {
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [googleUser, setGoogleUser] = useState<UserProfile | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // --- Initialization (async — loads from Firestore) ---
   useEffect(() => {
@@ -422,8 +436,14 @@ const App: React.FC = () => {
                <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
              </div>
              <div className="hidden md:block">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">Coasters Tavern</h1>
                 <div className="flex items-center space-x-2">
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">Coasters Tavern</h1>
+                    <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                        <span>{isOnline ? 'Online' : 'Offline'}</span>
+                    </div>
+                </div>
+                <div className="flex items-center space-x-2 mt-0.5">
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${isFohMode ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}`}>
                         {appMode} MODE
                     </span>
