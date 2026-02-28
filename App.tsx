@@ -85,6 +85,15 @@ const App: React.FC = () => {
   const [googleUser, setGoogleUser] = useState<UserProfile | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
+  // Dark Mode side-effect
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -432,7 +441,7 @@ const App: React.FC = () => {
           </button>
           
           <div className="flex items-center space-x-3">
-             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${isFohMode ? 'border-amber-500' : 'border-indigo-500'} shadow-sm bg-black flex items-center justify-center`}>
+             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${isFohMode ? 'border-blue-500' : 'border-red-500'} shadow-sm bg-black flex items-center justify-center`}>
                <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
              </div>
              <div className="hidden md:block">
@@ -444,7 +453,7 @@ const App: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 mt-0.5">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${isFohMode ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}`}>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${isFohMode ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
                         {appMode} MODE
                     </span>
                     <button onClick={toggleMode} className="text-xs text-gray-400 hover:text-gray-600 underline">Switch</button>
@@ -466,7 +475,7 @@ const App: React.FC = () => {
           </button>
           
           <div className="flex items-center space-x-3">
-             <img src={currentUser.avatar} alt={currentUser.name} className={`w-8 h-8 rounded-full border-2 ${isFohMode ? 'border-amber-400' : 'border-indigo-400'}`} />
+             <img src={currentUser.avatar} alt={currentUser.name} className={`w-8 h-8 rounded-full border-2 ${isFohMode ? 'border-blue-400' : 'border-red-400'}`} />
              <div className="hidden md:block text-right">
                  <div className="text-sm font-bold text-gray-900 dark:text-white">{currentUser.name}</div>
                  <div className="text-xs text-gray-500 dark:text-gray-400">{currentUser.role}</div>
@@ -484,38 +493,38 @@ const App: React.FC = () => {
                {isFohMode ? (
                    <>
                      <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Front of House</div>
-                     <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <Home className="w-6 h-6" /><span>Home</span>
                      </button>
-                     <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'browser' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'browser' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <Monitor className="w-6 h-6" /><span>POS / Browser</span>
                      </button>
-                     <button onClick={() => setCurrentModule('tvschedule')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'tvschedule' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('tvschedule')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'tvschedule' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <Tv className="w-6 h-6" /><span>TV Guide</span>
                      </button>
-                     <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <BookOpen className="w-6 h-6" /><span>Recipes</span>
                      </button>
-                     <button onClick={() => setCurrentModule('bookings')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'bookings' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('bookings')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'bookings' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <Utensils className="w-6 h-6" /><span>Bookings</span>
                      </button>
-                     <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <ClipboardList className="w-6 h-6" /><span>My Roster</span>
                      </button>
-                     <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
                      </button>
-                     <button onClick={() => setCurrentModule('lostfound')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'lostfound' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('lostfound')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'lostfound' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <Umbrella className="w-6 h-6" /><span>Lost & Found</span>
                      </button>
-                     <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                     <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                          <Wrench className="w-6 h-6" /><span>Report Issue</span>
                      </button>
                    </>
                ) : (
                    /* OFFICE MODE MENU */
                    <>
-                    <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                    <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                          <Home className="w-5 h-5" /><span>Dashboard</span>
                     </button>
 
@@ -525,7 +534,7 @@ const App: React.FC = () => {
                         { id: 'staff', label: 'Staff Directory', icon: Users },
                         { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
                     ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                              <item.icon className="w-5 h-5" /><span>{item.label}</span>
                         </button>
                     ))}
@@ -534,7 +543,7 @@ const App: React.FC = () => {
                     {[
                         { id: 'finance', label: 'Cash Up / Finance', icon: DollarSign },
                     ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                              <item.icon className="w-5 h-5" /><span>{item.label}</span>
                         </button>
                     ))}
@@ -546,7 +555,7 @@ const App: React.FC = () => {
                         { id: 'entertainment', label: 'Music & Events', icon: Music },
                         { id: 'functions', label: 'Private Functions', icon: PartyPopper },
                     ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                              <item.icon className="w-5 h-5" /><span>{item.label}</span>
                         </button>
                     ))}
