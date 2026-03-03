@@ -162,23 +162,10 @@ const App: React.FC = () => {
         setTVSchedule(tvData);
       } catch (err) {
         console.warn('[CTOS] Firestore unavailable, loading offline data:', err);
-        // Fall back to initial constants data so the app is still usable
-        setTeamMembers(TEAM_MEMBERS);
-        setEvents(INITIAL_EVENTS);
-        setShifts(INITIAL_SHIFTS);
-        setLeaveRequests(INITIAL_LEAVE);
-        setStockItems(INITIAL_STOCK);
-        setBookings(INITIAL_BOOKINGS);
-        setSuppliers(INITIAL_SUPPLIERS);
-        setMaintenanceTasks(INITIAL_MAINTENANCE);
-        setEntertainmentEvents(INITIAL_ENTERTAINMENT);
-        setFunctionBookings(INITIAL_FUNCTIONS);
-        setFinanceRecords(INITIAL_FINANCE);
-        setFiles(INITIAL_FILES);
-        setRecipes(INITIAL_RECIPES);
-        setIncidents(INITIAL_INCIDENTS);
-        setLostFound(INITIAL_LOST_FOUND);
-        setTVSchedule(INITIAL_TV_SCHEDULE);
+        setTVSchedule(tvData);
+      } catch (err) {
+        console.error('[CTOS] Firestore unavailable:', err);
+        // We no longer fall back to initial constants data
       } finally {
         setIsLoading(false);
       }
@@ -470,7 +457,7 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full">
+          <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full" title="Toggle Dark Mode">
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           
@@ -479,8 +466,13 @@ const App: React.FC = () => {
              <div className="hidden md:block text-right">
                  <div className="text-sm font-bold text-gray-900 dark:text-white">{currentUser.name}</div>
                  <div className="text-xs text-gray-500 dark:text-gray-400">{currentUser.role}</div>
-                 <button onClick={handleLogout} className="text-xs text-red-500 hover:text-red-600">Log Out</button>
+                 <button onClick={handleLogout} className="text-xs text-red-500 hover:text-red-600 font-medium mt-0.5">Log Out</button>
              </div>
+             
+             {/* Mobile / Small Screen Logout Icon */}
+             <button onClick={handleLogout} className="md:hidden p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Log Out">
+                <LogOut className="w-5 h-5" />
+             </button>
           </div>
         </div>
       </header>
