@@ -161,11 +161,7 @@ const App: React.FC = () => {
         setLostFound(lostFoundData);
         setTVSchedule(tvData);
       } catch (err) {
-        console.warn('[CTOS] Firestore unavailable, loading offline data:', err);
-        setTVSchedule(tvData);
-      } catch (err) {
         console.error('[CTOS] Firestore unavailable:', err);
-        // We no longer fall back to initial constants data
       } finally {
         setIsLoading(false);
       }
