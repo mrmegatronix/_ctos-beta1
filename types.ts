@@ -7,9 +7,9 @@ export enum ViewMode {
 
 export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets';
 
-export type AppMode = 'OFFICE' | 'FOH';
+export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
-export type StaffRole = 'Admin' | 'Duty Manager' | 'Front of House';
+export type StaffRole = 'Admin' | 'Duty Manager' | 'Front of House' | 'Head Chef' | 'Chef' | 'Kitchen Hand';
 
 export interface TeamMember {
   id: string;

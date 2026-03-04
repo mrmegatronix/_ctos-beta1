@@ -29,33 +29,49 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
 
   return (
     <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
-       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-           <div>
-               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recipe & Specs Book</h2>
+       <div className="flex items-center justify-between mb-8 gap-4">
+           <div className="flex-1">
+               <div className="flex items-center space-x-4 mb-4">
+                   <button 
+                       onClick={() => setCategoryFilter('All')} 
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${categoryFilter === 'All' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                   >
+                       All Specs
+                   </button>
+                   <button 
+                       onClick={() => setCategoryFilter('Cocktail')} 
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Cocktail' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                   >
+                       <Martini className="w-4 h-4" />
+                       <span>Cocktails</span>
+                   </button>
+                   <button 
+                       onClick={() => setCategoryFilter('Food')} 
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Food' ? 'bg-orange-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                   >
+                       <ChefHat className="w-4 h-4" />
+                       <span>Meals</span>
+                   </button>
+                   <button 
+                       onClick={() => setCategoryFilter('Coffee')} 
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Coffee' ? 'bg-amber-700 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                   >
+                       <Coffee className="w-4 h-4" />
+                       <span>Coffee</span>
+                   </button>
+               </div>
                <p className="text-gray-500 dark:text-gray-400">Standard operating procedures for food and drinks.</p>
            </div>
            
-           <div className="flex w-full md:w-auto gap-2">
-               <div className="relative flex-1 md:w-64">
-                   <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                   <input 
-                      type="text" 
-                      placeholder="Search recipes..." 
-                      className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                   />
-               </div>
-               <select 
-                  className="px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none"
-                  value={categoryFilter}
-                  onChange={e => setCategoryFilter(e.target.value)}
-               >
-                   <option value="All">All Categories</option>
-                   <option value="Cocktail">Cocktails</option>
-                   <option value="Food">Food</option>
-                   <option value="Coffee">Coffee</option>
-               </select>
+           <div className="relative w-full md:w-80">
+               <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+               <input 
+                  type="text" 
+                  placeholder="Search by name or ingredient..." 
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg shadow-inner"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+               />
            </div>
        </div>
 

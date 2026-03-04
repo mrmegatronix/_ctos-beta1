@@ -1,7 +1,7 @@
 # CTOS Beta - Deploy to Raspberry Pi
 # Usage: powershell -ExecutionPolicy Bypass -File deploy-to-pi.ps1
 
-$PI_HOST = "owner@192.168.1.148"
+$PI_HOST = "owner@192.168.1.150"
 $PI_DIR = "/home/owner/ctos-beta"
 $LOCAL_DIR = $PSScriptRoot
 
@@ -30,6 +30,6 @@ ssh $PI_HOST "sudo mv ${PI_DIR}/ctos.service /etc/systemd/system/ && sudo system
 
 Write-Host "`n=========================================" -ForegroundColor Green
 Write-Host "  Deployment and Service Setup complete!" -ForegroundColor Green
-Write-Host "  Access at: http://192.168.1.148:3000" -ForegroundColor Green
+Write-Host "  Access at: http://192.168.1.150:3000" -ForegroundColor Green
 Write-Host "  Service Status: sudo systemctl status ctos" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green

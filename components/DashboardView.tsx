@@ -3,8 +3,25 @@ import React from 'react';
 import { AppMode, AppModule, CalendarEvent, MaintenanceTask, StockItem, Booking, TeamMember, TVScheduleItem } from '../types';
 import { formatDate, formatTime } from '../utils';
 import { 
-  Calendar, ClipboardList, DollarSign, Utensils, AlertTriangle, 
-  CheckCircle2, Clock, Users, ArrowRight, Monitor, Wrench, BookOpen, ShieldAlert, Umbrella, Tv
+  Users, 
+  Calendar as CalendarIcon, 
+  ClipboardList, 
+  DollarSign, 
+  TrendingUp, 
+  Clock, 
+  Layout, 
+  ArrowRight, 
+  AlertTriangle, 
+  Package, 
+  CheckCircle2, 
+  Bell, 
+  Search,
+  BookOpen,
+  Utensils,
+  Music,
+  Tv,
+  Boxes,
+  Monitor
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -92,6 +109,13 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                  </div>
                  <span className="font-bold text-sm text-slate-800 dark:text-white">Lost & Found</span>
              </button>
+
+             <button onClick={() => onNavigate('entertainment')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-purple-600 flex flex-col items-center justify-center text-center group h-32">
+                 <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 mb-2 group-hover:bg-purple-100">
+                    <Music className="w-6 h-6" />
+                 </div>
+                 <span className="font-bold text-sm text-slate-800 dark:text-white">Band Calendar</span>
+             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -151,23 +175,101 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
              </div>
 
+             {/* Stock Summary Widget */}
+             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                   <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
+                   Stock Summary
+                </h2>
+                <div className="space-y-3">
+                    {lowStock.length === 0 ? (
+                         <p className="text-slate-500 text-sm">All inventory levels are healthy.</p>
+                    ) : (
+                        lowStock.slice(0, 6).map(item => (
+                            <div key={item.id} className="flex justify-between items-center p-2 bg-red-50 dark:bg-red-900/10 rounded-lg">
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{item.name}</span>
+                                <span className="text-xs font-bold text-red-600 dark:text-red-400">{item.quantity} {item.unit}</span>
+                            </div>
+                        ))
+                    )}
+                    <button onClick={() => onNavigate('stock')} className="w-full text-center text-sm text-amber-600 hover:text-amber-700 font-medium mt-2">Inventory Management</button>
+                </div>
+             </div>
+
              {/* Bar Notices */}
              <div className="bg-amber-50 dark:bg-amber-950/30 rounded-2xl p-6 border border-amber-100 dark:border-amber-900/50">
                 <h2 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">Daily Notices</h2>
                 <ul className="space-y-3">
-                    <li className="flex items-start">
-                        <span className="inline-block p-1 bg-amber-200 dark:bg-amber-800 rounded-full mt-1 mr-3"></span>
-                        <span className="text-amber-800 dark:text-amber-200">Out of <b>House Lager</b> kegs. Use bottled stock only until delivery tomorrow.</span>
-                    </li>
-                    <li className="flex items-start">
-                        <span className="inline-block p-1 bg-amber-200 dark:bg-amber-800 rounded-full mt-1 mr-3"></span>
-                        <span className="text-amber-800 dark:text-amber-200">Trivia Night starts at 7pm in the Garden Bar. Expect noise.</span>
-                    </li>
-                    <li className="flex items-start">
-                        <span className="inline-block p-1 bg-amber-200 dark:bg-amber-800 rounded-full mt-1 mr-3"></span>
-                        <span className="text-amber-800 dark:text-amber-200">New casual staff "Jess" starting today. Please make her welcome!</span>
-                    </li>
+                    <li className="text-amber-800/50 dark:text-amber-200/50 italic text-sm">No new notices for today.</li>
                 </ul>
+             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // BOH MODE DASHBOARD
+  if (mode === 'BOH') {
+    return (
+      <div className="flex-1 p-6 bg-orange-50/30 dark:bg-slate-900 overflow-auto custom-scrollbar">
+        <div className="max-w-6xl mx-auto">
+          <header className="mb-8">
+             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+               Kitchen Dashboard: <span className="text-orange-600 dark:text-orange-500">{user.name}</span>
+             </h1>
+             <p className="text-slate-500 dark:text-slate-400">Back of house operations and prep list.</p>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             {/* Kitchen Schedule */}
+             <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                   <Clock className="w-5 h-5 mr-2 text-orange-500" />
+                   Preparation & Service Schedule
+                </h2>
+                <div className="space-y-4">
+                   <div className="p-4 bg-orange-50 dark:bg-orange-900/10 rounded-xl border-l-4 border-orange-500">
+                      <div className="font-bold text-orange-900 dark:text-orange-200">Lunch Service</div>
+                      <div className="text-sm text-orange-700 dark:text-orange-300">12:00 PM - 3:00 PM</div>
+                   </div>
+                   <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl border-l-4 border-slate-400">
+                      <div className="font-bold text-slate-900 dark:text-slate-100">Dinner Prep</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-400">3:00 PM - 5:00 PM</div>
+                   </div>
+                   <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl border-l-4 border-slate-400">
+                      <div className="font-bold text-slate-900 dark:text-slate-100">Dinner Service</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-400">5:00 PM - 9:00 PM</div>
+                   </div>
+                </div>
+             </div>
+
+             {/* Quick Links */}
+             <div className="space-y-4">
+                <button onClick={() => onNavigate('recipes')} className="w-full p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all flex items-center space-x-4">
+                   <div className="p-4 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-xl">
+                      <BookOpen className="w-8 h-8" />
+                   </div>
+                   <div className="text-left">
+                      <div className="font-bold text-lg text-slate-900 dark:text-white">Meal Recipes</div>
+                      <div className="text-sm text-slate-500">View prep guides</div>
+                   </div>
+                </button>
+                <button onClick={() => onNavigate('stock')} className="w-full p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all flex items-center space-x-4">
+                   <div className="p-4 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl">
+                      <Boxes className="w-8 h-8" />
+                   </div>
+                   <div className="text-left">
+                      <div className="font-bold text-lg text-slate-900 dark:text-white">Kitchen Stock</div>
+                      <div className="text-sm text-slate-500">Inventory levels</div>
+                   </div>
+                </button>
+                <div className="p-6 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+                    <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-2">Equipment Status</h3>
+                    <div className="flex items-center text-sm text-green-600 font-medium">
+                       <CheckCircle2 className="w-4 h-4 mr-2" /> All clear
+                    </div>
+                </div>
              </div>
           </div>
         </div>
@@ -198,9 +300,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                      <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-lg">
                          <DollarSign className="w-6 h-6" />
                      </div>
-                     <span className="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+12%</span>
                  </div>
-                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$12,450</div>
+                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$0.00</div>
                  <div className="text-sm text-gray-500">Weekly Revenue</div>
              </div>
 

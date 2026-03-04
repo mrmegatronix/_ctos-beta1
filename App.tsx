@@ -5,7 +5,7 @@ import {
   Menu, Bell, Settings, Search, Plus, Moon, Sun, Download, LogIn, LogOut,
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
-  BookOpen, ShieldAlert, Umbrella, Tv, Loader2
+  BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon
 } from 'lucide-react';
 import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry } from './types';
 import MediaView from './components/MediaView';
@@ -76,7 +76,11 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.WEEK);
   
   // UI State
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('isDarkMode');
+    if (saved !== null) return saved === 'true';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Partial<CalendarEvent> | undefined>(undefined);
   const [isAIProcessing, setIsAIProcessing] = useState(false);
@@ -84,14 +88,23 @@ const App: React.FC = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [googleUser, setGoogleUser] = useState<UserProfile | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Clock effect
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Dark Mode side-effect
   useEffect(() => {
+    console.log('[CTOS] Theme change:', isDarkMode ? 'DARK' : 'LIGHT');
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('isDarkMode', String(isDarkMode));
   }, [isDarkMode]);
 
   useEffect(() => {
@@ -169,10 +182,6 @@ const App: React.FC = () => {
 
     loadData();
 
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
     initGoogleClient(() => console.log('Google Client initialized'));
   }, []);
 
@@ -200,10 +209,14 @@ const App: React.FC = () => {
       // Auto-set mode based on role
       if (member.role === 'Front of House') {
           setAppMode('FOH');
-          setIsSidebarOpen(false);
+          setIsSidebarOpen(true); // Keeping nav on left as requested
+          setCurrentModule('dashboard');
+      } else if (['Head Chef', 'Chef', 'Kitchen Hand'].includes(member.role)) {
+          setAppMode('BOH');
+          setIsSidebarOpen(true);
           setCurrentModule('dashboard');
       } else {
-          setAppMode('OFFICE'); // Managers default to Office but can switch
+          setAppMode('OFFICE'); 
           setIsSidebarOpen(true);
       }
       showNotification(`Welcome, ${member.name}`, 'success');
@@ -231,7 +244,7 @@ const App: React.FC = () => {
       
       // Auto-switch sidebar and module for better UX
       if (newMode === 'FOH') {
-          setIsSidebarOpen(false); 
+          setIsSidebarOpen(true); // Navigation on left
           setCurrentModule('dashboard');
       } else {
           setIsSidebarOpen(true);
@@ -384,10 +397,9 @@ const App: React.FC = () => {
     }
   };
 
-  // --- Loading Screen ---
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900">
+      <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg mx-auto bg-black flex items-center justify-center">
             <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
@@ -450,6 +462,10 @@ const App: React.FC = () => {
              <CalendarIcon className="w-5 h-5" />
              <span className="font-medium">{formatDate(currentDate)}</span>
           </div>
+          <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-mono">
+             <ClockIcon className="w-5 h-5" />
+             <span className="font-bold">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -477,111 +493,176 @@ const App: React.FC = () => {
         {/* Module Sidebar */}
         <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gray-50 dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 overflow-y-auto flex-shrink-0 flex flex-col`}>
            <div className="p-4 space-y-2">
-               {/* FOH MODE MENU */}
-               {isFohMode ? (
-                   <>
-                     <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Front of House</div>
-                     <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <Home className="w-6 h-6" /><span>Home</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'browser' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <Monitor className="w-6 h-6" /><span>POS / Browser</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('tvschedule')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'tvschedule' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <Tv className="w-6 h-6" /><span>TV Guide</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <BookOpen className="w-6 h-6" /><span>Recipes</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('bookings')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'bookings' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <Utensils className="w-6 h-6" /><span>Bookings</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <ClipboardList className="w-6 h-6" /><span>My Roster</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('lostfound')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'lostfound' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <Umbrella className="w-6 h-6" /><span>Lost & Found</span>
-                     </button>
-                     <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                         <Wrench className="w-6 h-6" /><span>Report Issue</span>
-                     </button>
-                   </>
-               ) : (
-                   /* OFFICE MODE MENU */
-                   <>
-                    <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                         <Home className="w-5 h-5" /><span>Dashboard</span>
-                    </button>
-
-                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Staff & Rosters</div>
-                    {[
-                        { id: 'roster', label: 'Shift Roster', icon: ClipboardList },
-                        { id: 'staff', label: 'Staff Directory', icon: Users },
-                        { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
-                    ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                {isFohMode ? (
+                    <div className="space-y-6">
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Service</div>
+                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Home className="w-6 h-6" /><span>Home</span>
                         </button>
-                    ))}
-
-                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Financials</div>
-                    {[
-                        { id: 'finance', label: 'Cash Up / Finance', icon: DollarSign },
-                    ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'browser' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Monitor className="w-6 h-6" /><span>POS / Browser</span>
                         </button>
-                    ))}
-
-                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Bookings & Entertainment</div>
-                    {[
-                        { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
-                        { id: 'bookings', label: 'Reservations', icon: Utensils },
-                        { id: 'entertainment', label: 'Music & Events', icon: Music },
-                        { id: 'functions', label: 'Private Functions', icon: PartyPopper },
-                    ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                        <button onClick={() => setCurrentModule('bookings')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'bookings' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Utensils className="w-6 h-6" /><span>Reservations</span>
                         </button>
-                    ))}
+                      </section>
 
-                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Media & Adverts</div>
-                    {[
-                        { id: 'media', label: 'Adverts & Slides', icon: Share2 },
-                        { id: 'tvschedule', label: 'TV Guide', icon: Tv },
-                        { id: 'recipes', label: 'Recipe Book', icon: BookOpen },
-                    ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Entertainment</div>
+                        <button onClick={() => setCurrentModule('tvschedule')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'tvschedule' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Tv className="w-6 h-6" /><span>TV Guide</span>
                         </button>
-                    ))}
+                        <button onClick={() => setCurrentModule('entertainment')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'entertainment' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Music className="w-6 h-6" /><span>Band Calendar</span>
+                        </button>
+                      </section>
 
-                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Operations</div>
-                    {[
-                        { id: 'stock', label: 'Inventory / Stock', icon: Boxes },
-                        { id: 'suppliers', label: 'Suppliers', icon: Truck },
-                        { id: 'maintenance', label: 'Maintenance / Issues', icon: Wrench },
-                        { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
-                        { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
-                    ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Staff & Kitchen</div>
+                        <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <BookOpen className="w-6 h-6" /><span>Recipes</span>
                         </button>
-                    ))}
+                        <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <ClipboardList className="w-6 h-6" /><span>My Roster</span>
+                        </button>
+                      </section>
 
-                    <div className="pt-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Tools</div>
-                    {[
-                        { id: 'browser', label: 'Web / POS', icon: Globe },
-                        { id: 'documents', label: 'Docs & Files', icon: FolderOpen },
-                    ].map((item) => (
-                        <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                             <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Reporting</div>
+                        <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
                         </button>
-                    ))}
-                   </>
+                        <button onClick={() => setCurrentModule('lostfound')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'lostfound' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Umbrella className="w-6 h-6" /><span>Lost & Found</span>
+                        </button>
+                        <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Wrench className="w-6 h-6" /><span>Report Issue</span>
+                        </button>
+                      </section>
+                    </div>
+                ) : appMode === 'BOH' ? (
+                    /* BOH MODE MENU */
+                    <div className="space-y-6">
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Kitchen Operations</div>
+                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Home className="w-6 h-6" /><span>Kitchen Home</span>
+                        </button>
+                        <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <BookOpen className="w-6 h-6" /><span>Food Recipes</span>
+                        </button>
+                        <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <ClipboardList className="w-6 h-6" /><span>Kitchen Roster</span>
+                        </button>
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Inventory & Supply</div>
+                        <button onClick={() => setCurrentModule('stock')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'stock' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Boxes className="w-6 h-6" /><span>Stock Levels</span>
+                        </button>
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Reporting</div>
+                        <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
+                        </button>
+                        <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <Wrench className="w-6 h-6" /><span>Equipment Issue</span>
+                        </button>
+                      </section>
+                    </div>
+                ) : (
+                    /* OFFICE MODE MENU */
+                    <div className="space-y-4">
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Overview</div>
+                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <Home className="w-5 h-5" /><span>Dashboard</span>
+                        </button>
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Personnel</div>
+                        {[
+                            { id: 'roster', label: 'Shift Roster', icon: ClipboardList },
+                            { id: 'staff', label: 'Staff Directory', icon: Users },
+                            { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Financials</div>
+                        {[
+                            { id: 'finance', label: 'Cash Up / Finance', icon: DollarSign },
+                            { id: 'invoices', label: 'Invoices & Orders', icon: FileText },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Events & Bookings</div>
+                        {[
+                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
+                            { id: 'bookings', label: 'Table Reservations', icon: Utensils },
+                            { id: 'entertainment', label: 'Music & Events', icon: Music },
+                            { id: 'functions', label: 'Private Functions', icon: PartyPopper },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Marketing & TV</div>
+                        {[
+                            { id: 'media', label: 'Adverts & Slides', icon: Share2 },
+                            { id: 'tvschedule', label: 'TV Guide', icon: Tv },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Operations</div>
+                        {[
+                            { id: 'stock', label: 'Inventory / Stock', icon: Boxes },
+                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
+                            { id: 'maintenance', label: 'Maintenance Issues', icon: Wrench },
+                            { id: 'recipes', label: 'Recipe Book', icon: BookOpen },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Admin & Safety</div>
+                        {[
+                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
+                            { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
+                            { id: 'browser', label: 'POS / Browser', icon: Globe },
+                            { id: 'documents', label: 'Docs & Files', icon: FolderOpen },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+                    </div>
                )}
            </div>
         </aside>
