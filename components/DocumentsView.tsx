@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { FileItem } from '../types';
-import { Folder, FileText, FileSpreadsheet, Image, File, ChevronRight, Home, ArrowUp, Download, MoreVertical } from 'lucide-react';
+import { Folder, FileText, FileSpreadsheet, Image, File as FileIconLucide, ChevronRight, Home, ArrowUp, Download, MoreVertical, Plus } from 'lucide-react';
 import { formatDate } from '../utils';
+import DropzoneArea from './DropzoneArea';
 
 interface DocumentsViewProps {
   files: FileItem[];
@@ -10,6 +10,7 @@ interface DocumentsViewProps {
 
 const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
 
   const getContents = (parentId: string | null) => {
     return files.filter(f => f.parentId === parentId);
@@ -21,7 +22,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
 
     const folder = files.find(f => f.id === currentFolderId);
     if (folder) {
-        // Simple 1-level depth logic for now, recursive if needed later
+        // Simple 1-level depth logic
         crumbs.push({ id: folder.id, name: folder.name });
     }
     return crumbs;
@@ -37,6 +38,13 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
     setCurrentFolderId(current?.parentId || null);
   };
 
+  const handleFilesAccepted = async (acceptedFiles: File[]) => {
+      // Stub integration to Firebase
+      console.log('Files accepted for upload:', acceptedFiles);
+      alert(`${acceptedFiles.length} files queued for upload to Firebase.`);
+      setShowUpload(false);
+  }
+
   const getIcon = (type: FileItem['type']) => {
     switch (type) {
         case 'folder': return <Folder className="w-12 h-12 text-indigo-400 fill-indigo-100 dark:fill-indigo-900/30" />;
@@ -44,7 +52,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
         case 'doc': return <FileText className="w-12 h-12 text-blue-500" />;
         case 'sheet': return <FileSpreadsheet className="w-12 h-12 text-green-500" />;
         case 'image': return <Image className="w-12 h-12 text-purple-500" />;
-        default: return <File className="w-12 h-12 text-gray-400" />;
+        default: return <FileIconLucide className="w-12 h-12 text-gray-400" />;
     }
   };
 
@@ -52,10 +60,10 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
 
   return (
     <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-900">
-       <div className="flex items-center justify-between mb-6">
+       <div className="flex items-center justify-between mb-6 shrink-0">
            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Filing Cabinet</h2>
-           <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
-             Upload File
+           <button onClick={() => setShowUpload(!showUpload)} className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+             <Plus className="w-4 h-4" /> <span>Upload/Folder</span>
            </button>
        </div>
 
@@ -79,6 +87,16 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
                </div>
            )}
        </div>
+
+       {showUpload && (
+           <div className="mb-6 bg-gray-50 dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 max-w-2xl">
+               <div className="flex justify-between items-center mb-4">
+                   <h3 className="font-bold text-gray-900 dark:text-white">Upload Documents</h3>
+                   <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">Cancel</button>
+               </div>
+               <DropzoneArea onFilesAccepted={handleFilesAccepted} />
+           </div>
+       )}
 
        {/* File Grid */}
        <div className="flex-1 overflow-auto custom-scrollbar">

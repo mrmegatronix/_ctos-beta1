@@ -36,6 +36,8 @@ import BrowserView from './components/BrowserView';
 import DocumentsView from './components/DocumentsView';
 import LoginScreen from './components/LoginScreen';
 import ActionToolbar from './components/ActionToolbar';
+import WeatherView from './components/WeatherView';
+import CalendarView from './components/CalendarView';
 import { parseNaturalLanguageCommand } from './services/geminiService';
 import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents } from './services/googleService';
 
@@ -79,7 +81,7 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('isDarkMode');
     if (saved !== null) return saved === 'true';
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return true; // Default to dark mode as requested
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Partial<CalendarEvent> | undefined>(undefined);
@@ -192,11 +194,26 @@ const App: React.FC = () => {
   const filteredEvents = useMemo(() => events.filter(e => e.attendeeIds.length === 0 || e.attendeeIds.some(id => visibleMemberIds.includes(id))), [events, visibleMemberIds]);
   const isFohMode = appMode === 'FOH';
   
-  // Theme Logic
-  const themeColor = isFohMode ? 'amber' : 'indigo';
-  const themeText = isFohMode ? 'text-amber-600' : 'text-indigo-600';
-  const themeBg = isFohMode ? 'bg-amber-600' : 'bg-indigo-600';
-  const themeLightBg = isFohMode ? 'bg-amber-100' : 'bg-indigo-100';
+  // Theme Logic - Accents: Office (Red), FOH (Gold/Amber), BOH (Blue)
+  const getThemeColor = (mode: AppMode) => {
+      switch (mode) {
+          case 'OFFICE': return 'red';
+          case 'FOH': return 'amber';
+          case 'BOH': return 'blue';
+          default: return 'indigo';
+      }
+  };
+  const themeColor = getThemeColor(appMode);
+  
+  const getThemeLightBg = (mode: AppMode) => {
+      switch (mode) {
+          case 'OFFICE': return 'bg-red-100';
+          case 'FOH': return 'bg-amber-100';
+          case 'BOH': return 'bg-blue-100';
+          default: return 'bg-indigo-100';
+      }
+  };
+  const themeLightBg = getThemeLightBg(appMode);
 
   // --- Handlers ---
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -204,21 +221,32 @@ const App: React.FC = () => {
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const setExplicitMode = (mode: AppMode) => {
+       // Permission Check
+       if (mode === 'OFFICE' && currentUser) {
+           if (currentUser.role !== 'Admin' && currentUser.role !== 'Duty Manager') {
+               showNotification("Access Denied: Office Mode restricted to Managers.", 'error');
+               return;
+           }
+       }
+       setAppMode(mode);
+       showNotification(`Switched to ${mode} Mode`, 'success');
+       setIsSidebarOpen(true);
+       setCurrentModule('dashboard');
+  };
+
   const handleLogin = (member: TeamMember) => {
       setCurrentUser(member);
       // Auto-set mode based on role
       if (member.role === 'Front of House') {
           setAppMode('FOH');
-          setIsSidebarOpen(true); // Keeping nav on left as requested
-          setCurrentModule('dashboard');
       } else if (['Head Chef', 'Chef', 'Kitchen Hand'].includes(member.role)) {
           setAppMode('BOH');
-          setIsSidebarOpen(true);
-          setCurrentModule('dashboard');
       } else {
           setAppMode('OFFICE'); 
-          setIsSidebarOpen(true);
       }
+      setIsSidebarOpen(true);
+      setCurrentModule('dashboard');
       showNotification(`Welcome, ${member.name}`, 'success');
   };
 
@@ -226,30 +254,6 @@ const App: React.FC = () => {
       setCurrentUser(null);
       setAppMode('OFFICE'); // Reset mode
       setCurrentModule('dashboard');
-  };
-
-  const toggleMode = () => {
-      const newMode = appMode === 'OFFICE' ? 'FOH' : 'OFFICE';
-      
-      // Permission Check
-      if (newMode === 'OFFICE' && currentUser) {
-          if (currentUser.role !== 'Admin' && currentUser.role !== 'Duty Manager') {
-              showNotification("Access Denied: Office Mode restricted to Managers.", 'error');
-              return;
-          }
-      }
-
-      setAppMode(newMode);
-      showNotification(`Switched to ${newMode === 'OFFICE' ? 'Office' : 'Front of House'} Mode`, 'success');
-      
-      // Auto-switch sidebar and module for better UX
-      if (newMode === 'FOH') {
-          setIsSidebarOpen(true); // Navigation on left
-          setCurrentModule('dashboard');
-      } else {
-          setIsSidebarOpen(true);
-          setCurrentModule('dashboard');
-      }
   };
 
   const handleSaveTimesheet = async (entry: TimesheetEntry) => {
@@ -429,31 +433,57 @@ const App: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className={`flex items-center justify-between border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 ${isFohMode ? 'h-24' : ''}`}>
-        <div className="flex items-center space-x-4">
+      <header className={`flex items-center justify-between border-b ${
+          themeColor === 'red' ? 'border-red-500/20' : 
+          themeColor === 'amber' ? 'border-amber-500/20' : 
+          'border-blue-500/20'
+      } bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0`}>
+        <div className="flex items-center space-x-4 flex-shrink-0">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400">
             <Menu className="w-6 h-6" />
           </button>
           
           <div className="flex items-center space-x-3">
-             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${isFohMode ? 'border-blue-500' : 'border-red-500'} shadow-sm bg-black flex items-center justify-center`}>
+             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${
+                 themeColor === 'red' ? 'border-red-500' : 
+                 themeColor === 'amber' ? 'border-amber-500' : 
+                 'border-blue-500'
+             } shadow-sm bg-black flex items-center justify-center flex-shrink-0`}>
                <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
              </div>
              <div className="hidden md:block">
                 <div className="flex items-center space-x-2">
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">Coasters Tavern</h1>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight whitespace-nowrap">Coasters Tavern</h1>
                     <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
                         <span>{isOnline ? 'Online' : 'Offline'}</span>
                     </div>
                 </div>
-                <div className="flex items-center space-x-2 mt-0.5">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${isFohMode ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
-                        {appMode} MODE
-                    </span>
-                    <button onClick={toggleMode} className="text-xs text-gray-400 hover:text-gray-600 underline">Switch</button>
-                </div>
              </div>
+          </div>
+
+          <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
+          
+          {/* Mode Selection Buttons */}
+          <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+              <button 
+                  onClick={() => setExplicitMode('OFFICE')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'OFFICE' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+              >
+                  OFFICE
+              </button>
+              <button 
+                  onClick={() => setExplicitMode('FOH')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'FOH' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+              >
+                  FOH
+              </button>
+              <button 
+                  onClick={() => setExplicitMode('BOH')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'BOH' ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+              >
+                  BOH
+              </button>
           </div>
 
           <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
@@ -576,25 +606,12 @@ const App: React.FC = () => {
                     </div>
                 ) : (
                     /* OFFICE MODE MENU */
-                    <div className="space-y-4">
+                    <div className="space-y-4 pb-10">
                       <section>
                         <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Overview</div>
-                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-red-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                             <Home className="w-5 h-5" /><span>Dashboard</span>
                         </button>
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Personnel</div>
-                        {[
-                            { id: 'roster', label: 'Shift Roster', icon: ClipboardList },
-                            { id: 'staff', label: 'Staff Directory', icon: Users },
-                            { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
                       </section>
 
                       <section>
@@ -602,34 +619,22 @@ const App: React.FC = () => {
                         {[
                             { id: 'finance', label: 'Cash Up / Finance', icon: DollarSign },
                             { id: 'invoices', label: 'Invoices & Orders', icon: FileText },
+                            { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
                         ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
                             </button>
                         ))}
                       </section>
 
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Events & Bookings</div>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Stock & Ordering</div>
                         {[
-                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
-                            { id: 'bookings', label: 'Table Reservations', icon: Utensils },
-                            { id: 'entertainment', label: 'Music & Events', icon: Music },
-                            { id: 'functions', label: 'Private Functions', icon: PartyPopper },
+                            { id: 'stock', label: 'Inventory / Stock', icon: Boxes },
+                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
+                            { id: 'recipes', label: 'Recipe Book', icon: BookOpen },
                         ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Marketing & TV</div>
-                        {[
-                            { id: 'media', label: 'Adverts & Slides', icon: Share2 },
-                            { id: 'tvschedule', label: 'TV Guide', icon: Tv },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
                             </button>
                         ))}
@@ -638,15 +643,50 @@ const App: React.FC = () => {
                       <section>
                         <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Operations</div>
                         {[
-                            { id: 'stock', label: 'Inventory / Stock', icon: Boxes },
-                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
+                            { id: 'roster', label: 'Shift Roster', icon: ClipboardList },
+                            { id: 'staff', label: 'Staff Directory', icon: Users },
+                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
                             { id: 'maintenance', label: 'Maintenance Issues', icon: Wrench },
-                            { id: 'recipes', label: 'Recipe Book', icon: BookOpen },
+                            { id: 'documents', label: 'Docs & Files (Dropbox)', icon: FolderOpen },
+                            { id: 'browser', label: 'POS / Browser', icon: Globe },
                         ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
                             </button>
                         ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Media Control & Screens</div>
+                        {[
+                            { id: 'media', label: 'Adverts & Slides', icon: Share2 },
+                            { id: 'tvschedule', label: 'TV Guide', icon: Tv },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Reservations & Entertainment</div>
+                        {[
+                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
+                            { id: 'bookings', label: 'Table Reservations', icon: Utensils },
+                            { id: 'entertainment', label: 'Music & Events', icon: Music },
+                            { id: 'functions', label: 'Private Functions', icon: PartyPopper },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+                      
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Weather</div>
+                        <button onClick={() => setCurrentModule('weather')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === 'weather' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <Globe className="w-5 h-5" /><span>Live Weather</span>
+                        </button>
                       </section>
 
                       <section>
@@ -684,44 +724,14 @@ const App: React.FC = () => {
           )}
 
           {currentModule === 'calendar' && (
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="p-4 border-b border-gray-100 dark:border-slate-800">
-                   <ActionToolbar 
-                      title="Calendar" 
-                      onEdit={() => handleCreateEvent()} 
-                      onPrint={() => window.print()}
-                      onSync={() => handleGoogleSync()}
-                      isFohMode={isFohMode}
-                   />
-                </div>
-                {/* Calendar Grid Implementation */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar relative">
-                    <div className="flex min-h-[1000px]">
-                    <div className="w-14 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-20 bg-white dark:bg-slate-900">{HOURS.map(h => <div key={h} className="h-16 relative"><span className="absolute -top-3 right-2 text-xs text-gray-400">{h === 0 ? '12A' : h < 12 ? `${h}A` : h === 12 ? '12P' : `${h-12}P`}</span></div>)}</div>
-                    <div className="flex-1 flex relative">
-                        {weekDays.map((day, i) => (
-                            <div key={i} className="flex-1 border-l border-gray-100 dark:border-slate-800 relative group first:border-l-0">
-                                <div className="sticky top-0 bg-gray-50 dark:bg-slate-800 z-10 text-center py-2 text-xs font-bold uppercase border-b border-gray-200 dark:border-slate-700">
-                                    {formatDate(day)}
-                                </div>
-                                {HOURS.map(h => <div key={h} className="h-16 hover:bg-gray-50 dark:hover:bg-slate-800/50" />)}
-                                {filteredEvents.filter(e => isSameDay(e.start, day)).map(e => {
-                                    const startHour = e.start.getHours() + e.start.getMinutes() / 60;
-                                    const endHour = e.end.getHours() + e.end.getMinutes() / 60;
-                                    const height = Math.max((endHour - startHour) * 64, 32);
-                                    const top = startHour * 64 + 32; // +32 for header
-                                    const styleClass = e.source === 'google' 
-                                        ? 'bg-green-100 text-green-800 border-green-500 dark:bg-green-900/30 dark:text-green-200' 
-                                        : `${themeLightBg} ${isFohMode ? 'text-amber-800 border-amber-500' : 'text-indigo-800 border-indigo-500'}`;
-                                    
-                                    return <div key={e.id} onClick={(ev) => { ev.stopPropagation(); handleEventClick(e); }} className={`absolute left-1 right-1 rounded-md p-1 text-xs cursor-pointer overflow-hidden border-l-4 ${styleClass}`} style={{ top: `${top}px`, height: `${height}px` }}>{e.title}</div>;
-                                })}
-                            </div>
-                        ))}
-                    </div>
-                    </div>
-                </div>
-              </div>
+              <CalendarView 
+                  events={events}
+                  teamMembers={teamMembers}
+                  isFohMode={isFohMode}
+                  onEditLocation={handleEventClick}
+                  onCreateEvent={handleCreateEvent}
+                  onSync={handleGoogleSync}
+              />
           )}
 
           {currentModule === 'roster' && (
@@ -769,6 +779,8 @@ const App: React.FC = () => {
           )}
           
           {currentModule === 'browser' && <BrowserView />}
+          
+          {currentModule === 'weather' && <WeatherView />}
           
           {currentModule === 'documents' && <DocumentsView files={files} />}
 

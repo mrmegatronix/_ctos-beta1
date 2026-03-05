@@ -81,6 +81,18 @@ const BookingsView: React.FC<BookingsViewProps> = ({ bookings }) => {
           </div>
         ))}
       </div>
+
+      <div className="mt-12">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">NowBookIt Integration</h2>
+          <div className="w-full h-[600px] border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white">
+              <iframe 
+                  src="https://nowbookit.com" 
+                  title="NowBookIt Reservations"
+                  className="w-full h-full border-none"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+              />
+          </div>
+      </div>
     </div>
   );
 };

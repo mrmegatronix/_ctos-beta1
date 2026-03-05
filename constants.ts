@@ -47,32 +47,12 @@ export const INITIAL_ENTERTAINMENT: EntertainmentEvent[] = [];
 export const INITIAL_FUNCTIONS: FunctionBooking[] = [];
 export const INITIAL_FINANCE: CashUpRecord[] = [];
 export const INITIAL_INVOICES: Invoice[] = [];
-export const INITIAL_RECIPES: Recipe[] = [
-  {
-    id: 'rec-1',
-    name: 'Classic Burger',
-    category: 'Food',
-    ingredients: ['Beef Patty', 'Brioche Bun', 'Lettuce', 'Tomato', 'Secret Sauce'],
-    method: 'Grill patty for 4 mins each side. Toast bun. Assemble.',
-  },
-  {
-    id: 'rec-2',
-    name: 'Espresso Martini',
-    category: 'Cocktail',
-    ingredients: ['Vodka', 'Coffee Liqueur', 'Fresh Espresso', 'Simple Syrup'],
-    method: 'Shake with ice and fine strain into a chilled coupe.',
-  }
-];
+export const INITIAL_RECIPES: Recipe[] = [];
 export const INITIAL_INCIDENTS: IncidentReport[] = [];
 export const INITIAL_LOST_FOUND: LostItem[] = [];
 export const INITIAL_TV_SCHEDULE: TVScheduleItem[] = [];
 
-export const SOCIAL_LINKS = [
-  { platform: 'Instagram', handle: '@coasters_tavern', url: 'https://instagram.com' },
-  { platform: 'Facebook', handle: 'Coasters Tavern', url: 'https://facebook.com' },
-  { platform: 'Website', handle: 'www.coasterstavern.com', url: 'https://coasterstavern.com' },
-  { platform: 'TripAdvisor', handle: 'Coasters Tavern Reviews', url: 'https://tripadvisor.com' },
-];
+export const SOCIAL_LINKS = [];
 
 export const HOURS: number[] = Array.from({ length: 24 }, (_, i) => i);
 
