@@ -1,14 +1,16 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'ctos-beta.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'ctos-beta',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'ctos-beta.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '1086095562593',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyAlfhj9cDg7hivzpcvzpyKtlxydsSA-4kE",
+  authDomain: "ctos-beta.firebaseapp.com",
+  projectId: "ctos-beta",
+  storageBucket: "ctos-beta.firebasestorage.app",
+  messagingSenderId: "1086095562593",
+  appId: "1:1086095562593:web:224d25efd570f3bcef1720"
 };
 
 const app = initializeApp(firebaseConfig);
 export const firestore = getFirestore(app);
+export const database = getDatabase(app);
