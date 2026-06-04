@@ -177,6 +177,23 @@ const App: React.FC = () => {
         setTVSchedule(tvData);
       } catch (err) {
         console.error('[CTOS] Firestore unavailable:', err);
+        // Fallback to local constants if database is down
+        setTeamMembers(TEAM_MEMBERS);
+        setEvents(INITIAL_EVENTS);
+        setShifts(INITIAL_SHIFTS);
+        setLeaveRequests(INITIAL_LEAVE);
+        setStockItems(INITIAL_STOCK);
+        setBookings(INITIAL_BOOKINGS);
+        setSuppliers(INITIAL_SUPPLIERS);
+        setMaintenanceTasks(INITIAL_MAINTENANCE);
+        setEntertainmentEvents(INITIAL_ENTERTAINMENT);
+        setFunctionBookings(INITIAL_FUNCTIONS);
+        setFinanceRecords(INITIAL_FINANCE);
+        setFiles(INITIAL_FILES);
+        setRecipes(INITIAL_RECIPES);
+        setIncidents(INITIAL_INCIDENTS);
+        setLostFound(INITIAL_LOST_FOUND);
+        setTVSchedule(INITIAL_TV_SCHEDULE);
       } finally {
         setIsLoading(false);
       }
