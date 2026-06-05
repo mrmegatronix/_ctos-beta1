@@ -15,11 +15,11 @@ if (Test-Path "$LOCAL_DIR/.env.local") {
 }
 
 function Invoke-Ssh {
-    if ($env:SSHPASS) { sshpass -e ssh @args } else { ssh @args }
+    if ($env:SSHPASS) { sshpass -e ssh -o StrictHostKeyChecking=no @args } else { ssh -o StrictHostKeyChecking=no @args }
 }
 
 function Invoke-Scp {
-    if ($env:SSHPASS) { sshpass -e scp @args } else { scp @args }
+    if ($env:SSHPASS) { sshpass -e scp -o StrictHostKeyChecking=no @args } else { scp -o StrictHostKeyChecking=no @args }
 }
 
 function Deploy-Target {
