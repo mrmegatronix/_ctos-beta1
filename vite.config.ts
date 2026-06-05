@@ -14,7 +14,7 @@ const getCommitInfo = () => {
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      base: '/_ctos-beta1/',
+      base: './',
       server: {
         port: 3000,
         host: '0.0.0.0',
