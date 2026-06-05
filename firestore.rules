@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Note: Since CTOS-Beta uses a custom PIN-based login instead of Firebase Auth, 
+    // we are allowing read/write access to everyone. 
+    // WARNING: Do not use this in production with sensitive data without proper Firebase Authentication.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
