@@ -208,7 +208,7 @@ const App: React.FC = () => {
   const weekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
   const visibleMemberIds = teamMembers.filter(m => m.visible).map(m => m.id);
-  const filteredEvents = useMemo(() => events.filter(e => e.attendeeIds.length === 0 || e.attendeeIds.some(id => visibleMemberIds.includes(id))), [events, visibleMemberIds]);
+  const filteredEvents = useMemo(() => events.filter(e => (e.attendeeIds || []).length === 0 || (e.attendeeIds || []).some(id => visibleMemberIds.includes(id))), [events, visibleMemberIds]);
   const isFohMode = appMode === 'FOH';
   
   // Theme Logic - Accents: Office (Red), FOH (Gold/Amber), BOH (Blue)

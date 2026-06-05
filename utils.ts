@@ -1,9 +1,13 @@
-export const formatDate = (date: Date): string => {
-  return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(date);
+export const formatDate = (date: Date | string): string => {
+  try {
+    return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(date));
+  } catch (e) { return String(date); }
 };
 
-export const formatTime = (date: Date): string => {
-  return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(date);
+export const formatTime = (date: Date | string): string => {
+  try {
+    return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(date));
+  } catch (e) { return String(date); }
 };
 
 export const getStartOfWeek = (date: Date): Date => {

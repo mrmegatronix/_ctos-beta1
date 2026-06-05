@@ -362,14 +362,14 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                         <div className="font-semibold text-gray-900 dark:text-white">{event.title}</div>
                                         {event.description && <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{event.description}</div>}
                                         <div className="mt-2 flex -space-x-2">
-                                            {event.attendeeIds.slice(0,3).map(id => (
+                                            {(event.attendeeIds || []).slice(0,3).map(id => (
                                                 <div key={id} className="w-6 h-6 rounded-full bg-gray-300 border-2 border-white dark:border-slate-800 overflow-hidden">
                                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`} alt="" />
                                                 </div>
                                             ))}
-                                            {event.attendeeIds.length > 3 && (
+                                            {(event.attendeeIds || []).length > 3 && (
                                                 <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[10px] text-gray-600">
-                                                    +{event.attendeeIds.length - 3}
+                                                    +{(event.attendeeIds || []).length - 3}
                                                 </div>
                                             )}
                                         </div>
