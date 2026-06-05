@@ -21,7 +21,11 @@ import {
   Music,
   Tv,
   Boxes,
-  Monitor
+  Monitor,
+  ShieldAlert,
+  Umbrella,
+  Wrench,
+  Calendar
 } from 'lucide-react';
 
 interface DashboardViewProps {

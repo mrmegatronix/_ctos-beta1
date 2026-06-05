@@ -156,7 +156,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
             </div>
             <div>
                 <div className="text-2xl font-bold dark:text-white">
-                    {Object.values(entries).reduce((sum: number, val: number) => sum + val, 0).toFixed(1)}
+                    {(Object.values(entries) as number[]).reduce((sum: number, val: number) => sum + val, 0).toFixed(1)}
                 </div>
                 <div className="text-xs text-gray-500 uppercase font-bold tracking-tight">Total Hours Today</div>
             </div>
