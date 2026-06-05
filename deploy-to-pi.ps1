@@ -1,35 +1,65 @@
-# CTOS Beta - Deploy to Raspberry Pi
+# CTOS Beta - Deploy Script
 # Usage: powershell -ExecutionPolicy Bypass -File deploy-to-pi.ps1
 
-$PI_HOST = "owner@192.168.1.150"
-$PI_DIR = "/home/owner/ctos-beta"
 $LOCAL_DIR = $PSScriptRoot
 
-Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "  CTOS Beta - Deploy to Raspberry Pi"     -ForegroundColor Cyan
-Write-Host "=========================================" -ForegroundColor Cyan
+# Load Environment Variables
+$RPI_PASSWORD = ""
+$NETBOOK_PASSWORD = ""
 
-# Step 1: Create remote directory
-Write-Host "`n[1/4] Creating remote directory..." -ForegroundColor Yellow
-ssh $PI_HOST "mkdir -p $PI_DIR"
+if (Test-Path "$LOCAL_DIR/.env.local") {
+    Get-Content "$LOCAL_DIR/.env.local" | ForEach-Object {
+        if ($_ -match "^RPI_PASSWORD=(.*)") { $RPI_PASSWORD = $matches[1].Trim() }
+        if ($_ -match "^NETBOOK_PASSWORD=(.*)") { $NETBOOK_PASSWORD = $matches[1].Trim() }
+    }
+}
 
-# Step 2: Copy the built dist folder
-Write-Host "[2/4] Copying production build (dist/)..." -ForegroundColor Yellow
-scp -r "$LOCAL_DIR\dist" "${PI_HOST}:${PI_DIR}/"
+function Invoke-Ssh {
+    if ($env:SSHPASS) { sshpass -e ssh @args } else { ssh @args }
+}
 
-# Step 3: Copy deployment files
-Write-Host "[3/4] Copying deployment files..." -ForegroundColor Yellow
-scp "$LOCAL_DIR\deploy-pi.sh" "${PI_HOST}:${PI_DIR}/"
-scp "$LOCAL_DIR\ctos.service" "${PI_HOST}:${PI_DIR}/"
-scp "$LOCAL_DIR\package.json" "${PI_HOST}:${PI_DIR}/"
-scp "$LOCAL_DIR\.env.local" "${PI_HOST}:${PI_DIR}/"
+function Invoke-Scp {
+    if ($env:SSHPASS) { sshpass -e scp @args } else { scp @args }
+}
 
-# Step 4: Setup and start the service
-Write-Host "[4/4] Setting up and starting CTOS service..." -ForegroundColor Yellow
-ssh $PI_HOST "sudo mv ${PI_DIR}/ctos.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable ctos && sudo systemctl restart ctos"
+function Deploy-Target {
+    param(
+        [string]$Name,
+        [string]$HostStr,
+        [string]$Dir,
+        [string]$Password,
+        [string]$IP
+    )
+    
+    Write-Host "`n=========================================" -ForegroundColor Cyan
+    Write-Host "  Deploying to $Name ($HostStr)" -ForegroundColor Cyan
+    Write-Host "=========================================" -ForegroundColor Cyan
 
-Write-Host "`n=========================================" -ForegroundColor Green
-Write-Host "  Deployment and Service Setup complete!" -ForegroundColor Green
-Write-Host "  Access at: http://192.168.1.150:3000" -ForegroundColor Green
-Write-Host "  Service Status: sudo systemctl status ctos" -ForegroundColor Green
-Write-Host "=========================================" -ForegroundColor Green
+    $env:SSHPASS = $Password
+
+    Write-Host "`n[1/4] Creating remote directory..." -ForegroundColor Yellow
+    Invoke-Ssh $HostStr "mkdir -p $Dir"
+
+    Write-Host "[2/4] Copying production build (dist/)..." -ForegroundColor Yellow
+    Invoke-Scp -r "$LOCAL_DIR/dist" "${HostStr}:${Dir}/"
+
+    Write-Host "[3/4] Copying deployment files..." -ForegroundColor Yellow
+    Invoke-Scp "$LOCAL_DIR/deploy-pi.sh" "${HostStr}:${Dir}/"
+    Invoke-Scp "$LOCAL_DIR/ctos.service" "${HostStr}:${Dir}/"
+    Invoke-Scp "$LOCAL_DIR/package.json" "${HostStr}:${Dir}/"
+    Invoke-Scp "$LOCAL_DIR/.env.local" "${HostStr}:${Dir}/"
+
+    Write-Host "[4/4] Setting up and starting CTOS service..." -ForegroundColor Yellow
+    Invoke-Ssh $HostStr "echo `"$env:SSHPASS`" | sudo -S mv ${Dir}/ctos.service /etc/systemd/system/ && echo `"$env:SSHPASS`" | sudo -S systemctl daemon-reload && echo `"$env:SSHPASS`" | sudo -S systemctl enable ctos && echo `"$env:SSHPASS`" | sudo -S systemctl restart ctos"
+
+    Write-Host "`n=========================================" -ForegroundColor Green
+    Write-Host "  Deployment to $Name complete!" -ForegroundColor Green
+    Write-Host "  Access at: http://${IP}:3000" -ForegroundColor Green
+    Write-Host "=========================================" -ForegroundColor Green
+}
+
+# Deploy to Raspberry Pi
+Deploy-Target -Name "Raspberry Pi" -HostStr "dietpi@192.168.1.97" -Dir "/home/dietpi/ctos-beta" -Password $RPI_PASSWORD -IP "192.168.1.97"
+
+# Deploy to Netbook
+Deploy-Target -Name "Netbook" -HostStr "owner@192.168.1.230" -Dir "/home/owner/ctos-beta" -Password $NETBOOK_PASSWORD -IP "192.168.1.230"
