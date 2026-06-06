@@ -6,6 +6,15 @@ import { addDays, getStartOfWeek } from './utils';
 // --- STAFF CONFIGURATION ---
 export const TEAM_MEMBERS: TeamMember[] = [
   {
+    id: 'admin-nikko',
+    name: 'Nikko',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
+    color: '#10B981',
+    visible: true,
+    role: 'Admin',
+    pinCode: import.meta.env.VITE_NIKKO_PIN || '6983'
+  },
+  {
     id: 'admin-01',
     name: 'Admin',
     avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop',

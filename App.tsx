@@ -442,7 +442,7 @@ const App: React.FC = () => {
 
   // Add a global class for demo highlighting to the main container
   return (
-    <div className={`flex h-screen flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300 ${isFohMode ? 'text-lg' : ''} demo-highlighting-active`}>
+    <div className={`flex h-screen print:h-auto flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300 ${isFohMode ? 'text-lg' : ''} demo-highlighting-active`}>
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-4 ${notification.type === 'success' ? 'bg-gray-900 text-white dark:bg-white dark:text-slate-900' : 'bg-red-500 text-white'}`}>
           {notification.message}
@@ -454,7 +454,7 @@ const App: React.FC = () => {
           themeColor === 'red' ? 'border-red-500/20' : 
           themeColor === 'amber' ? 'border-amber-500/20' : 
           'border-blue-500/20'
-      } bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0`}>
+      } bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden`}>
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400">
             <Menu className="w-6 h-6" />
@@ -536,9 +536,9 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden print:overflow-visible">
         {/* Module Sidebar */}
-        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gray-50 dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 overflow-y-auto flex-shrink-0 flex flex-col`}>
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gray-50 dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 overflow-y-auto flex-shrink-0 flex flex-col print:hidden`}>
            <div className="p-4 space-y-2">
                 {isFohMode ? (
                     <div className="space-y-6">
@@ -725,7 +725,7 @@ const App: React.FC = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col overflow-hidden relative bg-white dark:bg-slate-900">
+        <main className="flex-1 flex flex-col overflow-hidden print:h-auto print:overflow-visible relative bg-white dark:bg-slate-900">
           
           {currentModule === 'dashboard' && (
              <DashboardView 
