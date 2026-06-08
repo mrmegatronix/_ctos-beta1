@@ -5,7 +5,7 @@ import {
   Menu, Bell, Settings, Search, Plus, Moon, Sun, Download, LogIn, LogOut,
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
-  BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon
+  BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp
 } from 'lucide-react';
 import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry } from './types';
 import MediaView from './components/MediaView';
@@ -41,6 +41,13 @@ import CalendarView from './components/CalendarView';
 import { parseNaturalLanguageCommand } from './services/geminiService';
 import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents } from './services/googleService';
 
+import TimeclockView from './components/TimeclockView';
+import StocktakeView from './components/StocktakeView';
+import OrderingView from './components/OrderingView';
+import BudgetingView from './components/BudgetingView';
+import { StocktakeSession, PurchaseOrder, TimePunch, BudgetTracker } from './types';
+import { INITIAL_STOCKTAKES, INITIAL_ORDERS, INITIAL_TIME_PUNCHES, INITIAL_BUDGETS } from './constants';
+
 const App: React.FC = () => {
   // Auth & Mode State
   const [currentUser, setCurrentUser] = useState<TeamMember | null>(null);
@@ -72,6 +79,10 @@ const App: React.FC = () => {
   const [tvSchedule, setTVSchedule] = useState<TVScheduleItem[]>([]);
   const [mediaSlides, setMediaSlides] = useState<MediaSlide[]>([]);
   const [timesheetEntries, setTimesheetEntries] = useState<TimesheetEntry[]>([]);
+  const [stocktakes, setStocktakes] = useState<StocktakeSession[]>([]);
+  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
+  const [timePunches, setTimePunches] = useState<TimePunch[]>([]);
+  const [budgets, setBudgets] = useState<BudgetTracker[]>([]);
 
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -155,6 +166,10 @@ const App: React.FC = () => {
             db.getIncidents(),
             db.getLostFound(),
             db.getTVSchedule(),
+            db.getStocktakes(),
+            db.getOrders(),
+            db.getTimePunches(),
+            db.getBudgets(),
           ]),
           timeout(10000) as Promise<never>,
         ]);
@@ -175,6 +190,10 @@ const App: React.FC = () => {
         setIncidents(incidentsData);
         setLostFound(lostFoundData);
         setTVSchedule(tvData);
+        setStocktakes(stocktakeData);
+        setOrders(orderData);
+        setTimePunches(timePunchData);
+        setBudgets(budgetData);
       } catch (err) {
         console.error('[CTOS] Firestore unavailable:', err);
         // Fallback to local constants if database is down
@@ -194,6 +213,10 @@ const App: React.FC = () => {
         setIncidents(INITIAL_INCIDENTS);
         setLostFound(INITIAL_LOST_FOUND);
         setTVSchedule(INITIAL_TV_SCHEDULE);
+        setStocktakes(INITIAL_STOCKTAKES);
+        setOrders(INITIAL_ORDERS);
+        setTimePunches(INITIAL_TIME_PUNCHES);
+        setBudgets(INITIAL_BUDGETS);
       } finally {
         setIsLoading(false);
       }
@@ -388,6 +411,36 @@ const App: React.FC = () => {
     await db.saveTVScheduleItem(item);
     setTVSchedule(await db.getTVSchedule());
     showNotification("TV Listing Added", 'success');
+  };
+
+  const handleSaveStocktake = async (session: StocktakeSession) => {
+    await db.saveStocktake(session);
+    for (const item of session.items) {
+      if (item.variance !== 0) {
+        await db.updateStock(item.stockId, item.actual);
+      }
+    }
+    setStocktakes(await db.getStocktakes());
+    setStockItems(await db.getStock());
+    showNotification("Stocktake completed", 'success');
+  };
+
+  const handleSaveOrder = async (order: PurchaseOrder) => {
+    await db.saveOrder(order);
+    setOrders(await db.getOrders());
+    showNotification("Purchase order saved", 'success');
+  };
+
+  const handleTimePunch = async (punch: TimePunch) => {
+    await db.saveTimePunch(punch);
+    setTimePunches(await db.getTimePunches());
+    showNotification(`Punched ${punch.type} successfully`, 'success');
+  };
+
+  const handleSaveBudget = async (budget: BudgetTracker) => {
+    await db.saveBudget(budget);
+    setBudgets(await db.getBudgets());
+    showNotification("Budget targets saved", 'success');
   };
 
   const handleAICommand = async (command: string): Promise<string> => {
@@ -632,11 +685,12 @@ const App: React.FC = () => {
                       </section>
 
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Financials</div>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Product</div>
                         {[
-                            { id: 'finance', label: 'Cash Up / Finance', icon: DollarSign },
-                            { id: 'invoices', label: 'Invoices & Orders', icon: FileText },
-                            { id: 'timesheets', label: 'Staff Timesheets', icon: FileText },
+                            { id: 'stock', label: 'Stock', icon: Boxes },
+                            { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList },
+                            { id: 'ordering', label: 'Ordering', icon: Truck },
+                            { id: 'recipes', label: 'Recipes', icon: BookOpen },
                         ].map((item) => (
                             <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
@@ -645,11 +699,25 @@ const App: React.FC = () => {
                       </section>
 
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Stock & Ordering</div>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Labour</div>
                         {[
-                            { id: 'stock', label: 'Inventory / Stock', icon: Boxes },
-                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
-                            { id: 'recipes', label: 'Recipe Book', icon: BookOpen },
+                            { id: 'staff', label: 'Management', icon: Users },
+                            { id: 'timeclock', label: 'Timeclock', icon: ClockIcon },
+                            { id: 'timesheets', label: 'Timesheets', icon: FileText },
+                            { id: 'roster', label: 'Rosters', icon: ClipboardList },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Revenue</div>
+                        {[
+                            { id: 'finance', label: 'Cashup & Recon.', icon: DollarSign },
+                            { id: 'dashboard', label: 'Dashboard', icon: Home },
+                            { id: 'budgeting', label: 'Budgeting', icon: TrendingUp },
                         ].map((item) => (
                             <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
@@ -660,61 +728,22 @@ const App: React.FC = () => {
                       <section>
                         <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Operations</div>
                         {[
-                            { id: 'roster', label: 'Shift Roster', icon: ClipboardList },
-                            { id: 'staff', label: 'Staff Directory', icon: Users },
+                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
+                            { id: 'bookings', label: 'Table Reservations', icon: Utensils },
+                            { id: 'functions', label: 'Private Functions', icon: PartyPopper },
+                            { id: 'entertainment', label: 'Entertainment', icon: Music },
+                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
+                            { id: 'invoices', label: 'Invoices', icon: FileText },
                             { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
                             { id: 'maintenance', label: 'Maintenance Issues', icon: Wrench },
                             { id: 'documents', label: 'Docs & Files (Dropbox)', icon: FolderOpen },
                             { id: 'browser', label: 'POS / Browser', icon: Globe },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Media Control & Screens</div>
-                        {[
                             { id: 'media', label: 'Adverts & Slides', icon: Share2 },
                             { id: 'tvschedule', label: 'TV Guide', icon: Tv },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Reservations & Entertainment</div>
-                        {[
-                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
-                            { id: 'bookings', label: 'Table Reservations', icon: Utensils },
-                            { id: 'entertainment', label: 'Music & Events', icon: Music },
-                            { id: 'functions', label: 'Private Functions', icon: PartyPopper },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-                      
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Weather</div>
-                        <button onClick={() => setCurrentModule('weather')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === 'weather' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                            <Globe className="w-5 h-5" /><span>Live Weather</span>
-                        </button>
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Admin & Safety</div>
-                        {[
-                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
+                            { id: 'weather', label: 'Live Weather', icon: Globe },
                             { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
-                            { id: 'browser', label: 'POS / Browser', icon: Globe },
-                            { id: 'documents', label: 'Docs & Files', icon: FolderOpen },
                         ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
                             </button>
                         ))}
@@ -821,6 +850,11 @@ const App: React.FC = () => {
                   setMaintenanceTasks(await db.getMaintenance()); 
               }
           }} />}
+          
+          {currentModule === 'timeclock' && <TimeclockView staff={teamMembers} onPunch={handleTimePunch} />}
+          {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
+          {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
+          {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
 
         </main>
       </div>

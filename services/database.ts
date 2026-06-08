@@ -3,8 +3,8 @@ import { firestore } from './firebase';
 import {
   collection, doc, getDocs, setDoc, deleteDoc, writeBatch, getDoc
 } from 'firebase/firestore';
-import { TeamMember, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, CalendarEvent, EntertainmentEvent, FunctionBooking, CashUpRecord, BrowserBookmark, IntegrationConfig, FileItem, LeaveRequest, Invoice, Recipe, IncidentReport, LostItem, TVScheduleItem } from '../types';
-import { INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE } from '../constants';
+import { TeamMember, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, CalendarEvent, EntertainmentEvent, FunctionBooking, CashUpRecord, BrowserBookmark, IntegrationConfig, FileItem, LeaveRequest, Invoice, Recipe, IncidentReport, LostItem, TVScheduleItem, StocktakeSession, PurchaseOrder, TimePunch, BudgetTracker } from '../types';
+import { INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE, INITIAL_STOCKTAKES, INITIAL_ORDERS, INITIAL_TIME_PUNCHES, INITIAL_BUDGETS } from '../constants';
 
 // This service uses Firebase Firestore as the backend database.
 // Each collection maps to a Firestore collection.
@@ -33,6 +33,10 @@ const COLLECTIONS = {
   INCIDENTS: 'incidents',
   LOSTFOUND: 'lostfound',
   TV_SCHEDULE: 'tvSchedule',
+  STOCKTAKES: 'stocktakes',
+  ORDERS: 'orders',
+  TIMEPUNCHES: 'timepunches',
+  BUDGETS: 'budgets',
 };
 
 // Helper: convert Firestore Timestamps or ISO strings back to Dates
@@ -138,6 +142,10 @@ class DatabaseService {
     await seedCollection(COLLECTIONS.INCIDENTS, INITIAL_INCIDENTS);
     await seedCollection(COLLECTIONS.LOSTFOUND, INITIAL_LOST_FOUND);
     await seedCollection(COLLECTIONS.TV_SCHEDULE, INITIAL_TV_SCHEDULE);
+    await seedCollection(COLLECTIONS.STOCKTAKES, INITIAL_STOCKTAKES);
+    await seedCollection(COLLECTIONS.ORDERS, INITIAL_ORDERS);
+    await seedCollection(COLLECTIONS.TIMEPUNCHES, INITIAL_TIME_PUNCHES);
+    await seedCollection(COLLECTIONS.BUDGETS, INITIAL_BUDGETS);
 
     // Seed leave (may be empty array)
     if (INITIAL_LEAVE.length > 0) {
@@ -304,6 +312,34 @@ class DatabaseService {
   }
   async saveTVScheduleItem(item: TVScheduleItem): Promise<void> {
     await this.upsert(COLLECTIONS.TV_SCHEDULE, item);
+  }
+
+  async getStocktakes(): Promise<StocktakeSession[]> {
+    return this.loadCollection<StocktakeSession>(COLLECTIONS.STOCKTAKES);
+  }
+  async saveStocktake(session: StocktakeSession): Promise<void> {
+    await this.upsert(COLLECTIONS.STOCKTAKES, session);
+  }
+
+  async getOrders(): Promise<PurchaseOrder[]> {
+    return this.loadCollection<PurchaseOrder>(COLLECTIONS.ORDERS);
+  }
+  async saveOrder(order: PurchaseOrder): Promise<void> {
+    await this.upsert(COLLECTIONS.ORDERS, order);
+  }
+
+  async getTimePunches(): Promise<TimePunch[]> {
+    return this.loadCollection<TimePunch>(COLLECTIONS.TIMEPUNCHES);
+  }
+  async saveTimePunch(punch: TimePunch): Promise<void> {
+    await this.upsert(COLLECTIONS.TIMEPUNCHES, punch);
+  }
+
+  async getBudgets(): Promise<BudgetTracker[]> {
+    return this.loadCollection<BudgetTracker>(COLLECTIONS.BUDGETS);
+  }
+  async saveBudget(budget: BudgetTracker): Promise<void> {
+    await this.upsert(COLLECTIONS.BUDGETS, budget);
   }
 }
 

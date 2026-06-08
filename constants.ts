@@ -1,5 +1,5 @@
 
-import { TeamMember, CalendarEvent, RosterShift, Booking, StockItem, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Invoice, Recipe, IncidentReport, LostItem, TVScheduleItem } from './types';
+import { TeamMember, CalendarEvent, RosterShift, Booking, StockItem, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Invoice, Recipe, IncidentReport, LostItem, TVScheduleItem, StocktakeSession, PurchaseOrder, TimePunch, BudgetTracker } from './types';
 import { addDays, getStartOfWeek } from './utils';
 
 // --- STAFF CONFIGURATION ---
@@ -60,6 +60,10 @@ export const INITIAL_RECIPES: Recipe[] = [];
 export const INITIAL_INCIDENTS: IncidentReport[] = [];
 export const INITIAL_LOST_FOUND: LostItem[] = [];
 export const INITIAL_TV_SCHEDULE: TVScheduleItem[] = [];
+export const INITIAL_STOCKTAKES: StocktakeSession[] = [];
+export const INITIAL_ORDERS: PurchaseOrder[] = [];
+export const INITIAL_TIME_PUNCHES: TimePunch[] = [];
+export const INITIAL_BUDGETS: BudgetTracker[] = [];
 
 export const SOCIAL_LINKS = [];
 

@@ -5,7 +5,7 @@ export enum ViewMode {
   MONTH = 'Month'
 }
 
-export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets';
+export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting';
 
 export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
@@ -248,6 +248,45 @@ export interface TimesheetEntry {
   hoursWorked: number;
   notes?: string;
   isVerified: boolean;
+  isDemo?: boolean;
+}
+
+export interface StocktakeSession {
+  id: string;
+  date: Date;
+  staffId: string;
+  status: 'draft' | 'completed';
+  items: { stockId: string; expected: number; actual: number; variance: number }[];
+  isDemo?: boolean;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  supplierId: string;
+  date: Date;
+  status: 'draft' | 'sent' | 'received';
+  items: { stockId: string; quantity: number; unitPrice: number }[];
+  total: number;
+  isDemo?: boolean;
+}
+
+export interface TimePunch {
+  id: string;
+  staffId: string;
+  type: 'clock-in' | 'start-break' | 'end-break' | 'clock-out';
+  timestamp: Date;
+  isDemo?: boolean;
+}
+
+export interface BudgetTracker {
+  id: string;
+  period: string; // e.g., '2026-06'
+  targetRevenue: number;
+  targetCogs: number;
+  targetLabour: number;
+  actualRevenue: number;
+  actualCogs: number;
+  actualLabour: number;
   isDemo?: boolean;
 }
 
