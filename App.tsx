@@ -147,7 +147,8 @@ const App: React.FC = () => {
           staffData, eventsData, shiftsData, leaveData,
           stockData, bookingsData, suppliersData, maintenanceData,
           entertainmentData, functionsData, financeData, filesData,
-          recipesData, incidentsData, lostFoundData, tvData
+          recipesData, incidentsData, lostFoundData, tvData,
+          stocktakeData, orderData, timePunchData, budgetData
         ] = await Promise.race([
           Promise.all([
             db.getStaff(),

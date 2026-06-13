@@ -120,6 +120,27 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                  </div>
                  <span className="font-bold text-sm text-slate-800 dark:text-white">Band Calendar</span>
              </button>
+
+             <button onClick={() => onNavigate('stock')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-teal-500 flex flex-col items-center justify-center text-center group h-32">
+                 <div className="p-3 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-600 mb-2 group-hover:bg-teal-100">
+                    <Boxes className="w-6 h-6" />
+                 </div>
+                 <span className="font-bold text-sm text-slate-800 dark:text-white">Stock Control</span>
+             </button>
+
+             <button onClick={() => onNavigate('staff')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-indigo-500 flex flex-col items-center justify-center text-center group h-32">
+                 <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 mb-2 group-hover:bg-indigo-100">
+                    <Users className="w-6 h-6" />
+                 </div>
+                 <span className="font-bold text-sm text-slate-800 dark:text-white">Staff Directory</span>
+             </button>
+
+             <button onClick={() => onNavigate('suppliers')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-lime-500 flex flex-col items-center justify-center text-center group h-32">
+                 <div className="p-3 rounded-full bg-lime-50 dark:bg-lime-900/20 text-lime-600 mb-2 group-hover:bg-lime-100">
+                    <Package className="w-6 h-6" />
+                 </div>
+                 <span className="font-bold text-sm text-slate-800 dark:text-white">Suppliers</span>
+             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

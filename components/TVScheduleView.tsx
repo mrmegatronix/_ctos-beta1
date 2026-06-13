@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { TVScheduleItem } from '../types';
 import { formatTime, formatDate, generateId } from '../utils';
-import { Tv, Search, Plus, Volume2, Calendar, Radio } from 'lucide-react';
+import { Tv, Search, Plus, Volume2, Calendar, Radio, RefreshCw } from 'lucide-react';
 
 interface TVScheduleViewProps {
   schedule: TVScheduleItem[];
@@ -63,6 +63,26 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
     setNewItem({ isLive: true, sport: 'Rugby', startTime: new Date() });
   };
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncSky = async () => {
+    setIsSyncing(true);
+    try {
+      // In production, this should point to your hosted backend URL.
+      const res = await fetch('http://localhost:5000/api/sync-sky');
+      if (res.ok) {
+        alert("Sky TV Schedule Synced Successfully! It may take a moment to appear.");
+        // The App.tsx realtime listener should auto-update the list soon.
+      } else {
+        alert("Failed to sync TV schedule.");
+      }
+    } catch (e) {
+      console.error("Sync Error:", e);
+      alert("Error contacting the backend sync server. Make sure it is running.");
+    }
+    setIsSyncing(false);
+  };
+
   return (
     <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -96,6 +116,13 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
                <option value="Football">Football</option>
                <option value="UFC">UFC</option>
             </select>
+            <button 
+              onClick={handleSyncSky}
+              disabled={isSyncing}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} /> Sync Sky TV
+            </button>
             <button 
               onClick={() => setIsModalOpen(true)}
               className="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-700 transition-colors flex items-center"

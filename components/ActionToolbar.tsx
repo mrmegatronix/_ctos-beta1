@@ -31,7 +31,7 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
               <button onClick={onEdit} className={btnClass}><Edit className={iconClass} /><span className={labelClass}>Edit</span></button>
               <button onClick={handlePrint} className={btnClass}><Printer className={iconClass} /><span className={labelClass}>Print</span></button>
               <button onClick={onShare} className={btnClass}><Share2 className={iconClass} /><span className={labelClass}>Share</span></button>
-              <button onClick={onSend} className={btnClass}><Send className={iconClass} /><span className={labelClass}>Send</span></button>
+              <button onClick={onSend || (() => window.location.href = `mailto:?subject=${encodeURIComponent(title + ' Report')}`)} className={btnClass}><Send className={iconClass} /><span className={labelClass}>Send</span></button>
           </div>
       );
   }
@@ -48,7 +48,7 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
          <button onClick={onEdit} className={btnClass} title="Edit"><Edit className={iconClass} /></button>
          <button onClick={handlePrint} className={btnClass} title="Print"><Printer className={iconClass} /></button>
          <button onClick={onShare} className={btnClass} title="Share"><Share2 className={iconClass} /></button>
-         <button onClick={onSend} className={btnClass} title="Send"><Send className={iconClass} /></button>
+         <button onClick={onSend || (() => window.location.href = `mailto:?subject=${encodeURIComponent(title + ' Report')}`)} className={btnClass} title="Send"><Send className={iconClass} /></button>
          <div className="w-px h-4 bg-gray-300 dark:bg-slate-700 mx-2"></div>
          <button className={btnClass}><MoreVertical className={iconClass} /></button>
       </div>
