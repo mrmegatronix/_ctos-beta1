@@ -41,6 +41,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
     setError(false);
   };
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleNum(e.key);
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pin]);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors flex items-center justify-center p-4">
       <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 dark:border-slate-700">

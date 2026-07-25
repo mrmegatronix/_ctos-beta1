@@ -228,6 +228,18 @@ const App: React.FC = () => {
     initGoogleClient(() => console.log('Google Client initialized'));
   }, []);
 
+  // Auto login on Pi / localhost
+  useEffect(() => {
+    if (!isLoading && !currentUser && teamMembers.length > 0) {
+      if (window.location.hostname === '192.168.1.97' || window.location.hostname === 'localhost' || window.location.search.includes('autologin=true')) {
+        const adminUser = teamMembers.find(m => m.id === 'admin-nikko');
+        if (adminUser) {
+          handleLogin(adminUser);
+        }
+      }
+    }
+  }, [isLoading, teamMembers, currentUser]);
+
   // --- Helpers ---
   const weekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);

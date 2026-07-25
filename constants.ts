@@ -7,12 +7,23 @@ import { addDays, getStartOfWeek } from './utils';
 export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'admin-nikko',
-    name: 'Nikko',
+    name: 'admin-nikko',
+    email: 'work.nikko@gmail.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
     color: '#10B981',
     visible: true,
     role: 'Admin',
-    pinCode: import.meta.env.VITE_NIKKO_PIN || '6983'
+    pinCode: import.meta.env.VITE_ADMIN_PIN || '5551'
+  },
+  {
+    id: 'demo',
+    name: 'demo',
+    email: 'demo@coasterstavern.com',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop',
+    color: '#3B82F6',
+    visible: true,
+    role: 'Admin',
+    pinCode: import.meta.env.VITE_DEMO_PIN || '0001'
   },
   {
     id: 'admin-01',
