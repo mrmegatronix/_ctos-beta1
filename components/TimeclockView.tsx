@@ -5,7 +5,8 @@ const TimeclockView: React.FC = () => {
     if (window.location.protocol === 'file:') {
       return '../../_ct-CLOCK/index.html';
     }
-    return '/_ct-CLOCK/index.html';
+    // Use relative path so it works with any base URL (GH Pages, local server, etc.)
+    return './_ct-CLOCK/index.html';
   };
 
   return (
