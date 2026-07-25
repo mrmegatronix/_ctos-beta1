@@ -864,7 +864,7 @@ const App: React.FC = () => {
               }
           }} />}
           
-          {currentModule === 'timeclock' && <TimeclockView staff={teamMembers} onPunch={handleTimePunch} />}
+          {currentModule === 'timeclock' && <TimeclockView />}
           {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
           {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
