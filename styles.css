@@ -7,9 +7,11 @@ body,
   padding: 0;
   overflow: hidden; /* Global overflow disabled to enforce 1-page fit */
   font-family: "Inter", sans-serif;
+  background-color: #05050f; /* Very dark rich background */
+  color: #f8fafc;
 }
 
-/* Custom scrollbar for calendar view */
+/* Base custom scrollbar */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -25,9 +27,105 @@ body,
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.15);
   border-radius: 20px;
 }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #475569;
+
+/* 
+  Animated Background Gradient
+  Used on the root container for a deep, moving abstract feel 
+*/
+.bg-animated-gradient {
+  background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 
+  Premium Glass Panel
+  Frosted glass effect with high-end border highlighting
+*/
+.glass-panel {
+  background: rgba(20, 25, 45, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Interactive Glass Cards */
+.glass-card {
+  background: rgba(20, 25, 45, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.glass-card:hover {
+  background: rgba(35, 40, 65, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+/* 
+  Neon Accents 
+  Used for highlights, borders, and buttons
+*/
+.glow-accent-amber {
+  border-top: 2px solid #f59e0b;
+  box-shadow: 0 -10px 20px -10px rgba(245, 158, 11, 0.3);
+}
+.glow-accent-amber:hover {
+  box-shadow: 0 -10px 30px -10px rgba(245, 158, 11, 0.6);
+}
+
+.glow-accent-blue {
+  border-top: 2px solid #3b82f6;
+  box-shadow: 0 -10px 20px -10px rgba(59, 130, 246, 0.3);
+}
+.glow-accent-blue:hover {
+  box-shadow: 0 -10px 30px -10px rgba(59, 130, 246, 0.6);
+}
+
+.glow-accent-indigo {
+  border-top: 2px solid #6366f1;
+  box-shadow: 0 -10px 20px -10px rgba(99, 102, 241, 0.3);
+}
+.glow-accent-indigo:hover {
+  box-shadow: 0 -10px 30px -10px rgba(99, 102, 241, 0.6);
+}
+
+.glow-accent-red {
+  border-top: 2px solid #ef4444;
+  box-shadow: 0 -10px 20px -10px rgba(239, 68, 68, 0.3);
+}
+.glow-accent-red:hover {
+  box-shadow: 0 -10px 30px -10px rgba(239, 68, 68, 0.6);
+}
+
+/* Animations */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

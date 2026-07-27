@@ -217,9 +217,6 @@ class DatabaseService {
     await this.upsert(COLLECTIONS.LEAVE, request);
   }
 
-  async getStock(): Promise<StockItem[]> {
-    return this.loadCollection<StockItem>(COLLECTIONS.STOCK);
-  }
   async updateStock(id: string, qty: number): Promise<void> {
     const ref = doc(firestore, COLLECTIONS.STOCK, id);
     const snap = await getDoc(ref);
@@ -233,9 +230,6 @@ class DatabaseService {
     return this.loadCollection<Booking>(COLLECTIONS.BOOKINGS);
   }
 
-  async getSuppliers(): Promise<Supplier[]> {
-    return this.loadCollection<Supplier>(COLLECTIONS.SUPPLIERS);
-  }
 
   async getMaintenance(): Promise<MaintenanceTask[]> {
     return this.loadCollection<MaintenanceTask>(COLLECTIONS.MAINTENANCE);
@@ -244,9 +238,6 @@ class DatabaseService {
     await this.upsert(COLLECTIONS.MAINTENANCE, task);
   }
 
-  async getEntertainment(): Promise<EntertainmentEvent[]> {
-    return this.loadCollection<EntertainmentEvent>(COLLECTIONS.ENTERTAINMENT);
-  }
 
   async getFunctions(): Promise<FunctionBooking[]> {
     return this.loadCollection<FunctionBooking>(COLLECTIONS.FUNCTIONS);
@@ -289,9 +280,6 @@ class DatabaseService {
     await this.upsert(COLLECTIONS.FILES, file);
   }
 
-  async getRecipes(): Promise<Recipe[]> {
-    return this.loadCollection<Recipe>(COLLECTIONS.RECIPES);
-  }
 
   async getIncidents(): Promise<IncidentReport[]> {
     return this.loadCollection<IncidentReport>(COLLECTIONS.INCIDENTS);
@@ -340,6 +328,22 @@ class DatabaseService {
   }
   async saveBudget(budget: BudgetTracker): Promise<void> {
     await this.upsert(COLLECTIONS.BUDGETS, budget);
+  }
+
+  async saveRecipe(recipe: Recipe): Promise<void> {
+    await this.upsert(COLLECTIONS.RECIPES, recipe);
+  }
+  
+  async saveEntertainment(event: EntertainmentEvent): Promise<void> {
+    await this.upsert(COLLECTIONS.ENTERTAINMENT, event);
+  }
+  
+  async saveStock(item: StockItem): Promise<void> {
+    await this.upsert(COLLECTIONS.STOCK, item);
+  }
+  
+  async saveSupplier(supplier: Supplier): Promise<void> {
+    await this.upsert(COLLECTIONS.SUPPLIERS, supplier);
   }
 }
 

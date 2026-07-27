@@ -58,13 +58,13 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
   const getStockName = (id: string) => stockItems.find(s => s.id === id)?.name || 'Unknown Item';
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-gray-50 dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
        <div className="mb-6 flex justify-between items-center">
          <div>
-             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+             <h2 className="text-2xl font-bold text-slate-50  flex items-center">
                 <ShoppingCart className="w-6 h-6 mr-2 text-indigo-500" /> Purchase Orders
              </h2>
-             <p className="text-gray-500 dark:text-gray-400">Manage supplier orders and restocks.</p>
+             <p className="text-slate-400 ">Manage supplier orders and restocks.</p>
          </div>
          {!isCreating && (
              <button onClick={() => setIsCreating(true)} className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
@@ -74,14 +74,14 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
        </div>
 
        {isCreating ? (
-         <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 shadow-sm mb-8">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">New Purchase Order</h3>
+         <div className="glass-panel  rounded-xl border border-white/10  p-6 shadow-lg mb-8">
+            <h3 className="text-lg font-bold text-slate-50  mb-4">New Purchase Order</h3>
             
             <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
+                    <label className="block text-sm font-medium text-slate-200  mb-1">Supplier</label>
                     <select 
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50 "
                       value={newOrder.supplierId || ''}
                       onChange={(e) => setNewOrder({...newOrder, supplierId: e.target.value})}
                     >
@@ -93,7 +93,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
 
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Order Items</label>
+                    <label className="block text-sm font-medium text-slate-200 ">Order Items</label>
                     <button onClick={handleAddItem} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center">
                         <Plus className="w-3 h-3 mr-1" /> Add Line Item
                     </button>
@@ -103,7 +103,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                     {(newOrder.items || []).map((item, idx) => (
                         <div key={idx} className="flex gap-4 items-center">
                             <select 
-                              className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white text-sm"
+                              className="flex-1 px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  text-sm"
                               value={item.stockId}
                               onChange={(e) => handleUpdateItem(idx, 'stockId', e.target.value)}
                             >
@@ -115,43 +115,43 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                                   type="number" 
                                   placeholder="Qty" 
                                   min="1"
-                                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white text-sm"
+                                  className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  text-sm"
                                   value={item.quantity}
                                   onChange={(e) => handleUpdateItem(idx, 'quantity', parseInt(e.target.value) || 0)}
                                 />
                             </div>
                             <div className="w-32 relative">
-                                <span className="absolute left-3 top-2 text-gray-500 text-sm">$</span>
+                                <span className="absolute left-3 top-2 text-slate-400 text-sm">$</span>
                                 <input 
                                   type="number" 
                                   placeholder="Price" 
                                   step="0.01"
-                                  className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white text-sm"
+                                  className="w-full pl-7 pr-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  text-sm"
                                   value={item.unitPrice}
                                   onChange={(e) => handleUpdateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)}
                                 />
                             </div>
-                            <div className="w-24 text-right font-medium text-gray-900 dark:text-white text-sm">
+                            <div className="w-24 text-right font-medium text-slate-50  text-sm">
                                 ${(item.quantity * item.unitPrice).toFixed(2)}
                             </div>
                         </div>
                     ))}
                     {(!newOrder.items || newOrder.items.length === 0) && (
-                        <div className="p-4 border border-dashed border-gray-300 dark:border-slate-700 rounded-lg text-center text-gray-500 text-sm">
+                        <div className="p-4 border border-dashed border-white/20  rounded-lg text-center text-slate-400 text-sm">
                             No items added yet.
                         </div>
                     )}
                 </div>
                 
                 {newOrder.items && newOrder.items.length > 0 && (
-                    <div className="mt-4 text-right text-lg font-bold text-gray-900 dark:text-white">
+                    <div className="mt-4 text-right text-lg font-bold text-slate-50 ">
                         Total: ${(newOrder.items || []).reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0).toFixed(2)}
                     </div>
                 )}
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-slate-700">
-                <button onClick={() => setIsCreating(false)} className="px-4 py-2 text-gray-600 dark:text-gray-400 font-medium hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</button>
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100 ">
+                <button onClick={() => setIsCreating(false)} className="px-4 py-2 text-slate-300  font-medium hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</button>
                 <button onClick={() => handleSave('draft')} className="px-4 py-2 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors flex items-center">
                     <Package className="w-4 h-4 mr-2" /> Save Draft
                 </button>
@@ -162,9 +162,9 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
          </div>
        ) : null}
 
-       <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
+       <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
           <table className="w-full text-left">
-             <thead className="bg-gray-50 dark:bg-slate-900/50 text-xs uppercase text-gray-500 dark:text-gray-400">
+             <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
                  <tr>
                      <th className="px-6 py-4 font-semibold">Date</th>
                      <th className="px-6 py-4 font-semibold">Supplier</th>
@@ -176,16 +176,16 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
              </thead>
              <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                  {orders.map(order => (
-                     <tr key={order.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${order.isDemo ? 'demo-highlight' : ''}`}>
-                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{formatDate(order.date)}</td>
-                         <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{getSupplierName(order.supplierId)}</td>
-                         <td className="px-6 py-4 text-sm text-gray-500">{order.items.length} items</td>
-                         <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white">${order.total.toFixed(2)}</td>
+                     <tr key={order.id} className={`hover:glass-panel dark:hover:bg-slate-700/50 transition-colors ${order.isDemo ? 'demo-highlight' : ''}`}>
+                         <td className="px-6 py-4 text-sm text-slate-300 ">{formatDate(order.date)}</td>
+                         <td className="px-6 py-4 font-medium text-slate-50 ">{getSupplierName(order.supplierId)}</td>
+                         <td className="px-6 py-4 text-sm text-slate-400">{order.items.length} items</td>
+                         <td className="px-6 py-4 text-sm font-bold text-slate-50 ">${order.total.toFixed(2)}</td>
                          <td className="px-6 py-4">
                              <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold uppercase ${
                                  order.status === 'received' ? 'bg-green-100 text-green-700' :
                                  order.status === 'sent' ? 'bg-blue-100 text-blue-700' :
-                                 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-gray-300'
+                                 'bg-gray-100 text-slate-200  '
                              }`}>
                                  {order.status}
                              </span>
@@ -206,7 +206,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                      </tr>
                  ))}
                  {orders.length === 0 && (
-                     <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-500">No purchase orders found.</td></tr>
+                     <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No purchase orders found.</td></tr>
                  )}
              </tbody>
           </table>

@@ -17,7 +17,7 @@ const WeatherView: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-900 overflow-y-auto">
+    <div className="flex flex-col h-full glass-panel  overflow-y-auto">
       <div className="p-6">
          <ActionToolbar title="Local Weather" isFohMode={false} />
       </div>
@@ -34,7 +34,7 @@ const WeatherView: React.FC = () => {
                
                <div className="flex items-center justify-between">
                   <div>
-                     <div className="text-8xl font-black tracking-tighter shadow-sm">{weather.temp}°</div>
+                     <div className="text-8xl font-black tracking-tighter shadow-lg">{weather.temp}°</div>
                      <div className="text-2xl font-medium mt-2 flex items-center gap-2">
                         <Cloud className="w-8 h-8" />
                         {weather.condition}
@@ -55,13 +55,13 @@ const WeatherView: React.FC = () => {
             </div>
          </div>
 
-         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">3-Day Forecast</h3>
+         <h3 className="text-xl font-bold text-slate-50  mb-6">3-Day Forecast</h3>
          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {weather.forecast.map((day, idx) => (
-               <div key={idx} className="bg-gray-50 dark:bg-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center shadow-sm border border-gray-100 dark:border-slate-700">
-                  <p className="text-gray-500 dark:text-gray-400 font-medium mb-4">{day.day}</p>
+               <div key={idx} className="glass-panel  rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg border border-gray-100 ">
+                  <p className="text-slate-400  font-medium mb-4">{day.day}</p>
                   <day.icon className="w-12 h-12 text-blue-500 mb-4" />
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">{day.temp}°</div>
+                  <div className="text-3xl font-bold text-slate-50 ">{day.temp}°</div>
                </div>
             ))}
          </div>

@@ -42,14 +42,14 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
   const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Unknown';
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
        <div className="flex justify-between items-center mb-8">
          <div>
-             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+             <h2 className="text-2xl font-bold text-slate-50  flex items-center">
                  <ShieldAlert className="w-6 h-6 mr-3 text-red-600" />
                  Incident & Refusal Log
              </h2>
-             <p className="text-gray-500 dark:text-gray-400">Legal logbook for intoxications, accidents, and security incidents.</p>
+             <p className="text-slate-400 ">Legal logbook for intoxications, accidents, and security incidents.</p>
          </div>
          <button 
            onClick={() => setIsFormOpen(true)}
@@ -66,9 +66,9 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                <form onSubmit={handleSubmit} className="space-y-4">
                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                        <div>
-                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                           <label className="block text-sm font-medium text-slate-200  mb-1">Type</label>
                            <select 
-                             className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg outline-none"
+                             className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
                              value={newReport.type}
                              onChange={e => setNewReport({...newReport, type: e.target.value as any})}
                            >
@@ -80,11 +80,11 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                            </select>
                        </div>
                        <div>
-                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date & Time</label>
+                           <label className="block text-sm font-medium text-slate-200  mb-1">Date & Time</label>
                            <input 
                              type="datetime-local"
                              required
-                             className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg outline-none"
+                             className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
                              onChange={e => setNewReport({...newReport, date: new Date(e.target.value)})}
                            />
                        </div>
@@ -96,15 +96,15 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                              checked={newReport.policeCalled}
                              onChange={e => setNewReport({...newReport, policeCalled: e.target.checked})}
                            />
-                           <label htmlFor="police" className="ml-2 text-sm font-medium text-gray-900 dark:text-white">Police / Ambulance Called</label>
+                           <label htmlFor="police" className="ml-2 text-sm font-medium text-slate-50 ">Police / Ambulance Called</label>
                        </div>
                    </div>
                    
                    <div>
-                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description of Incident</label>
+                       <label className="block text-sm font-medium text-slate-200  mb-1">Description of Incident</label>
                        <textarea 
                          rows={3}
-                         className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg outline-none"
+                         className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
                          placeholder="Describe what happened, who was involved, physical descriptions..."
                          value={newReport.description || ''}
                          onChange={e => setNewReport({...newReport, description: e.target.value})}
@@ -112,10 +112,10 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                    </div>
 
                    <div>
-                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Taken</label>
+                       <label className="block text-sm font-medium text-slate-200  mb-1">Action Taken</label>
                        <textarea 
                          rows={2}
-                         className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg outline-none"
+                         className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
                          placeholder="What did you do? (e.g. Refused service, offered water, asked to leave)"
                          value={newReport.actionTaken || ''}
                          onChange={e => setNewReport({...newReport, actionTaken: e.target.value})}
@@ -123,7 +123,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                    </div>
 
                    <div className="flex justify-end space-x-3">
-                       <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg">Cancel</button>
+                       <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-slate-300 hover:bg-gray-200 rounded-lg">Cancel</button>
                        <button type="submit" className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 flex items-center">
                            <Save className="w-4 h-4 mr-2" /> Submit Report
                        </button>
@@ -134,21 +134,21 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
 
        <div className="space-y-4">
            {incidents.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(incident => (
-               <div key={incident.id} className="bg-white dark:bg-slate-800 border-l-4 border-red-500 rounded-r-xl p-6 shadow-sm">
+               <div key={incident.id} className="glass-panel  border-l-4 border-red-500 rounded-r-xl p-6 shadow-lg">
                    <div className="flex justify-between items-start mb-2">
                        <div>
                            <span className="font-bold text-red-600 uppercase tracking-wide text-sm mr-3">{incident.type}</span>
-                           <span className="text-gray-500 text-sm">{formatDate(new Date(incident.date))} at {new Date(incident.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                           <span className="text-slate-400 text-sm">{formatDate(new Date(incident.date))} at {new Date(incident.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                        </div>
-                       <div className="text-sm font-medium text-gray-500">
-                           Reported by: <span className="text-gray-900 dark:text-white">{getStaffName(incident.staffId)}</span>
+                       <div className="text-sm font-medium text-slate-400">
+                           Reported by: <span className="text-slate-50 ">{getStaffName(incident.staffId)}</span>
                        </div>
                    </div>
                    
-                   <p className="text-gray-800 dark:text-gray-200 mb-4">{incident.description}</p>
+                   <p className="text-slate-100  mb-4">{incident.description}</p>
                    
-                   <div className="bg-gray-50 dark:bg-slate-700/30 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-300">
-                       <span className="font-bold text-gray-900 dark:text-white mr-2">Action Taken:</span>
+                   <div className="glass-panel /30 p-3 rounded-lg text-sm text-slate-300 ">
+                       <span className="font-bold text-slate-50  mr-2">Action Taken:</span>
                        {incident.actionTaken}
                    </div>
 

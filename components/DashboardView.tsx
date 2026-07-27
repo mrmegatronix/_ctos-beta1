@@ -25,7 +25,8 @@ import {
   ShieldAlert,
   Umbrella,
   Wrench,
-  Calendar
+  Calendar,
+  Truck
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -61,7 +62,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
   if (mode === 'FOH') {
     return (
-      <div className="flex-1 p-6 bg-slate-100 dark:bg-slate-900 overflow-auto custom-scrollbar">
+      <div className="flex-1 p-6 overflow-auto custom-scrollbar relative z-10">
         <div className="max-w-6xl mx-auto">
           <header className="mb-8">
              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
@@ -72,80 +73,80 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Quick Actions Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-             <button onClick={() => onNavigate('browser')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-amber-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 mb-2 group-hover:bg-amber-100">
+             <button onClick={() => onNavigate('browser')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-amber transition-smooth">
+                 <div className="p-3 rounded-full bg-amber-500/10 text-amber-500 mb-2 group-hover:bg-amber-500/20 transition-colors">
                     <Monitor className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">POS System</span>
+                 <span className="font-bold text-sm text-slate-100">POS System</span>
              </button>
              
-             <button onClick={() => onNavigate('bookings')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-blue-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 mb-2 group-hover:bg-blue-100">
+             <button onClick={() => onNavigate('bookings')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-blue transition-smooth">
+                 <div className="p-3 rounded-full bg-blue-500/10 text-blue-500 mb-2 group-hover:bg-blue-500/20 transition-colors">
                     <Utensils className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Reservations</span>
+                 <span className="font-bold text-sm text-slate-100">Reservations</span>
              </button>
 
-             <button onClick={() => onNavigate('tvschedule')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-sky-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-sky-50 dark:bg-sky-900/20 text-sky-600 mb-2 group-hover:bg-sky-100">
+             <button onClick={() => onNavigate('tvschedule')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-blue transition-smooth">
+                 <div className="p-3 rounded-full bg-sky-500/10 text-sky-500 mb-2 group-hover:bg-sky-500/20 transition-colors">
                     <Tv className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">TV Schedule</span>
+                 <span className="font-bold text-sm text-slate-100">Live Sports</span>
              </button>
 
-             <button onClick={() => onNavigate('recipes')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-pink-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-pink-50 dark:bg-pink-900/20 text-pink-600 mb-2 group-hover:bg-pink-100">
+             <button onClick={() => onNavigate('recipes')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-red transition-smooth">
+                 <div className="p-3 rounded-full bg-pink-500/10 text-pink-500 mb-2 group-hover:bg-pink-500/20 transition-colors">
                     <BookOpen className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Recipes</span>
+                 <span className="font-bold text-sm text-slate-100">Recipes</span>
              </button>
 
-             <button onClick={() => onNavigate('incidents')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-red-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 mb-2 group-hover:bg-red-100">
+             <button onClick={() => onNavigate('incidents')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-red transition-smooth">
+                 <div className="p-3 rounded-full bg-red-500/10 text-red-500 mb-2 group-hover:bg-red-500/20 transition-colors">
                     <ShieldAlert className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Incident Log</span>
+                 <span className="font-bold text-sm text-slate-100">Incidents</span>
              </button>
 
-             <button onClick={() => onNavigate('lostfound')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-purple-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 mb-2 group-hover:bg-purple-100">
+             <button onClick={() => onNavigate('lostfound')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-indigo transition-smooth">
+                 <div className="p-3 rounded-full bg-purple-500/10 text-purple-500 mb-2 group-hover:bg-purple-500/20 transition-colors">
                     <Umbrella className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Lost & Found</span>
+                 <span className="font-bold text-sm text-slate-100">Lost & Found</span>
              </button>
 
-             <button onClick={() => onNavigate('entertainment')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-purple-600 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 mb-2 group-hover:bg-purple-100">
+             <button onClick={() => onNavigate('entertainment')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-indigo transition-smooth">
+                 <div className="p-3 rounded-full bg-purple-600/10 text-purple-500 mb-2 group-hover:bg-purple-600/20 transition-colors">
                     <Music className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Band Calendar</span>
+                 <span className="font-bold text-sm text-slate-100">Entertainment</span>
              </button>
 
-             <button onClick={() => onNavigate('stock')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-teal-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-600 mb-2 group-hover:bg-teal-100">
+             <button onClick={() => onNavigate('stock')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-indigo transition-smooth">
+                 <div className="p-3 rounded-full bg-teal-500/10 text-teal-400 mb-2 group-hover:bg-teal-500/20 transition-colors">
                     <Boxes className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Stock Control</span>
+                 <span className="font-bold text-sm text-slate-100">Stock Search</span>
              </button>
 
-             <button onClick={() => onNavigate('staff')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-indigo-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 mb-2 group-hover:bg-indigo-100">
+             <button onClick={() => onNavigate('staff')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-indigo transition-smooth">
+                 <div className="p-3 rounded-full bg-indigo-500/10 text-indigo-400 mb-2 group-hover:bg-indigo-500/20 transition-colors">
                     <Users className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Staff Directory</span>
+                 <span className="font-bold text-sm text-slate-100">Staff Info</span>
              </button>
 
-             <button onClick={() => onNavigate('suppliers')} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:scale-105 transition-all border-b-4 border-lime-500 flex flex-col items-center justify-center text-center group h-32">
-                 <div className="p-3 rounded-full bg-lime-50 dark:bg-lime-900/20 text-lime-600 mb-2 group-hover:bg-lime-100">
-                    <Package className="w-6 h-6" />
+             <button onClick={() => onNavigate('suppliers')} className="p-4 glass-card rounded-2xl flex flex-col items-center justify-center text-center group h-32 glow-accent-amber transition-smooth">
+                 <div className="p-3 rounded-full bg-lime-500/10 text-lime-400 mb-2 group-hover:bg-lime-500/20 transition-colors">
+                    <Truck className="w-6 h-6" />
                  </div>
-                 <span className="font-bold text-sm text-slate-800 dark:text-white">Suppliers</span>
+                 <span className="font-bold text-sm text-slate-100">Suppliers</span>
              </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             {/* Today's Briefing */}
-             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in-up">
+             {/* Bookings Next 3 Hours */}
+             <div className="glass-panel rounded-2xl p-6 glow-accent-blue">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                    <Clock className="w-5 h-5 mr-2 text-amber-500" />
                    Upcoming Bookings
@@ -173,7 +174,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
              </div>
 
              {/* Live Sport */}
-             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+             <div className="glass-panel rounded-2xl p-6 glow-accent-amber">
                  <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                    <Tv className="w-5 h-5 mr-2 text-sky-500" />
                    Live Sport Today
@@ -201,7 +202,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
              </div>
 
              {/* Stock Summary Widget */}
-             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+             <div className="glass-panel rounded-2xl p-6 glow-accent-indigo">
                  <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                    <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
                    Stock Summary
@@ -237,7 +238,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   // BOH MODE DASHBOARD
   if (mode === 'BOH') {
     return (
-      <div className="flex-1 p-6 bg-orange-50/30 dark:bg-slate-900 overflow-auto custom-scrollbar">
+      <div className="flex-1 p-6 overflow-auto custom-scrollbar relative z-10">
         <div className="max-w-6xl mx-auto">
           <header className="mb-8">
              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
@@ -246,9 +247,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({
              <p className="text-slate-500 dark:text-slate-400">Back of house operations and prep list.</p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-up">
              {/* Kitchen Schedule */}
-             <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+             <div className="lg:col-span-2 glass-panel rounded-2xl p-6 glow-accent-amber">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                    <Clock className="w-5 h-5 mr-2 text-orange-500" />
                    Preparation & Service Schedule
@@ -258,11 +259,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="font-bold text-orange-900 dark:text-orange-200">Lunch Service</div>
                       <div className="text-sm text-orange-700 dark:text-orange-300">12:00 PM - 3:00 PM</div>
                    </div>
-                   <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl border-l-4 border-slate-400">
+                   <div className="p-4 bg-slate-800/30 rounded-xl border-l-4 border-slate-400">
                       <div className="font-bold text-slate-900 dark:text-slate-100">Dinner Prep</div>
                       <div className="text-sm text-slate-600 dark:text-slate-400">3:00 PM - 5:00 PM</div>
                    </div>
-                   <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl border-l-4 border-slate-400">
+                   <div className="p-4 bg-slate-800/30 rounded-xl border-l-4 border-slate-400">
                       <div className="font-bold text-slate-900 dark:text-slate-100">Dinner Service</div>
                       <div className="text-sm text-slate-600 dark:text-slate-400">5:00 PM - 9:00 PM</div>
                    </div>
@@ -271,7 +272,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
              {/* Quick Links */}
              <div className="space-y-4">
-                <button onClick={() => onNavigate('recipes')} className="w-full p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all flex items-center space-x-4">
+                <button onClick={() => onNavigate('recipes')} className="w-full p-6 glass-card rounded-2xl hover:shadow-md transition-smooth flex items-center space-x-4 glow-accent-amber">
                    <div className="p-4 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-xl">
                       <BookOpen className="w-8 h-8" />
                    </div>
@@ -280,7 +281,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="text-sm text-slate-500">View prep guides</div>
                    </div>
                 </button>
-                <button onClick={() => onNavigate('stock')} className="w-full p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all flex items-center space-x-4">
+                <button onClick={() => onNavigate('stock')} className="w-full p-6 glass-card rounded-2xl hover:shadow-md transition-smooth flex items-center space-x-4 glow-accent-blue">
                    <div className="p-4 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl">
                       <Boxes className="w-8 h-8" />
                    </div>
@@ -289,7 +290,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="text-sm text-slate-500">Inventory levels</div>
                    </div>
                 </button>
-                <div className="p-6 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+                <div className="p-6 glass-panel rounded-2xl glow-accent-indigo">
                     <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-2">Equipment Status</h3>
                     <div className="flex items-center text-sm text-green-600 font-medium">
                        <CheckCircle2 className="w-4 h-4 mr-2" /> All clear
@@ -304,7 +305,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
   // OFFICE MODE DASHBOARD
   return (
-    <div className="flex-1 p-8 bg-gray-50 dark:bg-slate-900 overflow-auto custom-scrollbar">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar relative z-10">
        <div className="max-w-6xl mx-auto">
           <header className="flex justify-between items-center mb-8">
              <div>
@@ -320,7 +321,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Stats Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-             <div onClick={() => onNavigate('finance')} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-indigo-300 transition-colors">
+             {/* Analytics Summary */}
+             <div onClick={() => onNavigate('finance')} className="glass-panel p-6 rounded-xl glow-accent-blue cursor-pointer transition-smooth">
                  <div className="flex items-center justify-between mb-4">
                      <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-lg">
                          <DollarSign className="w-6 h-6" />
@@ -330,7 +332,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                  <div className="text-sm text-gray-500">Weekly Revenue</div>
              </div>
 
-             <div onClick={() => onNavigate('bookings')} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-blue-300 transition-colors">
+             <div onClick={() => onNavigate('bookings')} className="glass-panel p-6 rounded-xl glow-accent-amber cursor-pointer transition-smooth">
                  <div className="flex items-center justify-between mb-4">
                      <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg">
                          <Users className="w-6 h-6" />
@@ -341,7 +343,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                  <div className="text-sm text-gray-500">Total Bookings</div>
              </div>
 
-             <div onClick={() => onNavigate('incidents')} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-red-300 transition-colors">
+             <div onClick={() => onNavigate('incidents')} className="glass-panel p-6 rounded-xl glow-accent-red cursor-pointer transition-smooth">
                  <div className="flex items-center justify-between mb-4">
                      <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg">
                          <ShieldAlert className="w-6 h-6" />
@@ -351,7 +353,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                  <div className="text-sm text-gray-500">Incident Log Status</div>
              </div>
 
-             <div onClick={() => onNavigate('maintenance')} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-amber-300 transition-colors">
+             <div onClick={() => onNavigate('maintenance')} className="glass-panel p-6 rounded-xl glow-accent-indigo cursor-pointer transition-smooth">
                  <div className="flex items-center justify-between mb-4">
                      <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg">
                          <Wrench className="w-6 h-6" />
@@ -366,7 +368,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
              {/* Left Column: Calendar & Events */}
              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
+                <div className="glass-panel rounded-xl p-6 glow-accent-blue fade-in-up">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center">
                             <Calendar className="w-5 h-5 mr-2 text-indigo-500" /> Today's Schedule
@@ -381,7 +383,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                              <div className="text-center py-8 text-gray-400">No events scheduled for today.</div>
                         ) : (
                             todaysEvents.map(event => (
-                                <div key={event.id} className={`flex items-start p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors border-l-4 border-indigo-500 bg-gray-50/50 dark:bg-slate-800 ${event.isDemo ? 'demo-highlight' : ''}`}>
+                                <div key={event.id} className={`flex items-start p-3 hover:bg-slate-800/50 rounded-lg transition-colors border-l-4 border-indigo-500 bg-slate-800/30 ${event.isDemo ? 'demo-highlight' : ''}`}>
                                     <div className="min-w-[80px] font-bold text-gray-900 dark:text-white">{formatTime(event.start)}</div>
                                     <div>
                                         <div className="font-semibold text-gray-900 dark:text-white">{event.title}</div>
@@ -405,11 +407,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
+                <div className="glass-panel rounded-xl p-6 glow-accent-amber fade-in-up" style={{ animationDelay: '0.1s' }}>
                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Stock Alerts</h3>
                      <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
-                             <thead className="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-slate-900/50">
+                             <thead className="text-xs text-gray-500 uppercase bg-slate-800/30">
                                  <tr>
                                      <th className="px-4 py-3 rounded-l-lg">Item</th>
                                      <th className="px-4 py-3">Current</th>
@@ -437,11 +439,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
              {/* Right Column: Maintenance & Actions */}
              <div className="space-y-6">
-                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
+                 <div className="glass-panel rounded-xl p-6 glow-accent-red fade-in-up" style={{ animationDelay: '0.2s' }}>
                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Pending Maintenance</h3>
                      <div className="space-y-3">
                          {tasks.filter(t => t.status !== 'completed').slice(0,4).map(task => (
-                             <div key={task.id} className={`p-3 border border-gray-100 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-900/30 ${task.isDemo ? 'demo-highlight' : ''}`}>
+                             <div key={task.id} className={`p-3 border border-slate-700/50 rounded-lg bg-slate-800/30 ${task.isDemo ? 'demo-highlight' : ''}`}>
                                  <div className="flex justify-between items-start mb-1">
                                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${task.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{task.priority}</span>
                                      <span className="text-xs text-gray-400">{formatDate(task.createdAt)}</span>

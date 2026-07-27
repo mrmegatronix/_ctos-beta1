@@ -4,10 +4,20 @@ import { Recipe } from '../types';
 import { Search, ChefHat, Martini, Coffee, AlertCircle, Info, X } from 'lucide-react';
 
 interface RecipesViewProps {
+  onSave?: (item: Recipe) => void;
   recipes: Recipe[];
 }
 
-const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
+const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
+  const handleAdd = () => {
+      const name = window.prompt("Enter Add Recipe Name (Basic entry mode):");
+      if (name && onSave) {
+          onSave({
+              id: `rec-${Date.now()}`, name: name || 'New Recipe', category: 'Food', ingredients: [], method: '', prepTime: 0, cost: 0, price: 0
+          } as any);
+      }
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -28,39 +38,39 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
        <div className="flex items-center justify-between mb-8 gap-4">
            <div className="flex-1">
                <div className="flex items-center space-x-4 mb-4">
                    <button 
                        onClick={() => setCategoryFilter('All')} 
-                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${categoryFilter === 'All' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${categoryFilter === 'All' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-100  text-slate-300  hover:bg-gray-200'}`}
                    >
                        All Specs
                    </button>
                    <button 
                        onClick={() => setCategoryFilter('Cocktail')} 
-                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Cocktail' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Cocktail' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-100  text-slate-300  hover:bg-gray-200'}`}
                    >
                        <Martini className="w-4 h-4" />
                        <span>Cocktails</span>
                    </button>
                    <button 
                        onClick={() => setCategoryFilter('Food')} 
-                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Food' ? 'bg-orange-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Food' ? 'bg-orange-600 text-white shadow-lg' : 'bg-gray-100  text-slate-300  hover:bg-gray-200'}`}
                    >
                        <ChefHat className="w-4 h-4" />
                        <span>Meals</span>
                    </button>
                    <button 
                        onClick={() => setCategoryFilter('Coffee')} 
-                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Coffee' ? 'bg-amber-700 text-white shadow-lg' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'}`}
+                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center space-x-2 ${categoryFilter === 'Coffee' ? 'bg-amber-700 text-white shadow-lg' : 'bg-gray-100  text-slate-300  hover:bg-gray-200'}`}
                    >
                        <Coffee className="w-4 h-4" />
                        <span>Coffee</span>
                    </button>
                </div>
-               <p className="text-gray-500 dark:text-gray-400">Standard operating procedures for food and drinks.</p>
+               <p className="text-slate-400 ">Standard operating procedures for food and drinks.</p>
            </div>
            
            <div className="relative w-full md:w-80">
@@ -68,7 +78,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                <input 
                   type="text" 
                   placeholder="Search by name or ingredient..." 
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg shadow-inner"
+                  className="w-full pl-10 pr-4 py-3 glass-panel  border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg shadow-inner"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                />
@@ -80,9 +90,9 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                <div 
                   key={recipe.id} 
                   onClick={() => setSelectedRecipe(recipe)}
-                  className="group bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-700"
+                  className="group glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg hover:shadow-xl cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-700"
                >
-                   <div className="h-48 bg-gray-200 dark:bg-slate-700 relative overflow-hidden">
+                   <div className="h-48 bg-gray-200  relative overflow-hidden">
                        {recipe.image ? (
                            <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                        ) : (
@@ -90,12 +100,12 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                                {getIcon(recipe.category)}
                            </div>
                        )}
-                       <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 p-2 rounded-full shadow-sm text-gray-700 dark:text-gray-200 backdrop-blur-sm">
+                       <div className="absolute top-3 right-3 bg-white/90 /90 p-2 rounded-full shadow-lg text-slate-200  backdrop-blur-sm">
                            {getIcon(recipe.category)}
                        </div>
                    </div>
                    <div className="p-5">
-                       <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{recipe.name}</h3>
+                       <h3 className="font-bold text-lg text-slate-50  mb-2">{recipe.name}</h3>
                        <div className="flex flex-wrap gap-2 mb-4">
                            {recipe.allergens?.map(a => (
                                <span key={a} className="px-2 py-0.5 bg-red-50 dark:bg-red-900/20 text-red-600 text-[10px] font-bold uppercase rounded">
@@ -108,7 +118,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                                </span>
                            )}
                        </div>
-                       <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                       <p className="text-sm text-slate-400  line-clamp-2">
                            {recipe.method}
                        </p>
                    </div>
@@ -119,7 +129,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
        {/* Detail Modal */}
        {selectedRecipe && (
            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-               <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
+               <div className="glass-panel  rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
                    <div className="relative h-64 flex-shrink-0 bg-gray-200">
                         {selectedRecipe.image && (
                             <img src={selectedRecipe.image} className="w-full h-full object-cover" alt="" />
@@ -140,10 +150,10 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                            <div>
-                               <h4 className="text-sm font-bold uppercase text-gray-500 dark:text-gray-400 mb-4 tracking-wider">Ingredients</h4>
+                               <h4 className="text-sm font-bold uppercase text-slate-400  mb-4 tracking-wider">Ingredients</h4>
                                <ul className="space-y-3">
                                    {selectedRecipe.ingredients.map((ing, i) => (
-                                       <li key={i} className="flex items-center text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-slate-700 pb-2">
+                                       <li key={i} className="flex items-center text-slate-100  border-b border-gray-100  pb-2">
                                            <span className="w-2 h-2 rounded-full bg-indigo-500 mr-3"></span>
                                            {ing}
                                        </li>
@@ -159,8 +169,8 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                            </div>
                            
                            <div>
-                               <h4 className="text-sm font-bold uppercase text-gray-500 dark:text-gray-400 mb-4 tracking-wider">Method</h4>
-                               <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                               <h4 className="text-sm font-bold uppercase text-slate-400  mb-4 tracking-wider">Method</h4>
+                               <p className="text-slate-200  leading-relaxed whitespace-pre-wrap">
                                    {selectedRecipe.method}
                                </p>
 
@@ -172,7 +182,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes }) => {
                                        </div>
                                        <div className="flex flex-wrap gap-2">
                                            {selectedRecipe.allergens.map(a => (
-                                               <span key={a} className="px-2 py-1 bg-white dark:bg-slate-800 rounded border border-red-200 dark:border-red-800 text-sm font-medium text-red-700 dark:text-red-300">
+                                               <span key={a} className="px-2 py-1 glass-panel  rounded border border-red-200 dark:border-red-800 text-sm font-medium text-red-700 dark:text-red-300">
                                                    {a}
                                                </span>
                                            ))}

@@ -32,18 +32,14 @@
     />
     <script>
       (function() {
-        const saved = localStorage.getItem('isDarkMode');
-        if (saved === 'true' || (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        // Force dark mode for premium UI
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('isDarkMode', 'true');
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body
-    class="bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 h-screen overflow-hidden transition-colors duration-200"
+    class="text-slate-900 dark:text-slate-50 h-screen overflow-hidden transition-colors duration-200"
   >
     <div id="root" class="h-full"></div>
     <script type="module" src="./index.tsx"></script>

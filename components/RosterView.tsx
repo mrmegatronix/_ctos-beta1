@@ -41,11 +41,11 @@ const RosterView: React.FC<RosterViewProps> = ({
   const isManager = currentUser.role === 'Admin' || currentUser.role === 'Duty Manager';
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900">
+    <div className="flex-1 flex flex-col h-full overflow-hidden glass-panel ">
       
       {/* Controls */}
-      <div className="px-6 py-2 flex justify-between items-center bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+      <div className="px-6 py-2 flex justify-between items-center glass-panel  border-b border-white/10 ">
+          <div className="text-sm text-slate-400 ">
               Week of {weekDays[0].toDateString()}
           </div>
           <button 
@@ -58,16 +58,16 @@ const RosterView: React.FC<RosterViewProps> = ({
       </div>
 
       <div className="flex-1 overflow-auto custom-scrollbar p-6">
-        <div className="min-w-[1000px] border rounded-xl border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div className="min-w-[1000px] border rounded-xl border-white/10  overflow-hidden">
           {/* Header Row */}
-          <div className="grid grid-cols-8 bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
-            <div className="p-4 font-semibold text-gray-700 dark:text-gray-200 border-r border-gray-200 dark:border-slate-700">Staff Member</div>
+          <div className="grid grid-cols-8 glass-panel  border-b border-white/10 ">
+            <div className="p-4 font-semibold text-slate-200  border-r border-white/10 ">Staff Member</div>
             {weekDays.map((day, i) => (
-              <div key={i} className="p-4 text-center border-r border-gray-200 dark:border-slate-700 last:border-none">
-                <div className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">
+              <div key={i} className="p-4 text-center border-r border-white/10  last:border-none">
+                <div className="text-xs uppercase text-slate-400  mb-1">
                    {new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(day)}
                 </div>
-                <div className="font-bold text-gray-900 dark:text-white">
+                <div className="font-bold text-slate-50 ">
                    {day.getDate()}
                 </div>
               </div>
@@ -76,12 +76,12 @@ const RosterView: React.FC<RosterViewProps> = ({
 
           {/* Staff Rows */}
           {teamMembers.map((member) => (
-            <div key={member.id} className="grid grid-cols-8 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-              <div className="p-4 flex items-center space-x-3 border-r border-gray-100 dark:border-slate-800">
+            <div key={member.id} className="grid grid-cols-8 border-b border-gray-100  glass-panel  hover:glass-panel dark:hover:bg-slate-800/50 transition-colors">
+              <div className="p-4 flex items-center space-x-3 border-r border-gray-100 ">
                 <img src={member.avatar} className="w-8 h-8 rounded-full" alt="" />
                 <div>
-                    <div className="font-medium text-sm text-gray-900 dark:text-white">{member.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{member.role}</div>
+                    <div className="font-medium text-sm text-slate-50 ">{member.name}</div>
+                    <div className="text-xs text-slate-400 ">{member.role}</div>
                 </div>
               </div>
               
@@ -92,7 +92,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                 return (
                   <div 
                     key={i} 
-                    className={`p-2 border-r border-gray-100 dark:border-slate-800 last:border-none min-h-[80px] relative group ${onLeave ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}`}
+                    className={`p-2 border-r border-gray-100  last:border-none min-h-[80px] relative group ${onLeave ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}`}
                     onClick={() => isManager && !onLeave && onAddShift(day, member.id)}
                   >
                      {isManager && !onLeave && (
@@ -109,7 +109,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                      )}
 
                      {dayShifts.map(shift => (
-                         <div key={shift.id} className={`relative z-10 bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-700 rounded p-1.5 mb-1 text-xs shadow-sm ${shift.isDemo ? 'demo-highlight' : ''}`}>
+                         <div key={shift.id} className={`relative z-10 bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-700 rounded p-1.5 mb-1 text-xs shadow-lg ${shift.isDemo ? 'demo-highlight' : ''}`}>
                              <div className="font-semibold text-indigo-800 dark:text-indigo-200">{formatTime(shift.start)} - {formatTime(shift.end)}</div>
                              <div className="text-indigo-600 dark:text-indigo-300 truncate">{shift.role}</div>
                          </div>
@@ -125,40 +125,40 @@ const RosterView: React.FC<RosterViewProps> = ({
       {/* Leave Request Modal */}
       {showLeaveModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Request Leave</h3>
+              <div className="glass-panel  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+                  <h3 className="text-lg font-bold text-slate-50  mb-4">Request Leave</h3>
                   <form onSubmit={submitLeave} className="space-y-4">
                       <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                          <label className="block text-sm font-medium text-slate-200  mb-1">Start Date</label>
                           <input 
                             type="date" 
                             required 
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-slate-50 "
                             value={leaveStart}
                             onChange={e => setLeaveStart(e.target.value)}
                           />
                       </div>
                       <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                          <label className="block text-sm font-medium text-slate-200  mb-1">End Date</label>
                           <input 
                             type="date" 
                             required 
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-slate-50 "
                             value={leaveEnd}
                             onChange={e => setLeaveEnd(e.target.value)}
                           />
                       </div>
                       <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason</label>
+                          <label className="block text-sm font-medium text-slate-200  mb-1">Reason</label>
                           <textarea 
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-slate-50 "
                             placeholder="e.g. Family Holiday"
                             value={leaveReason}
                             onChange={e => setLeaveReason(e.target.value)}
                           ></textarea>
                       </div>
                       <div className="flex justify-end space-x-3 pt-4">
-                          <button type="button" onClick={() => setShowLeaveModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">Cancel</button>
+                          <button type="button" onClick={() => setShowLeaveModal(false)} className="px-4 py-2 text-slate-300  hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">Cancel</button>
                           <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Submit Request</button>
                       </div>
                   </form>

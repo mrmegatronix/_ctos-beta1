@@ -102,28 +102,28 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
        <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Finance & Cash Up</h2>
-          <p className="text-gray-500 dark:text-gray-400">Daily takings, reconciliation, and invoices.</p>
+          <h2 className="text-2xl font-bold text-slate-50 ">Finance & Cash Up</h2>
+          <p className="text-slate-400 ">Daily takings, reconciliation, and invoices.</p>
         </div>
-        <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
+        <div className="flex bg-gray-100  rounded-lg p-1">
             <button 
               onClick={() => setActiveTab('history')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'history' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
             >
               History
             </button>
             <button 
               onClick={() => setActiveTab('entry')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'entry' ? 'bg-white dark:bg-slate-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'entry' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
             >
               New Entry
             </button>
             <button 
               onClick={() => setActiveTab('invoices')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'invoices' ? 'bg-white dark:bg-slate-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'invoices' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
             >
               Invoices & Delivery
             </button>
@@ -133,32 +133,32 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
       {activeTab === 'history' && (
         <div className="space-y-6">
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+              <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><DollarSign className="w-5 h-5"/></div>
-                    <span className="text-sm text-gray-500">Weekly Cash</span>
+                    <span className="text-sm text-slate-400">Weekly Cash</span>
                  </div>
-                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$1,460.00</div>
+                 <div className="text-2xl font-bold text-slate-50 ">$1,460.00</div>
               </div>
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+              <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><CreditCard className="w-5 h-5"/></div>
-                    <span className="text-sm text-gray-500">Weekly Eftpos</span>
+                    <span className="text-sm text-slate-400">Weekly Eftpos</span>
                  </div>
-                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$4,340.50</div>
+                 <div className="text-2xl font-bold text-slate-50 ">$4,340.50</div>
               </div>
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+              <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg"><TrendingUp className="w-5 h-5"/></div>
-                    <span className="text-sm text-gray-500">Total Takings</span>
+                    <span className="text-sm text-slate-400">Total Takings</span>
                  </div>
-                 <div className="text-2xl font-bold text-gray-900 dark:text-white">$5,800.50</div>
+                 <div className="text-2xl font-bold text-slate-50 ">$5,800.50</div>
               </div>
            </div>
 
-           <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+           <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden">
              <table className="w-full text-left">
-                <thead className="bg-gray-50 dark:bg-slate-900/50 text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700">
+                <thead className="glass-panel /50 text-xs uppercase text-slate-400  border-b border-white/10 ">
                     <tr>
                         <th className="px-6 py-4">Date</th>
                         <th className="px-6 py-4">Staff</th>
@@ -170,14 +170,14 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                     {records.map(rec => (
-                        <tr key={rec.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
-                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{formatDate(rec.date)}</td>
-                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                                <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-600 flex items-center justify-center text-xs mr-2 font-bold">{getStaffName(rec.staffId).charAt(0)}</span>
+                        <tr key={rec.id} className="hover:glass-panel dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="px-6 py-4 text-sm font-medium text-slate-50 ">{formatDate(rec.date)}</td>
+                            <td className="px-6 py-4 text-sm text-slate-400  flex items-center">
+                                <span className="w-6 h-6 rounded-full bg-gray-200  flex items-center justify-center text-xs mr-2 font-bold">{getStaffName(rec.staffId).charAt(0)}</span>
                                 {getStaffName(rec.staffId)}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">${rec.eftposTotal.toFixed(2)}</td>
-                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">${rec.cashTotal.toFixed(2)}</td>
+                            <td className="px-6 py-4 text-sm text-slate-50 ">${rec.eftposTotal.toFixed(2)}</td>
+                            <td className="px-6 py-4 text-sm text-slate-50 ">${rec.cashTotal.toFixed(2)}</td>
                             <td className={`px-6 py-4 text-sm font-bold ${rec.variance === 0 ? 'text-green-500' : rec.variance < 0 ? 'text-red-500' : 'text-blue-500'}`}>
                                 {rec.variance === 0 ? '-' : `$${rec.variance.toFixed(2)}`}
                             </td>
@@ -199,72 +199,21 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
       )}
 
       {activeTab === 'entry' && (
-        <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-              <Calculator className="w-5 h-5 mr-2 text-indigo-500" /> End of Day Cash Up
-           </h3>
-           <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Opening Float</label>
-                    <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                        <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
-                    </div>
-                 </div>
-                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payouts / Petty Cash</label>
-                    <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                        <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
-                    </div>
-                 </div>
-              </div>
-
-              <div className="border-t border-gray-100 dark:border-slate-700 pt-6">
-                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Terminals</h4>
-                 <div className="grid grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EFTPOS Total</label>
-                        <div className="relative">
-                            <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                            <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cash In Drawer</label>
-                        <div className="relative">
-                            <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                            <input type="number" className="w-full pl-7 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00" />
-                        </div>
-                    </div>
-                 </div>
-              </div>
-
-              <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
-                 <textarea rows={3} className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Explain variances or issues..."></textarea>
-              </div>
-
-              <div className="pt-4 flex justify-end">
-                 <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none transition-all">Submit Cash Up</button>
-              </div>
-           </div>
-        </div>
+        <CashUpView />
       )}
 
       {activeTab === 'invoices' && (
           <div className="space-y-8">
               {/* Scan / Upload Section */}
-              <div className="bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 rounded-xl p-6">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <div className="bg-indigo-50  border border-indigo-100  rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-slate-50  mb-4 flex items-center">
                       <Camera className="w-5 h-5 mr-2 text-indigo-500" /> Scan or Upload Invoice
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {/* Left: Capture Interface */}
                       <div className="space-y-4">
-                          <div className="aspect-video bg-black rounded-lg overflow-hidden relative flex items-center justify-center border-2 border-dashed border-gray-400 dark:border-slate-600">
+                          <div className="aspect-video bg-black rounded-lg overflow-hidden relative flex items-center justify-center border-2 border-dashed border-gray-400 ">
                               {isCameraOpen ? (
                                   <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
                               ) : capturedImage ? (
@@ -272,7 +221,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                               ) : (
                                   <div className="text-center p-6">
                                       <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                                      <p className="text-gray-500 text-sm">Camera inactive</p>
+                                      <p className="text-slate-400 text-sm">Camera inactive</p>
                                   </div>
                               )}
                               
@@ -289,7 +238,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                                     <button onClick={startCamera} className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                                         <Camera className="w-4 h-4" /> <span>Use Camera</span>
                                     </button>
-                                    <label className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors cursor-pointer">
+                                    <label className="flex-1 flex items-center justify-center space-x-2 py-2.5 glass-panel  border border-white/10  text-slate-200  rounded-lg hover:glass-panel dark:hover:bg-slate-600 transition-colors cursor-pointer">
                                         <Upload className="w-4 h-4" /> <span>Upload File</span>
                                         <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileUpload} />
                                     </label>
@@ -297,7 +246,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                               ) : (
                                   <>
                                     <button onClick={captureImage} className="flex-1 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">Capture</button>
-                                    <button onClick={stopCamera} className="px-4 py-2.5 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-white rounded-lg">Cancel</button>
+                                    <button onClick={stopCamera} className="px-4 py-2.5 bg-gray-200  text-slate-200  rounded-lg">Cancel</button>
                                   </>
                               )}
                           </div>
@@ -305,13 +254,13 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
 
                       {/* Right: Details Form */}
                       <div className="space-y-4">
-                          <h4 className="font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-slate-700 pb-2">Document Details</h4>
+                          <h4 className="font-semibold text-slate-200  border-b border-white/10  pb-2">Document Details</h4>
                           
                           <div className="grid grid-cols-2 gap-4">
                               <div>
-                                  <label className="block text-xs font-medium text-gray-500 mb-1">Document Type</label>
+                                  <label className="block text-xs font-medium text-slate-400 mb-1">Document Type</label>
                                   <select 
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
                                     value={newInvoice.type}
                                     onChange={e => setNewInvoice({...newInvoice, type: e.target.value as any})}
                                   >
@@ -320,10 +269,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                                   </select>
                               </div>
                               <div>
-                                  <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
+                                  <label className="block text-xs font-medium text-slate-400 mb-1">Date</label>
                                   <input 
                                     type="date" 
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
                                     value={newInvoice.date ? newInvoice.date.toISOString().substr(0,10) : ''}
                                     onChange={e => setNewInvoice({...newInvoice, date: new Date(e.target.value)})}
                                   />
@@ -331,10 +280,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                           </div>
 
                           <div>
-                              <label className="block text-xs font-medium text-gray-500 mb-1">Supplier Name</label>
+                              <label className="block text-xs font-medium text-slate-400 mb-1">Supplier Name</label>
                               <input 
                                 type="text" 
-                                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
                                 placeholder="e.g. Gourmet Foods"
                                 value={newInvoice.supplierName || ''}
                                 onChange={e => setNewInvoice({...newInvoice, supplierName: e.target.value})}
@@ -343,20 +292,20 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
 
                           <div className="grid grid-cols-2 gap-4">
                               <div>
-                                  <label className="block text-xs font-medium text-gray-500 mb-1">Reference No.</label>
+                                  <label className="block text-xs font-medium text-slate-400 mb-1">Reference No.</label>
                                   <input 
                                     type="text" 
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
                                     placeholder="INV-..."
                                     value={newInvoice.reference || ''}
                                     onChange={e => setNewInvoice({...newInvoice, reference: e.target.value})}
                                   />
                               </div>
                               <div>
-                                  <label className="block text-xs font-medium text-gray-500 mb-1">Total Amount ($)</label>
+                                  <label className="block text-xs font-medium text-slate-400 mb-1">Total Amount ($)</label>
                                   <input 
                                     type="number" 
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
                                     placeholder="0.00"
                                     value={newInvoice.amount || ''}
                                     onChange={e => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})}
@@ -367,7 +316,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                           <button 
                             onClick={saveInvoice}
                             disabled={!capturedImage && !newInvoice.amount}
-                            className="w-full py-2.5 bg-indigo-600 disabled:bg-gray-300 disabled:dark:bg-slate-700 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                            className="w-full py-2.5 bg-indigo-600 disabled:bg-gray-300 disabled: text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center"
                           >
                               <Check className="w-4 h-4 mr-2" /> Save Record
                           </button>
@@ -376,13 +325,13 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
               </div>
 
               {/* Invoices List */}
-              <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
-                      <h3 className="font-bold text-gray-900 dark:text-white">Recent Uploads</h3>
+              <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
+                  <div className="px-6 py-4 border-b border-white/10  flex justify-between items-center">
+                      <h3 className="font-bold text-slate-50 ">Recent Uploads</h3>
                       <button className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">View All</button>
                   </div>
                   <table className="w-full text-left">
-                      <thead className="bg-gray-50 dark:bg-slate-900/50 text-xs uppercase text-gray-500 dark:text-gray-400">
+                      <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
                           <tr>
                               <th className="px-6 py-3">Date</th>
                               <th className="px-6 py-3">Type</th>
@@ -394,16 +343,16 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                           {invoices.map(inv => (
-                              <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30">
-                                  <td className="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">{formatDate(new Date(inv.date))}</td>
+                              <tr key={inv.id} className="hover:glass-panel dark:hover:bg-slate-700/30">
+                                  <td className="px-6 py-3 text-sm text-slate-300 ">{formatDate(new Date(inv.date))}</td>
                                   <td className="px-6 py-3">
                                       <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${inv.type === 'invoice' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
                                           {inv.type}
                                       </span>
                                   </td>
-                                  <td className="px-6 py-3 text-sm font-medium text-gray-900 dark:text-white">{inv.supplierName}</td>
-                                  <td className="px-6 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">{inv.reference}</td>
-                                  <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">${inv.amount.toFixed(2)}</td>
+                                  <td className="px-6 py-3 text-sm font-medium text-slate-50 ">{inv.supplierName}</td>
+                                  <td className="px-6 py-3 text-sm text-slate-400  font-mono">{inv.reference}</td>
+                                  <td className="px-6 py-3 text-sm text-right font-medium text-slate-50 ">${inv.amount.toFixed(2)}</td>
                                   <td className="px-6 py-3 text-right">
                                       <span className={`text-xs font-semibold ${inv.status === 'paid' ? 'text-green-600' : 'text-amber-600'}`}>
                                           {inv.status.toUpperCase()}
@@ -412,7 +361,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                               </tr>
                           ))}
                           {invoices.length === 0 && (
-                              <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-500">No invoices scanned yet.</td></tr>
+                              <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No invoices scanned yet.</td></tr>
                           )}
                       </tbody>
                   </table>

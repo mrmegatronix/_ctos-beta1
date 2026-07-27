@@ -11,6 +11,7 @@ import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, R
 import MediaView from './components/MediaView';
 import TimesheetsView from './components/TimesheetsView';
 import { db } from './services/database';
+import { startAutoSync } from './services/sheetSync';
 import { 
   addDays, getStartOfWeek, formatTime, 
   isSameDay, formatDate, generateId 
@@ -131,6 +132,12 @@ const App: React.FC = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
+  }, []);
+
+  // Google Sheets Auto-Sync (Runs every 15 minutes)
+  useEffect(() => {
+    const syncInterval = startAutoSync(15);
+    return () => clearInterval(syncInterval);
   }, []);
 
   // --- Initialization (async — loads from Firestore) ---
@@ -389,6 +396,45 @@ const App: React.FC = () => {
       showNotification("Leave requested submitted", 'success');
   };
 
+  // Bookings (async)
+  const handleSaveBooking = async (booking: Booking) => {
+      await db.saveBooking(booking);
+      setBookings(await db.getBookings());
+      showNotification("Reservation saved successfully", 'success');
+  };
+
+  const handleDeleteBooking = async (id: string) => {
+      await db.deleteBooking(id);
+      setBookings(await db.getBookings());
+      showNotification("Reservation deleted", 'success');
+  };
+
+  // Documents/Files (async)
+  const handleSaveFile = async (file: FileItem) => {
+      await db.saveFile(file);
+      setFiles(await db.getFiles());
+      showNotification("Filing cabinet updated", 'success');
+  };
+
+  const handleDeleteFile = async (id: string) => {
+      await db.deleteFile(id);
+      setFiles(await db.getFiles());
+      showNotification("File deleted", 'success');
+  };
+
+  // Staff (async)
+  const handleSaveStaff = async (member: TeamMember) => {
+      await db.saveStaff(member);
+      setTeamMembers(await db.getStaff());
+      showNotification("Staff member profile saved", 'success');
+  };
+
+  const handleDeleteStaff = async (id: string) => {
+      await db.deleteStaff(id);
+      setTeamMembers(await db.getStaff());
+      showNotification("Staff member removed", 'success');
+  };
+
   // Stock (async)
   const handleUpdateStock = async (id: string, delta: number) => {
      const item = stockItems.find(i => i.id === id);
@@ -486,7 +532,7 @@ const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+      <div className="flex items-center justify-center h-screen bg-animated-gradient transition-colors">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg mx-auto bg-black flex items-center justify-center">
             <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
@@ -508,7 +554,11 @@ const App: React.FC = () => {
 
   // Add a global class for demo highlighting to the main container
   return (
-    <div className={`flex h-screen print:h-auto flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300 ${isFohMode ? 'text-lg' : ''} demo-highlighting-active`}>
+    <div className={`flex h-screen print:h-auto flex-col bg-animated-gradient transition-colors duration-300 ${isFohMode ? 'text-lg' : ''} demo-highlighting-active relative overflow-hidden`}>
+      {/* Ambient background glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/10 dark:bg-rose-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow-delayed"></div>
+
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-4 ${notification.type === 'success' ? 'bg-gray-900 text-white dark:bg-white dark:text-slate-900' : 'bg-red-500 text-white'}`}>
           {notification.message}
@@ -517,10 +567,10 @@ const App: React.FC = () => {
 
       {/* Header */}
       <header className={`flex items-center justify-between border-b ${
-          themeColor === 'red' ? 'border-red-500/20' : 
-          themeColor === 'amber' ? 'border-amber-500/20' : 
-          'border-blue-500/20'
-      } bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden`}>
+          themeColor === 'red' ? 'border-rose-500/20 glow-accent-red' : 
+          themeColor === 'amber' ? 'border-amber-500/20 glow-accent-amber' : 
+          'border-cyan-500/20 glow-accent-blue'
+      } glass-panel px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm`}>
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400">
             <Menu className="w-6 h-6" />
@@ -528,9 +578,9 @@ const App: React.FC = () => {
           
           <div className="flex items-center space-x-3">
              <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${
-                 themeColor === 'red' ? 'border-red-500' : 
+                 themeColor === 'red' ? 'border-rose-500' : 
                  themeColor === 'amber' ? 'border-amber-500' : 
-                 'border-blue-500'
+                 'border-cyan-500'
              } shadow-sm bg-black flex items-center justify-center flex-shrink-0`}>
                <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
              </div>
@@ -551,19 +601,19 @@ const App: React.FC = () => {
           <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
               <button 
                   onClick={() => setExplicitMode('OFFICE')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'OFFICE' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'OFFICE' ? 'bg-rose-500 text-white shadow-sm glow-accent-red' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   OFFICE
               </button>
               <button 
                   onClick={() => setExplicitMode('FOH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'FOH' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'FOH' ? 'bg-amber-500 text-white shadow-sm glow-accent-amber' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   FOH
               </button>
               <button 
                   onClick={() => setExplicitMode('BOH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'BOH' ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'BOH' ? 'bg-cyan-500 text-white shadow-sm glow-accent-blue' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   BOH
               </button>
@@ -604,7 +654,7 @@ const App: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden print:overflow-visible">
         {/* Module Sidebar */}
-        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gray-50 dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 overflow-y-auto flex-shrink-0 flex flex-col print:hidden`}>
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 transition-all duration-300 ease-in-out glass-panel overflow-y-auto custom-scrollbar relative z-20 print:hidden`}>
            <div className="p-4 space-y-2">
                 {isFohMode ? (
                     <div className="space-y-6">
@@ -689,74 +739,80 @@ const App: React.FC = () => {
                     </div>
                 ) : (
                     /* OFFICE MODE MENU */
-                    <div className="space-y-4 pb-10">
+                    <div className="space-y-6 pb-10">
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Overview</div>
-                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-red-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Overview</div>
+                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                             <Home className="w-5 h-5" /><span>Dashboard</span>
                         </button>
                       </section>
 
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Product</div>
+                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Financials & POS</div>
                         {[
-                            { id: 'stock', label: 'Stock', icon: Boxes },
-                            { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList },
-                            { id: 'ordering', label: 'Ordering', icon: Truck },
-                            { id: 'recipes', label: 'Recipes', icon: BookOpen },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Labour</div>
-                        {[
-                            { id: 'staff', label: 'Management', icon: Users },
-                            { id: 'timeclock', label: 'Timeclock', icon: ClockIcon },
-                            { id: 'timesheets', label: 'Timesheets', icon: FileText },
-                            { id: 'roster', label: 'Rosters', icon: ClipboardList },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Revenue</div>
-                        {[
+                            { id: 'browser', label: 'POS Terminal', icon: Globe },
                             { id: 'finance', label: 'Cashup & Recon.', icon: DollarSign },
-                            { id: 'dashboard', label: 'Dashboard', icon: Home },
                             { id: 'budgeting', label: 'Budgeting', icon: TrendingUp },
                         ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
                             </button>
                         ))}
                       </section>
 
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-2">Operations</div>
+                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Events & Bookings</div>
                         {[
                             { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
                             { id: 'bookings', label: 'Table Reservations', icon: Utensils },
                             { id: 'functions', label: 'Private Functions', icon: PartyPopper },
                             { id: 'entertainment', label: 'Entertainment', icon: Music },
-                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
-                            { id: 'invoices', label: 'Invoices', icon: FileText },
-                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
-                            { id: 'maintenance', label: 'Maintenance Issues', icon: Wrench },
-                            { id: 'documents', label: 'Docs & Files (Dropbox)', icon: FolderOpen },
-                            { id: 'browser', label: 'POS / Browser', icon: Globe },
-                            { id: 'media', label: 'Adverts & Slides', icon: Share2 },
-                            { id: 'tvschedule', label: 'TV Guide', icon: Tv },
-                            { id: 'weather', label: 'Live Weather', icon: Globe },
-                            { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
                         ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-red-500 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}`}>
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Staff & Labour</div>
+                        {[
+                            { id: 'staff', label: 'Team Directory', icon: Users },
+                            { id: 'roster', label: 'Rostering', icon: ClipboardList },
+                            { id: 'timeclock', label: 'Timeclock', icon: ClockIcon },
+                            { id: 'timesheets', label: 'Timesheets', icon: FileText },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Inventory</div>
+                        {[
+                            { id: 'stock', label: 'Stock Levels', icon: Boxes },
+                            { id: 'ordering', label: 'Purchase Orders', icon: Truck },
+                            { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList },
+                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
+                            { id: 'recipes', label: 'Recipes', icon: BookOpen },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                            </button>
+                        ))}
+                      </section>
+                      
+                      <section>
+                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Operations</div>
+                        {[
+                            { id: 'tvschedule', label: 'TV Guide', icon: Tv },
+                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
+                            { id: 'maintenance', label: 'Maintenance', icon: Wrench },
+                            { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
+                            { id: 'documents', label: 'Documents', icon: FolderOpen },
+                        ].map((item) => (
+                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                                 <item.icon className="w-5 h-5" /><span>{item.label}</span>
                             </button>
                         ))}
@@ -767,7 +823,7 @@ const App: React.FC = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col overflow-hidden print:h-auto print:overflow-visible relative bg-white dark:bg-slate-900">
+        <main className="flex-1 flex flex-col overflow-hidden print:h-auto print:overflow-visible relative">
           
           {currentModule === 'dashboard' && (
              <DashboardView 
@@ -819,21 +875,25 @@ const App: React.FC = () => {
              </div>
           )}
 
-          {currentModule === 'finance' && (
-             <div className="flex flex-col h-full">
+          {(currentModule === 'finance' || currentModule === 'invoices') && (
+             <div className="flex flex-col h-full bg-transparent">
                 <div className="px-6 pt-6">
-                    <ActionToolbar title="Finance" isFohMode={isFohMode} />
+                    <ActionToolbar title={currentModule === 'invoices' ? "Invoices & Delivery" : "Finance"} isFohMode={isFohMode} />
                 </div>
-                <FinanceView records={financeRecords} staff={teamMembers} />
+                <FinanceView records={financeRecords} staff={teamMembers} initialTab={currentModule === 'invoices' ? 'invoices' : 'history'} />
              </div>
           )}
 
           {currentModule === 'bookings' && (
-             <div className="flex flex-col h-full">
+             <div className="flex flex-col h-full bg-transparent">
                 <div className="px-6 pt-6">
                     <ActionToolbar title="Reservations" isFohMode={isFohMode} />
                 </div>
-                <BookingsView bookings={bookings} />
+                <BookingsView 
+                  bookings={bookings} 
+                  onSaveBooking={handleSaveBooking}
+                  onDeleteBooking={handleDeleteBooking}
+                />
              </div>
           )}
           
@@ -841,9 +901,15 @@ const App: React.FC = () => {
           
           {currentModule === 'weather' && <WeatherView />}
           
-          {currentModule === 'documents' && <DocumentsView files={files} />}
+          {currentModule === 'documents' && (
+             <DocumentsView 
+               files={files} 
+               onSaveFile={handleSaveFile} 
+               onDeleteFile={handleDeleteFile} 
+             />
+          )}
 
-          {currentModule === 'recipes' && <RecipesView recipes={recipes} />}
+          {currentModule === 'recipes' && <RecipesView recipes={recipes} onSave={handleSaveRecipe} />}
           {currentModule === 'incidents' && <IncidentLogView incidents={incidents} staff={teamMembers} currentUser={currentUser} onSave={handleSaveIncident} />}
           {currentModule === 'lostfound' && <LostAndFoundView items={lostFound} staff={teamMembers} currentUser={currentUser} onSave={handleSaveLostItem} />}
           {currentModule === 'tvschedule' && <TVScheduleView schedule={tvSchedule} onSave={handleSaveTVSchedule} />}
@@ -851,10 +917,16 @@ const App: React.FC = () => {
           {currentModule === 'media' && <MediaView />}
           {currentModule === 'timesheets' && <TimesheetsView staff={teamMembers} shifts={shifts} onSave={handleSaveTimesheet} />}
 
-          {currentModule === 'entertainment' && <EntertainmentView events={entertainmentEvents} />}
+          {currentModule === 'entertainment' && <EntertainmentView events={entertainmentEvents} onSave={handleSaveEntertainment} />}
           {currentModule === 'functions' && <FunctionsView functions={functionBookings} onSaveFunction={handleSaveFunction} />}
-          {currentModule === 'staff' && <StaffDirectory staff={teamMembers} />}
-          {currentModule === 'suppliers' && <SuppliersView suppliers={suppliers} />}
+          {currentModule === 'staff' && (
+             <StaffDirectory 
+               staff={teamMembers} 
+               onSaveStaff={handleSaveStaff} 
+               onDeleteStaff={handleDeleteStaff} 
+             />
+          )}
+          {currentModule === 'suppliers' && <SuppliersView suppliers={suppliers} onSave={handleSaveSupplier} />}
           {currentModule === 'maintenance' && <MaintenanceView tasks={maintenanceTasks} onUpdateStatus={async (id, s) => { 
               const task = maintenanceTasks.find(t => t.id === id); 
               if(task) { 
@@ -864,7 +936,7 @@ const App: React.FC = () => {
               }
           }} />}
           
-          {currentModule === 'timeclock' && <TimeclockView />}
+          {currentModule === 'timeclock' && activeUser && <TimeclockView user={activeUser} staff={staff} />}
           {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
           {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}

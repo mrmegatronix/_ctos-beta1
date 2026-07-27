@@ -59,23 +59,23 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
   const currentItems = getContents(currentFolderId);
 
   return (
-    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-900">
+    <div className="flex-1 p-6 overflow-hidden flex flex-col glass-panel ">
        <div className="flex items-center justify-between mb-6 shrink-0">
-           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Filing Cabinet</h2>
-           <button onClick={() => setShowUpload(!showUpload)} className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+           <h2 className="text-2xl font-bold text-slate-50 ">Filing Cabinet</h2>
+           <button onClick={() => setShowUpload(!showUpload)} className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-lg">
              <Plus className="w-4 h-4" /> <span>Upload/Folder</span>
            </button>
        </div>
 
        {/* Breadcrumbs & Navigation */}
-       <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700 flex items-center space-x-2 mb-6">
+       <div className="glass-panel  p-3 rounded-xl border border-white/10  flex items-center space-x-2 mb-6">
            <button onClick={() => setCurrentFolderId(null)} className="p-1 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-md">
-               <Home className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+               <Home className="w-4 h-4 text-slate-300 " />
            </button>
            {getBreadcrumbs().slice(1).map(crumb => (
                <div key={crumb.id || 'root'} className="flex items-center space-x-2">
                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                   <span className="text-sm font-medium text-gray-900 dark:text-white">{crumb.name}</span>
+                   <span className="text-sm font-medium text-slate-50 ">{crumb.name}</span>
                </div>
            ))}
            
@@ -89,10 +89,10 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
        </div>
 
        {showUpload && (
-           <div className="mb-6 bg-gray-50 dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 max-w-2xl">
+           <div className="mb-6 glass-panel  p-6 rounded-xl border border-white/10  max-w-2xl">
                <div className="flex justify-between items-center mb-4">
-                   <h3 className="font-bold text-gray-900 dark:text-white">Upload Documents</h3>
-                   <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">Cancel</button>
+                   <h3 className="font-bold text-slate-50 ">Upload Documents</h3>
+                   <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-slate-300 dark:hover:text-gray-200">Cancel</button>
                </div>
                <DropzoneArea onFilesAccepted={handleFilesAccepted} />
            </div>
@@ -111,12 +111,12 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
                        <div 
                          key={item.id}
                          onDoubleClick={() => item.type === 'folder' && handleFolderClick(item.id)}
-                         className="group relative bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl p-4 flex flex-col items-center text-center hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer"
+                         className="group relative glass-panel  border border-gray-100  rounded-xl p-4 flex flex-col items-center text-center hover:glass-panel dark:hover:bg-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer"
                        >
                            <div className="mb-3 transition-transform group-hover:scale-105">
                                {getIcon(item.type)}
                            </div>
-                           <span className="text-sm font-medium text-gray-700 dark:text-gray-200 break-words w-full line-clamp-2">
+                           <span className="text-sm font-medium text-slate-200  break-words w-full line-clamp-2">
                                {item.name}
                            </span>
                            {item.size && (
@@ -125,7 +125,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
                            
                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                <button className="p-1 hover:bg-gray-200 dark:hover:bg-slate-600 rounded">
-                                   <MoreVertical className="w-4 h-4 text-gray-500" />
+                                   <MoreVertical className="w-4 h-4 text-slate-400" />
                                 </button>
                            </div>
                        </div>

@@ -5,9 +5,10 @@ import { addDays, getStartOfWeek } from './utils';
 // --- STAFF CONFIGURATION ---
 // --- STAFF CONFIGURATION ---
 export const TEAM_MEMBERS: TeamMember[] = [
+
   {
     id: 'admin-nikko',
-    name: 'admin-nikko',
+    name: 'Nikko',
     email: 'work.nikko@gmail.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
     color: '#10B981',
@@ -26,30 +27,531 @@ export const TEAM_MEMBERS: TeamMember[] = [
     pinCode: import.meta.env.VITE_DEMO_PIN || '0001'
   },
   {
-    id: 'admin-01',
-    name: 'Admin',
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop',
-    color: '#4F46E5',
+    id: 'foh-robert',
+    name: 'Robert',
+    avatar: '',
+    color: '#EF4444',
     visible: true,
-    role: 'Admin',
+    role: 'FOH',
     pinCode: '00'
   },
   {
-    id: 'chef-01',
-    name: 'Head Chef',
-    avatar: 'https://images.unsplash.com/photo-1583394293214-28dea15ee548?w=400&h=400&fit=crop',
-    color: '#EF4444',
+    id: 'foh-bianca',
+    name: 'Bianca',
+    avatar: '',
+    color: '#F59E0B',
     visible: true,
-    role: 'Head Chef',
-    pinCode: '11'
-  }
+    role: 'FOH',
+    pinCode: '01'
+  },
+  {
+    id: 'foh-nicole',
+    name: 'Nicole',
+    avatar: '',
+    color: '#10B981',
+    visible: true,
+    role: 'FOH',
+    pinCode: '02'
+  },
+  {
+    id: 'foh-carma',
+    name: 'Carma',
+    avatar: '',
+    color: '#EC4899',
+    visible: true,
+    role: 'FOH',
+    pinCode: '03'
+  },
+  {
+    id: 'foh-jess',
+    name: 'Jess',
+    avatar: '',
+    color: '#8B5CF6',
+    visible: true,
+    role: 'FOH',
+    pinCode: '04'
+  },
+  {
+    id: 'foh-racheal',
+    name: 'Racheal',
+    avatar: '',
+    color: '#14B8A6',
+    visible: true,
+    role: 'FOH',
+    pinCode: '05'
+  },
+  {
+    id: 'foh-harsh',
+    name: 'Harsh',
+    avatar: '',
+    color: '#F43F5E',
+    visible: true,
+    role: 'FOH',
+    pinCode: '06'
+  },
 ];
 
 // --- ROSTER GENERATION ---
 const today = new Date();
 const currentWeekStart = getStartOfWeek(today); // Returns Monday
 
-export const INITIAL_SHIFTS: RosterShift[] = [];
+export const INITIAL_SHIFTS: RosterShift[] = [
+  {
+    id: 'shift-0',
+    staffId: 'foh-robert',
+    start: new Date(2026, 6, 27, 12, 0),
+    end: new Date(2026, 6, 27, 17, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-1',
+    staffId: 'foh-robert',
+    start: new Date(2026, 6, 28, 12, 0),
+    end: new Date(2026, 6, 28, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-2',
+    staffId: 'foh-robert',
+    start: new Date(2026, 6, 29, 13, 0),
+    end: new Date(2026, 6, 29, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-3',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 6, 27, 8, 30),
+    end: new Date(2026, 6, 27, 15, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-4',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 6, 28, 17, 0),
+    end: new Date(2026, 6, 28, 22, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-5',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 6, 29, 8, 30),
+    end: new Date(2026, 6, 29, 14, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-6',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 6, 30, 8, 30),
+    end: new Date(2026, 6, 30, 16, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-7',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 6, 31, 8, 30),
+    end: new Date(2026, 6, 31, 16, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-8',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 6, 27, 15, 0),
+    end: new Date(2026, 6, 27, 21, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-9',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 6, 28, 8, 30),
+    end: new Date(2026, 6, 28, 14, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-10',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 6, 29, 16, 0),
+    end: new Date(2026, 6, 29, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-11',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 1, 8, 30),
+    end: new Date(2026, 7, 1, 17, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-12',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 2, 8, 30),
+    end: new Date(2026, 7, 2, 22, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-13',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 6, 29, 17, 0),
+    end: new Date(2026, 6, 29, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-14',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 6, 30, 16, 0),
+    end: new Date(2026, 6, 30, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-15',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 6, 31, 16, 0),
+    end: new Date(2026, 6, 31, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-16',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 1, 16, 0),
+    end: new Date(2026, 7, 1, 0, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-17',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 2, 15, 0),
+    end: new Date(2026, 7, 2, 22, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-18',
+    staffId: 'foh-carma',
+    start: new Date(2026, 6, 27, 4, 30),
+    end: new Date(2026, 6, 27, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-19',
+    staffId: 'foh-carma',
+    start: new Date(2026, 6, 28, 16, 30),
+    end: new Date(2026, 6, 28, 21, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-20',
+    staffId: 'foh-carma',
+    start: new Date(2026, 6, 29, 16, 0),
+    end: new Date(2026, 6, 29, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-21',
+    staffId: 'foh-carma',
+    start: new Date(2026, 6, 30, 16, 0),
+    end: new Date(2026, 6, 30, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-22',
+    staffId: 'foh-carma',
+    start: new Date(2026, 6, 31, 16, 0),
+    end: new Date(2026, 6, 31, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-23',
+    staffId: 'foh-jess',
+    start: new Date(2026, 6, 27, 17, 30),
+    end: new Date(2026, 6, 27, 20, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-24',
+    staffId: 'foh-jess',
+    start: new Date(2026, 6, 28, 13, 0),
+    end: new Date(2026, 6, 28, 20, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-25',
+    staffId: 'foh-jess',
+    start: new Date(2026, 6, 29, 12, 0),
+    end: new Date(2026, 6, 29, 20, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-26',
+    staffId: 'foh-racheal',
+    start: new Date(2026, 6, 27, 17, 30),
+    end: new Date(2026, 6, 27, 20, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-27',
+    staffId: 'foh-racheal',
+    start: new Date(2026, 6, 28, 12, 0),
+    end: new Date(2026, 6, 28, 16, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-28',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 6, 27, 16, 30),
+    end: new Date(2026, 6, 27, 21, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-29',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 6, 28, 16, 30),
+    end: new Date(2026, 6, 28, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-30',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 6, 29, 16, 0),
+    end: new Date(2026, 6, 29, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-31',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 6, 30, 16, 0),
+    end: new Date(2026, 6, 30, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-32',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 6, 31, 16, 0),
+    end: new Date(2026, 6, 31, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-33',
+    staffId: 'foh-robert',
+    start: new Date(2026, 7, 4, 12, 0),
+    end: new Date(2026, 7, 4, 17, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-34',
+    staffId: 'foh-robert',
+    start: new Date(2026, 7, 5, 12, 0),
+    end: new Date(2026, 7, 5, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-35',
+    staffId: 'foh-robert',
+    start: new Date(2026, 7, 6, 13, 0),
+    end: new Date(2026, 7, 6, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-36',
+    staffId: 'foh-robert',
+    start: new Date(2026, 7, 7, 13, 0),
+    end: new Date(2026, 7, 7, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-37',
+    staffId: 'foh-robert',
+    start: new Date(2026, 7, 8, 12, 0),
+    end: new Date(2026, 7, 8, 20, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-38',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 7, 3, 8, 30),
+    end: new Date(2026, 7, 3, 15, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-39',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 7, 4, 17, 0),
+    end: new Date(2026, 7, 4, 22, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-40',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 7, 5, 8, 30),
+    end: new Date(2026, 7, 5, 14, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-41',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 7, 6, 8, 30),
+    end: new Date(2026, 7, 6, 16, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-42',
+    staffId: 'foh-bianca',
+    start: new Date(2026, 7, 7, 8, 30),
+    end: new Date(2026, 7, 7, 16, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-43',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 3, 15, 0),
+    end: new Date(2026, 7, 3, 21, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-44',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 4, 8, 30),
+    end: new Date(2026, 7, 4, 14, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-45',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 5, 16, 0),
+    end: new Date(2026, 7, 5, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-46',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 7, 8, 30),
+    end: new Date(2026, 7, 7, 17, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-47',
+    staffId: 'foh-nicole',
+    start: new Date(2026, 7, 8, 8, 30),
+    end: new Date(2026, 7, 8, 22, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-48',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 3, 17, 0),
+    end: new Date(2026, 7, 3, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-49',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 4, 16, 0),
+    end: new Date(2026, 7, 4, 23, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-50',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 5, 16, 0),
+    end: new Date(2026, 7, 5, 21, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-51',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 6, 16, 0),
+    end: new Date(2026, 7, 6, 0, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-52',
+    staffId: 'admin-nikko',
+    start: new Date(2026, 7, 7, 15, 0),
+    end: new Date(2026, 7, 7, 20, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-53',
+    staffId: 'foh-carma',
+    start: new Date(2026, 7, 3, 16, 30),
+    end: new Date(2026, 7, 3, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-54',
+    staffId: 'foh-carma',
+    start: new Date(2026, 7, 4, 16, 30),
+    end: new Date(2026, 7, 4, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-55',
+    staffId: 'foh-carma',
+    start: new Date(2026, 7, 5, 16, 0),
+    end: new Date(2026, 7, 5, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-56',
+    staffId: 'foh-carma',
+    start: new Date(2026, 7, 6, 16, 0),
+    end: new Date(2026, 7, 6, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-57',
+    staffId: 'foh-carma',
+    start: new Date(2026, 7, 7, 16, 0),
+    end: new Date(2026, 7, 7, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-58',
+    staffId: 'foh-jess',
+    start: new Date(2026, 7, 3, 17, 30),
+    end: new Date(2026, 7, 3, 20, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-59',
+    staffId: 'foh-racheal',
+    start: new Date(2026, 7, 3, 12, 0),
+    end: new Date(2026, 7, 3, 16, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-60',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 7, 3, 16, 30),
+    end: new Date(2026, 7, 3, 21, 0),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-61',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 7, 4, 16, 30),
+    end: new Date(2026, 7, 4, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-62',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 7, 5, 16, 0),
+    end: new Date(2026, 7, 5, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-63',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 7, 6, 16, 0),
+    end: new Date(2026, 7, 6, 23, 30),
+    role: 'FOH'
+  },
+  {
+    id: 'shift-64',
+    staffId: 'foh-harsh',
+    start: new Date(2026, 7, 7, 16, 0),
+    end: new Date(2026, 7, 7, 23, 30),
+    role: 'FOH'
+  },
+];
 export const INITIAL_LEAVE: LeaveRequest[] = [];
 
 // --- OTHER INITIAL DATA ---

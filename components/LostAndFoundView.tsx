@@ -45,14 +45,14 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
   const filteredItems = items.filter(i => i.itemDescription.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                <h2 className="text-2xl font-bold text-slate-50  flex items-center">
                     <Umbrella className="w-6 h-6 mr-3 text-indigo-500" />
                     Lost & Found
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400">Track items left behind by customers.</p>
+                <p className="text-slate-400 ">Track items left behind by customers.</p>
             </div>
             
             <div className="flex w-full md:w-auto gap-2">
@@ -61,7 +61,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                     <input 
                         type="text" 
                         placeholder="Search items..." 
-                        className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full pl-9 pr-4 py-2 glass-panel  border border-white/10  rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -80,36 +80,36 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                 <h3 className="font-bold text-lg text-indigo-900 dark:text-indigo-200 mb-4">Found Item Details</h3>
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="col-span-2 md:col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Description</label>
+                        <label className="block text-sm font-medium text-slate-200  mb-1">Item Description</label>
                         <input 
                             type="text" required
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg outline-none"
+                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
                             placeholder="e.g. Black iPhone 12 with floral case"
                             value={newItem.itemDescription || ''}
                             onChange={e => setNewItem({...newItem, itemDescription: e.target.value})}
                         />
                     </div>
                     <div className="col-span-2 md:col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location Found</label>
+                        <label className="block text-sm font-medium text-slate-200  mb-1">Location Found</label>
                         <input 
                             type="text" required
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg outline-none"
+                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
                             placeholder="e.g. Table 12, under seat"
                             value={newItem.locationFound || ''}
                             onChange={e => setNewItem({...newItem, locationFound: e.target.value})}
                         />
                     </div>
                     <div className="flex justify-end col-span-2 space-x-3 pt-2">
-                        <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg">Cancel</button>
+                        <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-slate-300 hover:bg-gray-200 rounded-lg">Cancel</button>
                         <button type="submit" className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700">Save Item</button>
                     </div>
                 </form>
             </div>
         )}
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
             <table className="w-full text-left">
-                <thead className="bg-gray-50 dark:bg-slate-900/50 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
                     <tr>
                         <th className="px-6 py-3">Date Found</th>
                         <th className="px-6 py-3">Item</th>
@@ -120,10 +120,10 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                     {filteredItems.map(item => (
-                        <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30">
-                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{formatDate(new Date(item.dateFound))}</td>
-                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{item.itemDescription}</td>
-                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.locationFound}</td>
+                        <tr key={item.id} className="hover:glass-panel dark:hover:bg-slate-700/30">
+                            <td className="px-6 py-4 text-sm text-slate-400 ">{formatDate(new Date(item.dateFound))}</td>
+                            <td className="px-6 py-4 font-medium text-slate-50 ">{item.itemDescription}</td>
+                            <td className="px-6 py-4 text-sm text-slate-300 ">{item.locationFound}</td>
                             <td className="px-6 py-4">
                                 {item.status === 'unclaimed' ? (
                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
@@ -134,7 +134,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                                         <CheckCircle2 className="w-3 h-3 mr-1" /> Returned
                                     </span>
                                 ) : (
-                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-gray-300">
+                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-slate-100  ">
                                         <Trash2 className="w-3 h-3 mr-1" /> Disposed
                                     </span>
                                 )}
@@ -143,7 +143,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                                 {item.status === 'unclaimed' && (
                                     <div className="flex justify-end space-x-2">
                                         <button onClick={() => handleStatusUpdate(item, 'returned')} className="text-xs font-medium text-green-600 hover:bg-green-50 px-2 py-1 rounded">Return</button>
-                                        <button onClick={() => handleStatusUpdate(item, 'disposed')} className="text-xs font-medium text-gray-500 hover:bg-gray-100 px-2 py-1 rounded">Dispose</button>
+                                        <button onClick={() => handleStatusUpdate(item, 'disposed')} className="text-xs font-medium text-slate-400 hover:bg-gray-100 px-2 py-1 rounded">Dispose</button>
                                     </div>
                                 )}
                             </td>
