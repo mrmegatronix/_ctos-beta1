@@ -78,7 +78,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
                   <button 
                     key={n}
                     onClick={() => handleNum(n.toString())}
-                    className="h-14 rounded-xl bg-gray-100  text-2xl font-bold text-slate-100  hover:bg-indigo-100 dark:hover:bg-slate-600 active:scale-95 transition-all"
+                    className="h-14 rounded-xl bg-gray-100 dark:bg-slate-700 text-2xl font-bold text-slate-800 dark:text-slate-100 hover:bg-indigo-100 dark:hover:bg-slate-600 active:scale-95 transition-all"
                   >
                     {n}
                   </button>
@@ -86,7 +86,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
               <div className="col-start-2">
                  <button 
                     onClick={() => handleNum('0')}
-                    className="w-full h-14 rounded-xl bg-gray-100  text-2xl font-bold text-slate-100  hover:bg-indigo-100 dark:hover:bg-slate-600 active:scale-95 transition-all"
+                    className="w-full h-14 rounded-xl bg-gray-100 dark:bg-slate-700 text-2xl font-bold text-slate-800 dark:text-slate-100 hover:bg-indigo-100 dark:hover:bg-slate-600 active:scale-95 transition-all"
                   >
                     0
                   </button>

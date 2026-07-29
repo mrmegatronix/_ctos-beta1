@@ -70,7 +70,7 @@ export interface Booking {
   phone: string;
   status: 'confirmed' | 'pending' | 'seated' | 'completed';
   notes?: string;
-  source?: 'nowbookit' | 'phone' | 'walkin';
+  source?: 'nowbookit' | 'phone' | 'walkin' | 'email';
 }
 
 export interface StockItem {
@@ -351,7 +351,7 @@ export interface Booking {
   phone: string;
   status: 'confirmed' | 'pending' | 'seated' | 'completed';
   notes?: string;
-  source?: 'nowbookit' | 'phone' | 'walkin';
+  source?: 'nowbookit' | 'phone' | 'walkin' | 'email';
   isDemo?: boolean;
 }
 
@@ -382,7 +382,7 @@ export interface SafeCounts {
   banking?: number;
 }
 
-export interface CashUpRecord {
+export interface DetailedCashUpRecord {
   id: string;
   date: string; // ISO date
   tills: {

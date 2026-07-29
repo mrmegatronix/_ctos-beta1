@@ -1,4 +1,4 @@
-import { CalendarEvent } from "../types";
+import { CalendarEvent, Booking } from "../types";
 import { generateId } from "../utils";
 
 declare global {
@@ -86,4 +86,25 @@ export const importGoogleCalendarEvents = async (): Promise<CalendarEvent[]> => 
             source: 'google'
         }
     ];
+};
+export const fetchEmailBookings = async (): Promise<Booking[]> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const today = new Date();
+            // Simulate finding an email with "new booking" and extracting the details
+            resolve([
+                {
+                    id: 'bkg-' + generateId(),
+                    customerName: 'Alice Emailer',
+                    time: new Date(today.setHours(19, 30)),
+                    guests: 4,
+                    table: 'T2',
+                    phone: '021 555 9999',
+                    status: 'pending',
+                    notes: 'Extracted from email: "new booking for 4 at 7:30pm"',
+                    source: 'email'
+                }
+            ]);
+        }, 1500);
+    });
 };

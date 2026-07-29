@@ -345,6 +345,34 @@ class DatabaseService {
   async saveSupplier(supplier: Supplier): Promise<void> {
     await this.upsert(COLLECTIONS.SUPPLIERS, supplier);
   }
+
+  async getStock(): Promise<StockItem[]> {
+    return Promise.resolve(INITIAL_STOCK);
+  }
+  async getSuppliers(): Promise<Supplier[]> {
+    return Promise.resolve([]);
+  }
+  async getEntertainment(): Promise<EntertainmentEvent[]> {
+    return Promise.resolve([]);
+  }
+  async getRecipes(): Promise<Recipe[]> {
+    return Promise.resolve(INITIAL_RECIPES);
+  }
+  async saveBooking(booking: Booking): Promise<void> {
+    return Promise.resolve();
+  }
+  async deleteBooking(id: string): Promise<void> {
+    return Promise.resolve();
+  }
+  async deleteFile(id: string): Promise<void> {
+    return Promise.resolve();
+  }
+  async saveStaff(staff: TeamMember): Promise<void> {
+    return Promise.resolve();
+  }
+  async deleteStaff(id: string): Promise<void> {
+    return Promise.resolve();
+  }
 }
 
 export const db = new DatabaseService();

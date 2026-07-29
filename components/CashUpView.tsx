@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Check, Save } from 'lucide-react';
-import { CashUpRecord, Denominations, DenominationCounts, TillReconciliation, SafeCounts } from '../types';
+import { DetailedCashUpRecord, Denominations, DenominationCounts, TillReconciliation, SafeCounts } from '../types';
 
 const INITIAL_DENOMINATIONS: DenominationCounts = {
   '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '2': 0, '1': 0, '0.5': 0, '0.2': 0, '0.1': 0
@@ -12,7 +12,7 @@ const DENOM_VALUES: { [key in Denominations]: number } = {
 
 const DENOM_KEYS: Denominations[] = ['100', '50', '20', '10', '5', '2', '1', '0.5', '0.2', '0.1'];
 
-const DEFAULT_RECORD: CashUpRecord = {
+const DEFAULT_RECORD: DetailedCashUpRecord = {
   id: '',
   date: new Date().toISOString().split('T')[0],
   tills: {
@@ -35,9 +35,9 @@ const DEFAULT_RECORD: CashUpRecord = {
 };
 
 const CashUpView: React.FC = () => {
-  const [record, setRecord] = useState<CashUpRecord>(DEFAULT_RECORD);
+  const [record, setRecord] = useState<DetailedCashUpRecord>(DEFAULT_RECORD);
 
-  const handleTillChange = (tillKey: keyof CashUpRecord['tills'], type: 'open' | 'close', denom: Denominations, value: string) => {
+  const handleTillChange = (tillKey: keyof DetailedCashUpRecord['tills'], type: 'open' | 'close', denom: Denominations, value: string) => {
     const num = parseInt(value) || 0;
     setRecord(prev => ({
       ...prev,
@@ -57,7 +57,7 @@ const CashUpView: React.FC = () => {
     }));
   };
 
-  const handleSafeChange = (safeKey: keyof CashUpRecord['safes'], field: keyof SafeCounts | string, value: string, denom?: Denominations) => {
+  const handleSafeChange = (safeKey: keyof DetailedCashUpRecord['safes'], field: keyof SafeCounts | string, value: string, denom?: Denominations) => {
     const num = parseFloat(value) || 0;
     setRecord(prev => {
       const updatedSafe = { ...prev.safes[safeKey] };
@@ -85,7 +85,7 @@ const CashUpView: React.FC = () => {
 
   const formatMoney = (val: number) => `$${val.toFixed(2)}`;
 
-  const renderTillTable = (title: string, tillKey: keyof CashUpRecord['tills']) => {
+  const renderTillTable = (title: string, tillKey: keyof DetailedCashUpRecord['tills']) => {
     const till = record.tills[tillKey];
     const totalOpen = calculateTillTotal(till, 'open');
     const totalClose = calculateTillTotal(till, 'close');
@@ -144,7 +144,7 @@ const CashUpView: React.FC = () => {
     );
   };
 
-  const renderSafeTable = (title: string, safeKey: keyof CashUpRecord['safes'], hideLeftCol?: boolean) => {
+  const renderSafeTable = (title: string, safeKey: keyof DetailedCashUpRecord['safes'], hideLeftCol?: boolean) => {
     const safe = record.safes[safeKey];
     const total = calculateSafeTotal(safe);
     const variance = total - safe.expectedTotal;

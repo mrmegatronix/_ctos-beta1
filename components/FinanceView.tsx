@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import CashUpView from "./CashUpView";
 import { CashUpRecord, TeamMember, Invoice } from '../types';
 import { formatDate, generateId } from '../utils';
 import { db } from '../services/database';

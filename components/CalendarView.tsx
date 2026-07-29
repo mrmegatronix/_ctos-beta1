@@ -55,6 +55,18 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
               title="Venue Calendar" 
               onEdit={onCreateEvent} 
               onPrint={() => window.print()}
+              onShare={async () => {
+                  try {
+                      if (navigator.share) {
+                          await navigator.share({ title: 'Venue Calendar', text: 'Check out the venue calendar.', url: window.location.href });
+                      } else {
+                          await navigator.clipboard.writeText(window.location.href);
+                          alert('Calendar link copied to clipboard!');
+                      }
+                  } catch (e) {
+                      console.error("Share failed", e);
+                  }
+              }}
               onSync={onSync}
               isFohMode={isFohMode}
           />

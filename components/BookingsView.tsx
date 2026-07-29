@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Booking } from '../types';
 import { formatTime } from '../utils';
-import { Users, Phone, Clock, CheckCircle, Clock as ClockIcon, XCircle, Globe } from 'lucide-react';
+import { Users, Phone, Clock, CheckCircle, Clock as ClockIcon, XCircle, Globe, Mail } from 'lucide-react';
+import { fetchEmailBookings } from '../services/googleService';
 
 interface BookingsViewProps {
   bookings: Booking[];
+  onSaveBooking?: (booking: Booking) => void;
+  onDeleteBooking?: (id: string) => void;
 }
 
-const BookingsView: React.FC<BookingsViewProps> = ({ bookings }) => {
+const BookingsView: React.FC<BookingsViewProps> = ({ bookings, onSaveBooking }) => {
+  const [checkingEmail, setCheckingEmail] = useState(false);
+
+  const handleCheckEmail = async () => {
+      setCheckingEmail(true);
+      const newBookings = await fetchEmailBookings();
+      if (onSaveBooking) {
+          newBookings.forEach(booking => onSaveBooking(booking));
+      }
+      setCheckingEmail(false);
+  };
+
   const getStatusColor = (status: Booking['status']) => {
     switch (status) {
       case 'confirmed': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
@@ -29,11 +43,18 @@ const BookingsView: React.FC<BookingsViewProps> = ({ bookings }) => {
   return (
     <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
       <div className="flex justify-between items-end mb-6">
-        <div>
-           {/* Header is handled by ActionToolbar in App.tsx now, but we keep subtext here or rely on the grid */}
+        <div className="flex items-center space-x-4">
            <p className="text-slate-400  flex items-center">
              <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span> Connected to NowBookIt
            </p>
+           <button 
+              onClick={handleCheckEmail}
+              disabled={checkingEmail}
+              className="flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow text-sm font-medium disabled:opacity-50"
+           >
+              <Mail className="w-4 h-4 mr-2" />
+              {checkingEmail ? 'Checking...' : 'Check Emails for Bookings'}
+           </button>
         </div>
       </div>
 
@@ -64,6 +85,11 @@ const BookingsView: React.FC<BookingsViewProps> = ({ bookings }) => {
               {booking.source === 'nowbookit' && (
                  <div className="flex items-center text-indigo-600 dark:text-indigo-400 text-xs mt-1">
                     <Globe className="w-3 h-3 mr-1" /> NowBookIt Confirmed
+                 </div>
+              )}
+              {booking.source === 'email' && (
+                 <div className="flex items-center text-green-600 dark:text-green-400 text-xs mt-1">
+                    <Mail className="w-3 h-3 mr-1" /> Extracted from Email
                  </div>
               )}
             </div>

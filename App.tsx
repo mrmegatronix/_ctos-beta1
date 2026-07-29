@@ -429,6 +429,18 @@ const App: React.FC = () => {
       showNotification("Staff member profile saved", 'success');
   };
 
+  const handleSaveRecipe = async (recipe: Recipe) => {
+      setRecipes([...recipes.filter(r => r.id !== recipe.id), recipe]);
+  };
+
+  const handleSaveEntertainment = async (event: EntertainmentEvent) => {
+      setEntertainmentEvents([...entertainmentEvents.filter(e => e.id !== event.id), event]);
+  };
+
+  const handleSaveSupplier = async (supplier: Supplier) => {
+      setSuppliers([...suppliers.filter(s => s.id !== supplier.id), supplier]);
+  };
+
   const handleDeleteStaff = async (id: string) => {
       await db.deleteStaff(id);
       setTeamMembers(await db.getStaff());
@@ -942,7 +954,7 @@ const App: React.FC = () => {
               }
           }} />}
           
-          {currentModule === 'timeclock' && activeUser && <TimeclockView user={activeUser} staff={staff} />}
+          {currentModule === 'timeclock' && currentUser && <TimeclockView user={currentUser} staff={teamMembers} />}
           {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
           {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
