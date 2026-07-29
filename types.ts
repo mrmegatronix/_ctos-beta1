@@ -81,6 +81,12 @@ export interface StockItem {
   unit: string;
   minLevel: number; 
   price: number;
+  supplierId?: string;
+  image?: string;
+  allergens?: string[];
+  description?: string;
+  cost?: number;
+  productType?: string;
 }
 
 export interface Supplier {
@@ -327,6 +333,12 @@ export interface StockItem {
   unit: string;
   minLevel: number; 
   price: number;
+  supplierId?: string;
+  image?: string;
+  allergens?: string[];
+  description?: string;
+  cost?: number;
+  productType?: string;
   isDemo?: boolean;
 }
 

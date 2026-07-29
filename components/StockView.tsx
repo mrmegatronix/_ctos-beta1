@@ -1,22 +1,32 @@
 
 import React, { useState } from 'react';
-import { StockItem } from '../types';
-import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X } from 'lucide-react';
+import { StockItem, Supplier } from '../types';
+import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2 } from 'lucide-react';
+import { StockInfoModal } from './StockInfoModal';
 
 interface StockViewProps {
-  onSave?: (item: StockItem) => void;
+  onSaveItem: (item: StockItem) => void;
   items: StockItem[];
+  suppliers: Supplier[];
   onUpdateQuantity: (id: string, delta: number) => void;
 }
 
-const StockView: React.FC<StockViewProps> = ({ items, onUpdateQuantity , onSave }) => {
+const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantity, onSaveItem }) => {
+  const [editingItem, setEditingItem] = useState<StockItem | null>(null);
+
   const handleAdd = () => {
-      const name = window.prompt("Enter Add Stock Item Name (Basic entry mode):");
-      if (name && onSave) {
-          onSave({
-              id: `stk-${Date.now()}`, name: name || 'New Item', category: 'General', quantity: 0, unit: 'pcs', minLevel: 0, cost: 0, supplierId: ''
-          } as any);
-      }
+    setEditingItem({
+      id: `stk-${Date.now()}`,
+      name: '',
+      category: 'General',
+      quantity: 0,
+      unit: 'pcs',
+      minLevel: 0,
+      price: 0,
+      cost: 0,
+      productType: 'Beverage',
+      allergens: []
+    });
   };
 
   const lowStockItems = items.filter(i => i.quantity <= i.minLevel);
@@ -74,6 +84,12 @@ const StockView: React.FC<StockViewProps> = ({ items, onUpdateQuantity , onSave 
       </div>
 
       <div className="flex-1 overflow-auto custom-scrollbar px-6 pb-6">
+        <div className="flex justify-end mb-4">
+          <button onClick={handleAdd} className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-lg">
+             <Plus className="w-5 h-5" />
+             <span>Add Stock Item</span>
+          </button>
+        </div>
         <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -127,6 +143,13 @@ const StockView: React.FC<StockViewProps> = ({ items, onUpdateQuantity , onSave 
                         title="Transfer to other site"
                     >
                         <ArrowRightLeft className="w-4 h-4" />
+                    </button>
+                    <button 
+                        onClick={() => setEditingItem(item)}
+                        className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 ml-2"
+                        title="Edit Item Info"
+                    >
+                        <Edit2 className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>
@@ -192,6 +215,19 @@ const StockView: React.FC<StockViewProps> = ({ items, onUpdateQuantity , onSave 
                   </div>
               </div>
           </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingItem && (
+        <StockInfoModal 
+          item={editingItem} 
+          suppliers={suppliers}
+          onClose={() => setEditingItem(null)}
+          onSave={(item) => {
+            onSaveItem(item);
+            setEditingItem(null);
+          }}
+        />
       )}
     </div>
   );

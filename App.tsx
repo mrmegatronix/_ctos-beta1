@@ -436,6 +436,12 @@ const App: React.FC = () => {
   };
 
   // Stock (async)
+  const handleSaveStockItem = async (item: StockItem) => {
+      await db.saveStock(item);
+      setStockItems(await db.getStock());
+      showNotification("Stock item saved", 'success');
+  };
+
   const handleUpdateStock = async (id: string, delta: number) => {
      const item = stockItems.find(i => i.id === id);
      if (item) {
@@ -723,7 +729,7 @@ const App: React.FC = () => {
                       <section>
                         <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Inventory & Supply</div>
                         <button onClick={() => setCurrentModule('stock')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'stock' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Boxes className="w-6 h-6" /><span>Stock Levels</span>
+                            <Boxes className="w-6 h-6" /><span>Products</span>
                         </button>
                       </section>
 
@@ -791,7 +797,7 @@ const App: React.FC = () => {
                       <section>
                         <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Inventory</div>
                         {[
-                            { id: 'stock', label: 'Stock Levels', icon: Boxes },
+                            { id: 'stock', label: 'Products', icon: Boxes },
                             { id: 'ordering', label: 'Purchase Orders', icon: Truck },
                             { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList },
                             { id: 'suppliers', label: 'Suppliers', icon: Truck },
@@ -869,9 +875,9 @@ const App: React.FC = () => {
           {currentModule === 'stock' && (
              <div className="flex flex-col h-full">
                 <div className="px-6 pt-6">
-                    <ActionToolbar title="Stock Control" isFohMode={isFohMode} />
+                    <ActionToolbar title="Products" isFohMode={isFohMode} />
                 </div>
-                <StockView items={stockItems} onUpdateQuantity={handleUpdateStock} />
+                <StockView items={stockItems} suppliers={suppliers} onSaveItem={handleSaveStockItem} onUpdateQuantity={handleUpdateStock} />
              </div>
           )}
 
