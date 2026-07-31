@@ -5,13 +5,15 @@ import {
   Menu, Bell, Settings, Search, Plus, Moon, Sun, Download, LogIn, LogOut,
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
-  BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp
+  BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp,
+  Smartphone, Sliders
 } from 'lucide-react';
 import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry } from './types';
 import MediaView from './components/MediaView';
 import TimesheetsView from './components/TimesheetsView';
 import { db } from './services/database';
 import { startAutoSync } from './services/sheetSync';
+import { startCsvSync } from './services/csvSync';
 import { 
   addDays, getStartOfWeek, formatTime, 
   isSameDay, formatDate, generateId 
@@ -27,12 +29,16 @@ import BookingsView from './components/BookingsView';
 import EntertainmentView from './components/EntertainmentView';
 import FunctionsView from './components/FunctionsView';
 import TVScheduleView from './components/TVScheduleView';
+import SettingsView from './components/SettingsView';
 import RecipesView from './components/RecipesView';
 import StockView from './components/StockView';
 import SuppliersView from './components/SuppliersView';
 import MaintenanceView from './components/MaintenanceView';
 import IncidentLogView from './components/IncidentLogView';
 import LostAndFoundView from './components/LostAndFoundView';
+import CTSCAppView from './components/CTSCAppView';
+import GeminiNotebookView from './components/GeminiNotebookView';
+import CTMatrixControlView from './components/CTMatrixControlView';
 import BrowserView from './components/BrowserView';
 import DocumentsView from './components/DocumentsView';
 import LoginScreen from './components/LoginScreen';
@@ -138,6 +144,20 @@ const App: React.FC = () => {
   useEffect(() => {
     const syncInterval = startAutoSync(15);
     return () => clearInterval(syncInterval);
+  }, []);
+
+  // CSV Data Auto-Sync (Runs every 15 minutes)
+  useEffect(() => {
+    const csvInterval = startCsvSync(15, (data) => {
+      setTVSchedule(data.tvSchedule);
+      setEntertainmentEvents(data.entertainment);
+      // We could also merge events, but we'll just set them for now.
+      setEvents(prev => {
+        const nonCsvEvents = prev.filter(e => e.source !== 'google'); // assuming 'google' is our csv source
+        return [...nonCsvEvents, ...data.events];
+      });
+    });
+    return () => clearInterval(csvInterval);
   }, []);
 
   // --- Initialization (async — loads from Firestore) ---
@@ -373,17 +393,31 @@ const App: React.FC = () => {
   };
 
   // Roster (async)
-  const handleAddShift = async (day: Date, memberId: string) => {
+  const handleAddShift = async (day: Date, memberId: string, startTime: string, endTime: string, role: string) => {
       if (currentUser?.role !== 'Admin' && currentUser?.role !== 'Duty Manager') {
           showNotification("Only Managers can add shifts.", 'error');
           return;
       }
+      
+      const startParts = startTime.split(':');
+      const start = new Date(day);
+      start.setHours(parseInt(startParts[0], 10), parseInt(startParts[1], 10), 0, 0);
+
+      const endParts = endTime.split(':');
+      const end = new Date(day);
+      end.setHours(parseInt(endParts[0], 10), parseInt(endParts[1], 10), 0, 0);
+
+      // If end time is before start time, assume it crosses midnight
+      if (end < start) {
+          end.setDate(end.getDate() + 1);
+      }
+
       const newShift: RosterShift = {
           id: generateId(),
           staffId: memberId,
-          start: new Date(day.setHours(12, 0)),
-          end: new Date(day.setHours(20, 0)),
-          role: 'Shift'
+          start: start,
+          end: end,
+          role: role
       };
       await db.saveShift(newShift);
       setShifts(await db.getShifts());
@@ -682,10 +716,20 @@ const App: React.FC = () => {
                             <Home className="w-6 h-6" /><span>Home</span>
                         </button>
                         <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'browser' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Monitor className="w-6 h-6" /><span>POS / Browser</span>
+                            <Monitor className="w-6 h-6" /><span>POS System</span>
                         </button>
                         <button onClick={() => setCurrentModule('bookings')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'bookings' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                             <Utensils className="w-6 h-6" /><span>Reservations</span>
+                        </button>
+                      </section>
+
+                      <section>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Staff</div>
+                        <button onClick={() => setCurrentModule('timeclock')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'timeclock' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <ClockIcon className="w-6 h-6" /><span>Timeclock</span>
+                        </button>
+                        <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
+                            <ClipboardList className="w-6 h-6" /><span>My Roster</span>
                         </button>
                       </section>
 
@@ -700,17 +744,10 @@ const App: React.FC = () => {
                       </section>
 
                       <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Staff & Kitchen</div>
+                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Operations</div>
                         <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                             <BookOpen className="w-6 h-6" /><span>Recipes</span>
                         </button>
-                        <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <ClipboardList className="w-6 h-6" /><span>My Roster</span>
-                        </button>
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Reporting</div>
                         <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
                             <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
                         </button>
@@ -835,6 +872,21 @@ const App: React.FC = () => {
                             </button>
                         ))}
                       </section>
+                      
+                      {currentUser?.id === 'admin-nikko' && (
+                          <section>
+                            <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest mb-3 px-3">Admin Tools</div>
+                            {[
+                                { id: 'gemini', label: 'Google Notebook', icon: BookOpen },
+                                { id: 'ctsc', label: 'CTSC App', icon: Smartphone },
+                                { id: 'ctmatrix', label: 'CT Matrix Control', icon: Sliders },
+                            ].map((item) => (
+                                <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                                    <item.icon className="w-5 h-5" /><span>{item.label}</span>
+                                </button>
+                            ))}
+                          </section>
+                      )}
                     </div>
                )}
            </div>
@@ -931,6 +983,9 @@ const App: React.FC = () => {
           {currentModule === 'incidents' && <IncidentLogView incidents={incidents} staff={teamMembers} currentUser={currentUser} onSave={handleSaveIncident} />}
           {currentModule === 'lostfound' && <LostAndFoundView items={lostFound} staff={teamMembers} currentUser={currentUser} onSave={handleSaveLostItem} />}
           {currentModule === 'tvschedule' && <TVScheduleView schedule={tvSchedule} onSave={handleSaveTVSchedule} />}
+          {currentModule === 'gemini' && <GeminiNotebookView />}
+          {currentModule === 'ctsc' && <CTSCAppView />}
+          {currentModule === 'ctmatrix' && <CTMatrixControlView />}
 
           {currentModule === 'media' && <MediaView />}
           {currentModule === 'timesheets' && <TimesheetsView staff={teamMembers} shifts={shifts} onSave={handleSaveTimesheet} />}

@@ -42,6 +42,14 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ tasks, onUpdateStatus
          </button>
       </div>
 
+      <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded-r">
+        <div className="flex items-center">
+          <AlertCircle className="w-6 h-6 mr-3" />
+          <h3 className="font-bold">Under Construction</h3>
+        </div>
+        <p className="mt-1 text-sm">This module is currently being built. Data entered here will not be permanently saved yet.</p>
+      </div>
+
       <div className="space-y-8">
         {/* Active Tasks */}
         <section>

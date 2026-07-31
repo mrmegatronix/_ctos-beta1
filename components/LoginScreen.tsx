@@ -54,7 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
   }, [pin]);
 
   return (
-    <div className="min-h-screen glass-panel  transition-colors flex items-center justify-center p-4">
+    <div className="min-h-screen transition-colors flex items-center justify-center p-4" style={{ backgroundImage: 'url(/landing_bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="glass-panel  w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 ">
         <div className="p-4 bg-indigo-600 text-center">
            <div className="w-12 h-12 bg-black rounded-full mx-auto mb-2 border-2 border-amber-500 flex items-center justify-center">
@@ -103,8 +103,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
         </div>
 
         <div className="p-3 glass-panel  text-center text-xs text-gray-400">
-           <div>Use your 2-digit or 4-digit staff ID code to sign in.</div>
+           <div>Use your 4-digit staff PIN to sign in.</div>
            <button onClick={() => alert('Please contact Management to reset your PIN.')} className="mt-2 text-indigo-500 hover:underline">Forgot PIN / Request Access</button>
+           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
+              <p className="font-bold text-gray-600 dark:text-gray-300">Coasters Tavern</p>
+              <p>1 Daniels Road, Redwood, Christchurch</p>
+              <p>Phone: (03) 352 0210 | Email: info@coasterstavern.co.nz</p>
+              <p>Trading Hours: Monday - Sunday 10:00am - Late</p>
+           </div>
            <div className="mt-2 opacity-30">Build: {(window as any).__COMMIT_INFO__ || 'Development'}</div>
         </div>
       </div>

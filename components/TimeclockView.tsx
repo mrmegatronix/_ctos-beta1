@@ -21,7 +21,7 @@ const TimeclockView: React.FC<TimeclockViewProps> = ({ user }) => {
               <p className="text-gray-400">Powered by ct-clock integration</p>
             </div>
             <a 
-              href="/ct-clock/mobile.html" 
+              href="./ct-clock/mobile.html" 
               target="_blank" 
               rel="noreferrer"
               className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
@@ -36,7 +36,7 @@ const TimeclockView: React.FC<TimeclockViewProps> = ({ user }) => {
           <div className="flex-1 w-full relative bg-[#0f172a]">
             {/* Embed the standalone ct-clock app */}
             <iframe 
-              src="/ct-clock/mobile.html" 
+              src="./ct-clock/mobile.html" 
               className="w-full h-full border-0 absolute inset-0"
               title="ct-clock standalone application"
             />

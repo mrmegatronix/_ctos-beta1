@@ -9,7 +9,7 @@ import { INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIA
 // This service uses Firebase Firestore as the backend database.
 // Each collection maps to a Firestore collection.
 
-const DB_VERSION = '1.6';
+const DB_VERSION = '1.8';
 
 // Firestore collection names
 const COLLECTIONS = {
@@ -203,11 +203,38 @@ class DatabaseService {
     await this.removeDoc(COLLECTIONS.EVENTS, id);
   }
 
+  private async syncRosterToClock(): Promise<void> {
+    try {
+      const shifts = await this.loadCollection<RosterShift>(COLLECTIONS.SHIFTS);
+      const ctRoster = shifts.map(shift => {
+        const staff = TEAM_MEMBERS.find(m => m.id === shift.staffId);
+        if (!staff) return null;
+        
+        return {
+          id: shift.id,
+          employeeId: staff.pinCode,
+          employeeName: staff.name,
+          role: shift.role,
+          date: shift.start.toISOString().split('T')[0],
+          start: shift.start.toTimeString().substring(0, 5),
+          end: shift.end.toTimeString().substring(0, 5)
+        };
+      }).filter(Boolean);
+      
+      localStorage.setItem('ct_roster', JSON.stringify(ctRoster));
+    } catch (e) {
+      console.error('[CTOS DB] Failed to sync roster to ct-clock:', e);
+    }
+  }
+
   async getShifts(): Promise<RosterShift[]> {
-    return this.loadCollection<RosterShift>(COLLECTIONS.SHIFTS);
+    const shifts = await this.loadCollection<RosterShift>(COLLECTIONS.SHIFTS);
+    await this.syncRosterToClock();
+    return shifts;
   }
   async saveShift(shift: RosterShift): Promise<void> {
     await this.upsert(COLLECTIONS.SHIFTS, shift);
+    await this.syncRosterToClock();
   }
 
   async getLeaveRequests(): Promise<LeaveRequest[]> {

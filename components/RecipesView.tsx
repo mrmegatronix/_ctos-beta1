@@ -39,6 +39,15 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
 
   return (
     <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+
+      <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded-r">
+        <div className="flex items-center">
+          <AlertCircle className="w-6 h-6 mr-3" />
+          <h3 className="font-bold">Under Construction</h3>
+        </div>
+        <p className="mt-1 text-sm">This module is currently being built. Data entered here will not be permanently saved yet.</p>
+      </div>
+
        <div className="flex items-center justify-between mb-8 gap-4">
            <div className="flex-1">
                <div className="flex items-center space-x-4 mb-4">

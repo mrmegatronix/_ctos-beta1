@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { TVScheduleItem } from '../types';
 import { formatTime, formatDate, generateId } from '../utils';
-import { Tv, Search, Plus, Volume2, Calendar, Radio, RefreshCw } from 'lucide-react';
+import { Tv, Search, Plus, Volume2, Calendar, Radio, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface TVScheduleViewProps {
   schedule: TVScheduleItem[];
@@ -93,6 +93,14 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
             </h2>
             <p className="text-slate-400 ">Sky Sport Listings for Main Screen & Garden Bar.</p>
           </div>
+
+      <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded-r">
+        <div className="flex items-center">
+          <AlertCircle className="w-6 h-6 mr-3" />
+          <h3 className="font-bold">Under Construction</h3>
+        </div>
+        <p className="mt-1 text-sm">This module is currently being built. Data entered here will not be permanently saved yet.</p>
+      </div>
           
           <div className="flex gap-2">
             <select 

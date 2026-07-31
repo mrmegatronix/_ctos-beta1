@@ -8,7 +8,7 @@ interface RosterViewProps {
   shifts: RosterShift[];
   teamMembers: TeamMember[];
   weekDays: Date[];
-  onAddShift: (day: Date, memberId: string) => void;
+  onAddShift: (day: Date, memberId: string, startTime: string, endTime: string, role: string) => void;
   leaveRequests: LeaveRequest[];
   onRequestLeave: (req: LeaveRequest) => void;
   currentUser: TeamMember;
@@ -21,6 +21,12 @@ const RosterView: React.FC<RosterViewProps> = ({
   const [leaveStart, setLeaveStart] = useState('');
   const [leaveEnd, setLeaveEnd] = useState('');
   const [leaveReason, setLeaveReason] = useState('');
+  const [showShiftModal, setShowShiftModal] = useState(false);
+  const [shiftDay, setShiftDay] = useState<Date | null>(null);
+  const [shiftMember, setShiftMember] = useState<string | null>(null);
+  const [shiftStart, setShiftStart] = useState('12:00');
+  const [shiftEnd, setShiftEnd] = useState('20:00');
+  const [shiftRole, setShiftRole] = useState('Bar Staff');
 
   const submitLeave = (e: React.FormEvent) => {
       e.preventDefault();
@@ -36,6 +42,20 @@ const RosterView: React.FC<RosterViewProps> = ({
       setLeaveStart('');
       setLeaveEnd('');
       setLeaveReason('');
+  };
+
+  const openShiftModal = (day: Date, memberId: string) => {
+      setShiftDay(day);
+      setShiftMember(memberId);
+      setShowShiftModal(true);
+  };
+
+  const submitShift = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (shiftDay && shiftMember) {
+          onAddShift(shiftDay, shiftMember, shiftStart, shiftEnd, shiftRole);
+      }
+      setShowShiftModal(false);
   };
 
   const isManager = currentUser.role === 'Admin' || currentUser.role === 'Duty Manager';
@@ -93,7 +113,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                   <div 
                     key={i} 
                     className={`p-2 border-r border-gray-100  last:border-none min-h-[80px] relative group ${onLeave ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}`}
-                    onClick={() => isManager && !onLeave && onAddShift(day, member.id)}
+                    onClick={() => isManager && !onLeave && openShiftModal(day, member.id)}
                   >
                      {isManager && !onLeave && (
                          <div className="absolute inset-0 bg-indigo-50/0 group-hover:bg-indigo-50/50 dark:group-hover:bg-indigo-900/10 cursor-pointer transition-colors flex items-center justify-center">
@@ -160,6 +180,58 @@ const RosterView: React.FC<RosterViewProps> = ({
                       <div className="flex justify-end space-x-3 pt-4">
                           <button type="button" onClick={() => setShowLeaveModal(false)} className="px-4 py-2 text-slate-300  hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">Cancel</button>
                           <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Submit Request</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      )}
+
+      {/* Add Shift Modal */}
+      {showShiftModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+              <div className="glass-panel rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+                  <h3 className="text-lg font-bold text-slate-50 mb-4">Add Shift</h3>
+                  <form onSubmit={submitShift} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                          <div>
+                              <label className="block text-sm font-medium text-slate-200 mb-1">Start Time</label>
+                              <input 
+                                type="time" 
+                                required 
+                                className="w-full px-3 py-2 glass-panel border border-white/20 rounded-lg text-slate-50"
+                                value={shiftStart}
+                                onChange={e => setShiftStart(e.target.value)}
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-sm font-medium text-slate-200 mb-1">End Time</label>
+                              <input 
+                                type="time" 
+                                required 
+                                className="w-full px-3 py-2 glass-panel border border-white/20 rounded-lg text-slate-50"
+                                value={shiftEnd}
+                                onChange={e => setShiftEnd(e.target.value)}
+                              />
+                          </div>
+                      </div>
+                      <div>
+                          <label className="block text-sm font-medium text-slate-200 mb-1">Role / Area</label>
+                          <select 
+                            className="w-full px-3 py-2 glass-panel border border-white/20 rounded-lg text-slate-50 bg-slate-800"
+                            value={shiftRole}
+                            onChange={e => setShiftRole(e.target.value)}
+                          >
+                              <option>Duty Manager</option>
+                              <option>Bar Staff</option>
+                              <option>Front of House</option>
+                              <option>Kitchen Hand</option>
+                              <option>Chef</option>
+                              <option>Security</option>
+                          </select>
+                      </div>
+                      <div className="flex justify-end space-x-3 pt-4">
+                          <button type="button" onClick={() => setShowShiftModal(false)} className="px-4 py-2 text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">Cancel</button>
+                          <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Add Shift</button>
                       </div>
                   </form>
               </div>

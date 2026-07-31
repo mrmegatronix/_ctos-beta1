@@ -6,9 +6,11 @@ import DropzoneArea from './DropzoneArea';
 
 interface DocumentsViewProps {
   files: FileItem[];
+  onSaveFile?: (file: FileItem) => void;
+  onDeleteFile?: (id: string) => void;
 }
 
-const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
+const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDeleteFile }) => {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
 
@@ -38,12 +40,39 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
     setCurrentFolderId(current?.parentId || null);
   };
 
-  const handleFilesAccepted = async (acceptedFiles: File[]) => {
-      // Stub integration to Firebase
-      console.log('Files accepted for upload:', acceptedFiles);
-      alert(`${acceptedFiles.length} files queued for upload to Firebase.`);
+  const handleFilesAccepted = (acceptedFiles: File[]) => {
+      acceptedFiles.forEach(file => {
+          let type: FileItem['type'] = 'doc';
+          if (file.type.includes('pdf')) type = 'pdf';
+          if (file.type.includes('image')) type = 'image';
+          if (file.type.includes('sheet') || file.type.includes('csv')) type = 'sheet';
+
+          if (onSaveFile) {
+              onSaveFile({
+                  id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  name: file.name,
+                  type,
+                  parentId: currentFolderId,
+                  size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+                  lastModified: new Date()
+              });
+          }
+      });
       setShowUpload(false);
   }
+
+  const handleCreateFolder = () => {
+    const name = window.prompt("Enter new folder name:");
+    if (name && onSaveFile) {
+        onSaveFile({
+            id: `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            name: name,
+            type: 'folder',
+            parentId: currentFolderId,
+            lastModified: new Date()
+        });
+    }
+  };
 
   const getIcon = (type: FileItem['type']) => {
     switch (type) {
@@ -62,9 +91,14 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files }) => {
     <div className="flex-1 p-6 overflow-hidden flex flex-col glass-panel ">
        <div className="flex items-center justify-between mb-6 shrink-0">
            <h2 className="text-2xl font-bold text-slate-50 ">Filing Cabinet</h2>
-           <button onClick={() => setShowUpload(!showUpload)} className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-lg">
-             <Plus className="w-4 h-4" /> <span>Upload/Folder</span>
-           </button>
+           <div className="flex space-x-2">
+             <button onClick={handleCreateFolder} className="flex items-center space-x-2 bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-600 transition-colors shadow-lg">
+               <Folder className="w-4 h-4" /> <span>New Folder</span>
+             </button>
+             <button onClick={() => setShowUpload(!showUpload)} className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-lg">
+               <Plus className="w-4 h-4" /> <span>Upload File</span>
+             </button>
+           </div>
        </div>
 
        {/* Breadcrumbs & Navigation */}

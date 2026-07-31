@@ -60,6 +60,14 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
          </button>
        </div>
 
+      <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded-r">
+        <div className="flex items-center">
+          <AlertTriangle className="w-6 h-6 mr-3" />
+          <h3 className="font-bold">Under Construction</h3>
+        </div>
+        <p className="mt-1 text-sm">This module is currently being built. Data entered here will not be permanently saved yet.</p>
+      </div>
+
        {isFormOpen && (
            <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl p-6 mb-8 animate-in slide-in-from-top-4">
                <h3 className="font-bold text-lg text-red-800 dark:text-red-200 mb-4">New Incident Report</h3>
