@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AppMode, AppModule, CalendarEvent, MaintenanceTask, StockItem, Booking, TeamMember, TVScheduleItem } from '../types';
+import { AppMode, AppModule, CalendarEvent, MaintenanceTask, StockItem, Booking, TeamMember, TVScheduleItem, EntertainmentEvent } from '../types';
 import { formatDate, formatTime } from '../utils';
 import { 
   Users, 
@@ -33,6 +33,7 @@ interface DashboardViewProps {
   mode: AppMode;
   user: TeamMember;
   events: CalendarEvent[];
+  entertainmentEvents?: EntertainmentEvent[];
   tasks: MaintenanceTask[];
   lowStock: StockItem[];
   bookings: Booking[];
@@ -41,13 +42,18 @@ interface DashboardViewProps {
 }
 
 const DashboardView: React.FC<DashboardViewProps> = ({ 
-  mode, user, events, tasks, lowStock, bookings, tvSchedule, onNavigate 
+  mode, user, events, entertainmentEvents = [], tasks, lowStock, bookings, tvSchedule, onNavigate 
 }) => {
   const today = new Date();
   const todaysEvents = events.filter(e => 
     new Date(e.start).getDate() === today.getDate() && 
     new Date(e.start).getMonth() === today.getMonth()
   );
+
+  const upcomingBands = entertainmentEvents.filter(e => {
+    const d = new Date(e.date);
+    return d >= new Date(today.setHours(0,0,0,0));
+  }).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 4);
   
   // Sort bookings by time
   const upcomingBookings = [...bookings]
@@ -403,6 +409,26 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                     </div>
                                 </div>
                             ))
+                        )}
+                        
+                        {upcomingBands.length > 0 && (
+                            <div className="mt-6 pt-4 border-t border-slate-700/50">
+                                <h3 className="font-bold text-gray-900 dark:text-slate-200 mb-3 text-sm tracking-wider uppercase text-purple-400">Upcoming Entertainment</h3>
+                                <div className="space-y-3">
+                                    {upcomingBands.map(band => (
+                                        <div key={band.id} className={`flex items-center p-3 rounded-lg border-l-4 border-purple-500 bg-slate-800/30`}>
+                                            <div className="min-w-[80px] font-bold text-gray-900 dark:text-white">
+                                                <div className="text-xs text-purple-400">{new Date(band.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                                <div>{formatTime(band.date)}</div>
+                                            </div>
+                                            <div className="ml-2">
+                                                <div className="font-semibold text-gray-900 dark:text-white">{band.title}</div>
+                                                <div className="text-xs text-purple-400 font-medium">{band.type}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>

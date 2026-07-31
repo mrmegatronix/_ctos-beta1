@@ -900,6 +900,7 @@ const App: React.FC = () => {
                mode={appMode} 
                user={currentUser}
                events={events}
+               entertainmentEvents={entertainmentEvents}
                tasks={maintenanceTasks}
                lowStock={stockItems.filter(i => i.quantity <= i.minLevel)}
                bookings={bookings}
