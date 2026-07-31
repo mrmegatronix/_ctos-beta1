@@ -63,6 +63,10 @@ const App: React.FC = () => {
   // Navigation State
   const [currentModule, setCurrentModule] = useState<AppModule>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+  const [stockFilter, setStockFilter] = useState<{type: string, group: string} | null>(null);
+
+  const toggleMenu = (menu: string) => setExpandedMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
 
   // Loading State
   const [isLoading, setIsLoading] = useState(true);
@@ -224,27 +228,27 @@ const App: React.FC = () => {
         setBudgets(budgetData);
       } catch (err) {
         console.error('[CTOS] Firestore unavailable:', err);
-        // Fallback to local constants if database is down
+        // Fallback to empty arrays if database is down
         setTeamMembers(TEAM_MEMBERS);
-        setEvents(INITIAL_EVENTS);
+        setEvents([]);
         setShifts(INITIAL_SHIFTS);
-        setLeaveRequests(INITIAL_LEAVE);
+        setLeaveRequests([]);
         setStockItems(INITIAL_STOCK);
-        setBookings(INITIAL_BOOKINGS);
-        setSuppliers(INITIAL_SUPPLIERS);
-        setMaintenanceTasks(INITIAL_MAINTENANCE);
-        setEntertainmentEvents(INITIAL_ENTERTAINMENT);
-        setFunctionBookings(INITIAL_FUNCTIONS);
+        setBookings([]);
+        setSuppliers([]);
+        setMaintenanceTasks([]);
+        setEntertainmentEvents([]);
+        setFunctionBookings([]);
         setFinanceRecords(INITIAL_FINANCE);
-        setFiles(INITIAL_FILES);
-        setRecipes(INITIAL_RECIPES);
-        setIncidents(INITIAL_INCIDENTS);
-        setLostFound(INITIAL_LOST_FOUND);
-        setTVSchedule(INITIAL_TV_SCHEDULE);
-        setStocktakes(INITIAL_STOCKTAKES);
-        setOrders(INITIAL_ORDERS);
-        setTimePunches(INITIAL_TIME_PUNCHES);
-        setBudgets(INITIAL_BUDGETS);
+        setFiles([]);
+        setRecipes([]);
+        setIncidents([]);
+        setLostFound([]);
+        setTVSchedule([]);
+        setStocktakes([]);
+        setOrders([]);
+        setTimePunches([]);
+        setBudgets([]);
       } finally {
         setIsLoading(false);
       }
@@ -638,7 +642,7 @@ const App: React.FC = () => {
              </div>
              <div className="hidden md:block">
                 <div className="flex items-center space-x-2">
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight whitespace-nowrap">Coasters Tavern</h1>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight whitespace-nowrap">CTOS</h1>
                     <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
                         <span>{isOnline ? 'Online' : 'Offline'}</span>
@@ -845,8 +849,48 @@ const App: React.FC = () => {
 
                       <section>
                         <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Inventory</div>
+                        
+                        {/* Bar Products Menu */}
+                        <div className="mb-2">
+                          <button onClick={() => toggleMenu('barProducts')} className={`w-full flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === 'stock' && stockFilter?.type === 'Beverage' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                              <div className="flex items-center space-x-3">
+                                  <Boxes className="w-5 h-5" /><span>Bar Products</span>
+                              </div>
+                              {expandedMenus['barProducts'] ? <ChevronLeft className="w-4 h-4 -rotate-90 transition-transform" /> : <ChevronLeft className="w-4 h-4 transition-transform" />}
+                          </button>
+                          {expandedMenus['barProducts'] && (
+                             <div className="ml-8 mt-1 space-y-1">
+                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Beverage', group: 'supplier'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                                   By Supplier
+                                </button>
+                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Beverage', group: 'category'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                                   By Category
+                                </button>
+                             </div>
+                          )}
+                        </div>
+
+                        {/* Kitchen Products Menu */}
+                        <div className="mb-2">
+                          <button onClick={() => toggleMenu('kitchenProducts')} className={`w-full flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === 'stock' && stockFilter?.type === 'Food' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                              <div className="flex items-center space-x-3">
+                                  <Boxes className="w-5 h-5" /><span>Kitchen Products</span>
+                              </div>
+                              {expandedMenus['kitchenProducts'] ? <ChevronLeft className="w-4 h-4 -rotate-90 transition-transform" /> : <ChevronLeft className="w-4 h-4 transition-transform" />}
+                          </button>
+                          {expandedMenus['kitchenProducts'] && (
+                             <div className="ml-8 mt-1 space-y-1">
+                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Food', group: 'category'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                                   By Category
+                                </button>
+                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Food', group: 'supplier'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                                   By Supplier
+                                </button>
+                             </div>
+                          )}
+                        </div>
+
                         {[
-                            { id: 'stock', label: 'Products', icon: Boxes },
                             { id: 'ordering', label: 'Purchase Orders', icon: Truck },
                             { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList },
                             { id: 'suppliers', label: 'Suppliers', icon: Truck },
@@ -940,9 +984,16 @@ const App: React.FC = () => {
           {currentModule === 'stock' && (
              <div className="flex flex-col h-full">
                 <div className="px-6 pt-6">
-                    <ActionToolbar title="Products" isFohMode={isFohMode} />
+                    <ActionToolbar title={stockFilter ? `${stockFilter.type} Products` : "Products"} isFohMode={isFohMode} />
                 </div>
-                <StockView items={stockItems} suppliers={suppliers} onSaveItem={handleSaveStockItem} onUpdateQuantity={handleUpdateStock} />
+                <StockView 
+                  items={stockItems} 
+                  suppliers={suppliers} 
+                  onSaveItem={handleSaveStockItem} 
+                  onUpdateQuantity={handleUpdateStock} 
+                  filterType={stockFilter?.type}
+                  groupBy={stockFilter?.group}
+                />
              </div>
           )}
 

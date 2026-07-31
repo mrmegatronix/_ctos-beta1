@@ -9,9 +9,11 @@ interface StockViewProps {
   items: StockItem[];
   suppliers: Supplier[];
   onUpdateQuantity: (id: string, delta: number) => void;
+  filterType?: string;
+  groupBy?: string;
 }
 
-const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantity, onSaveItem }) => {
+const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantity, onSaveItem, filterType, groupBy }) => {
   const [editingItem, setEditingItem] = useState<StockItem | null>(null);
 
   const handleAdd = () => {
@@ -29,7 +31,19 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
     });
   };
 
-  const lowStockItems = items.filter(i => i.quantity <= i.minLevel);
+  let displayItems = items;
+  if (filterType) {
+      displayItems = displayItems.filter(i => i.productType === filterType);
+  }
+  if (groupBy) {
+      displayItems = [...displayItems].sort((a, b) => {
+          const valA = (groupBy === 'supplier' ? a.supplierId : a.category) || '';
+          const valB = (groupBy === 'supplier' ? b.supplierId : b.category) || '';
+          return valA.localeCompare(valB);
+      });
+  }
+
+  const lowStockItems = displayItems.filter(i => i.quantity <= i.minLevel);
   
   // Transfer Modal State
   const [transferItem, setTransferItem] = useState<StockItem | null>(null);
@@ -56,7 +70,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
            </div>
            <div>
              <div className="text-sm text-slate-400 ">Total Items</div>
-             <div className="text-2xl font-bold text-slate-50 ">{items.length}</div>
+             <div className="text-2xl font-bold text-slate-50 ">{displayItems.length}</div>
            </div>
         </div>
         
@@ -77,7 +91,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
            <div>
              <div className="text-sm text-slate-400 ">Inventory Value</div>
              <div className="text-2xl font-bold text-slate-50 ">
-                ${items.reduce((acc, i) => acc + (i.price * i.quantity), 0).toFixed(0)}
+                ${displayItems.reduce((acc, i) => acc + (i.price * i.quantity), 0).toFixed(0)}
              </div>
            </div>
         </div>
@@ -102,7 +116,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-              {items.map(item => (
+              {displayItems.length === 0 && (
+                 <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                       No products found for the selected category. Add items to continue.
+                    </td>
+                 </tr>
+              )}
+              {displayItems.map(item => (
                 <tr key={item.id} className={`hover:glass-panel dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
                   <td className="px-6 py-4 font-medium text-slate-50 ">{item.name}</td>
                   <td className="px-6 py-4 text-slate-300 ">
