@@ -102,6 +102,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
       setCapturedImage(null);
   };
 
+  const weeklyCash = records.reduce((sum, r) => sum + r.cashTotal, 0);
+  const weeklyEftpos = records.reduce((sum, r) => sum + r.eftposTotal, 0);
+  const totalTakings = weeklyCash + weeklyEftpos;
+
   return (
     <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
        <div className="flex justify-between items-center mb-8">
@@ -137,23 +141,23 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
               <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><DollarSign className="w-5 h-5"/></div>
-                    <span className="text-sm text-slate-400">Weekly Cash</span>
+                    <span className="text-sm text-slate-400">Total Cash</span>
                  </div>
-                 <div className="text-2xl font-bold text-slate-50 ">$1,460.00</div>
+                 <div className="text-2xl font-bold text-slate-50 ">${weeklyCash.toFixed(2)}</div>
               </div>
               <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><CreditCard className="w-5 h-5"/></div>
-                    <span className="text-sm text-slate-400">Weekly Eftpos</span>
+                    <span className="text-sm text-slate-400">Total Eftpos</span>
                  </div>
-                 <div className="text-2xl font-bold text-slate-50 ">$4,340.50</div>
+                 <div className="text-2xl font-bold text-slate-50 ">${weeklyEftpos.toFixed(2)}</div>
               </div>
               <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg"><TrendingUp className="w-5 h-5"/></div>
                     <span className="text-sm text-slate-400">Total Takings</span>
                  </div>
-                 <div className="text-2xl font-bold text-slate-50 ">$5,800.50</div>
+                 <div className="text-2xl font-bold text-slate-50 ">${totalTakings.toFixed(2)}</div>
               </div>
            </div>
 

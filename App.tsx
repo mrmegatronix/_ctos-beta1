@@ -314,29 +314,36 @@ const App: React.FC = () => {
            }
        }
        setAppMode(mode);
+       setIsDarkMode(mode !== 'OFFICE');
        showNotification(`Switched to ${mode} Mode`, 'success');
        setIsSidebarOpen(true);
-       setCurrentModule('dashboard');
+       
+       if (mode === 'FOH') setCurrentModule('browser');
+       else setCurrentModule('dashboard');
   };
 
   const handleLogin = (member: TeamMember) => {
       setCurrentUser(member);
-      // Auto-set mode based on role
+      let mode: AppMode = 'OFFICE';
       if (member.role === 'Front of House') {
-          setAppMode('FOH');
+          mode = 'FOH';
       } else if (['Head Chef', 'Chef', 'Kitchen Hand'].includes(member.role)) {
-          setAppMode('BOH');
-      } else {
-          setAppMode('OFFICE'); 
+          mode = 'BOH';
       }
+      setAppMode(mode);
+      setIsDarkMode(mode !== 'OFFICE');
       setIsSidebarOpen(true);
-      setCurrentModule('dashboard');
+      
+      if (mode === 'FOH') setCurrentModule('browser');
+      else setCurrentModule('dashboard');
+
       showNotification(`Welcome, ${member.name}`, 'success');
   };
 
   const handleLogout = () => {
       setCurrentUser(null);
       setAppMode('OFFICE'); // Reset mode
+      setIsDarkMode(false);
       setCurrentModule('dashboard');
   };
 
@@ -608,12 +615,23 @@ const App: React.FC = () => {
 
 
 
+  // Determine dynamic container classes
+  const containerClasses = appMode === 'OFFICE'
+    ? `flex h-screen print:h-auto flex-col transition-colors duration-300 relative overflow-hidden bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white`
+    : appMode === 'FOH'
+    ? `flex h-screen print:h-auto flex-col bg-animated-gradient transition-colors duration-300 text-lg relative overflow-hidden text-white`
+    : `flex h-screen print:h-auto flex-col bg-slate-950 transition-colors duration-300 relative overflow-hidden text-white`;
+
   // Add a global class for demo highlighting to the main container
   return (
-    <div className={`flex h-screen print:h-auto flex-col bg-animated-gradient transition-colors duration-300 ${isFohMode ? 'text-lg' : ''} demo-highlighting-active relative overflow-hidden`}>
-      {/* Ambient background glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/10 dark:bg-rose-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow-delayed"></div>
+    <div className={`${containerClasses} demo-highlighting-active`}>
+      {/* Ambient background glows - Only show in FOH/BOH */}
+      {appMode !== 'OFFICE' && (
+          <>
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/10 dark:bg-rose-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow-delayed"></div>
+          </>
+      )}
 
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-4 ${notification.type === 'success' ? 'bg-gray-900 text-white dark:bg-white dark:text-slate-900' : 'bg-red-500 text-white'}`}>
