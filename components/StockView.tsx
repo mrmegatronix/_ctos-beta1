@@ -109,72 +109,74 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
             <thead>
               <tr className="glass-panel /50 border-b border-white/10  text-xs uppercase text-slate-400 ">
                 <th className="px-6 py-4 font-semibold">Item Name</th>
-                <th className="px-6 py-4 font-semibold">Category</th>
-                <th className="px-6 py-4 font-semibold">Quantity</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
+                <th className="px-6 py-4 font-semibold">Size</th>
+                <th className="px-6 py-4 font-semibold">Supplier</th>
+                <th className="px-6 py-4 font-semibold">Cost Price</th>
+                <th className="px-6 py-4 font-semibold">Sell Price</th>
+                <th className="px-6 py-4 font-semibold">Cost Per Serve</th>
+                <th className="px-6 py-4 font-semibold">Stock Count</th>
+                <th className="px-6 py-4 font-semibold">Par Level</th>
+                <th className="px-6 py-4 font-semibold text-blue-400">Order Amount</th>
                 <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {displayItems.length === 0 && (
                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                    <td colSpan={10} className="px-6 py-8 text-center text-slate-400">
                        No products found for the selected category. Add items to continue.
                     </td>
                  </tr>
               )}
-              {displayItems.map(item => (
-                <tr key={item.id} className={`hover:glass-panel dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
-                  <td className="px-6 py-4 font-medium text-slate-50 ">{item.name}</td>
-                  <td className="px-6 py-4 text-slate-300 ">
-                    <span className="px-2 py-1 rounded bg-gray-100  text-xs">{item.category}</span>
-                  </td>
-                  <td className="px-6 py-4 text-slate-50  font-medium">
-                    {item.quantity} <span className="text-gray-400 text-xs ml-1">{item.unit}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {item.quantity <= item.minLevel ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                        Low Stock
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                        In Stock
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right flex items-center justify-end space-x-2">
-                    <button 
-                        onClick={() => onUpdateQuantity(item.id, -1)}
-                        className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-400 "
-                        title="Reduce Stock"
-                    >
-                        <ArrowDown className="w-4 h-4" />
-                    </button>
-                    <button 
-                        onClick={() => onUpdateQuantity(item.id, 1)}
-                        className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-400 "
-                        title="Add Stock"
-                    >
-                        <ArrowUp className="w-4 h-4" />
-                    </button>
-                    <button 
-                        onClick={() => setTransferItem(item)}
-                        className="p-1 rounded hover:bg-indigo-100 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 ml-2"
-                        title="Transfer to other site"
-                    >
-                        <ArrowRightLeft className="w-4 h-4" />
-                    </button>
-                    <button 
-                        onClick={() => setEditingItem(item)}
-                        className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 ml-2"
-                        title="Edit Item Info"
-                    >
-                        <Edit2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {displayItems.map(item => {
+                const orderAmount = Math.max(0, item.minLevel - item.quantity);
+                const costPerServe = item.price > 0 && item.cost > 0 ? ((item.cost / item.price) * 100).toFixed(1) + '%' : '$' + (item.cost || 0).toFixed(2);
+                return (
+                  <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
+                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-50">{item.name} <span className="block text-xs text-slate-400">{item.category}</span></td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.unit || '-'}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.supplierId || 'Unknown'}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">${(item.cost || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">${(item.price || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{costPerServe}</td>
+                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-50">{item.quantity}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.minLevel}</td>
+                    <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">
+                      {orderAmount > 0 ? orderAmount : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-right flex items-center justify-end space-x-2">
+                      <button 
+                          onClick={() => onUpdateQuantity(item.id, -1)}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400"
+                          title="Reduce Stock"
+                      >
+                          <ArrowDown className="w-4 h-4" />
+                      </button>
+                      <button 
+                          onClick={() => onUpdateQuantity(item.id, 1)}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400"
+                          title="Add Stock"
+                      >
+                          <ArrowUp className="w-4 h-4" />
+                      </button>
+                      <button 
+                          onClick={() => setTransferItem(item)}
+                          className="p-1 rounded hover:bg-indigo-100 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 ml-2"
+                          title="Transfer to other site"
+                      >
+                          <ArrowRightLeft className="w-4 h-4" />
+                      </button>
+                      <button 
+                          onClick={() => setEditingItem(item)}
+                          className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 ml-2"
+                          title="Edit Item Info"
+                      >
+                          <Edit2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
