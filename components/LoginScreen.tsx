@@ -54,9 +54,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
   }, [pin]);
 
   return (
-    <div className="min-h-screen transition-colors flex items-center justify-center p-4" style={{ backgroundImage: 'url(/landing_bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen transition-colors flex items-center justify-center p-4" style={{ backgroundImage: 'url(/login-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="glass-panel  w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 ">
-        <div className="p-4 bg-indigo-600 text-center">
+        <div className="p-4 bg-indigo-600/90 text-center">
            <div className="w-12 h-12 bg-black rounded-full mx-auto mb-2 border-2 border-amber-500 flex items-center justify-center">
              <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover rounded-full" />
            </div>
