@@ -88,7 +88,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
   const currentItems = getContents(currentFolderId);
 
   return (
-    <div className="flex-1 p-6 overflow-hidden flex flex-col glass-panel ">
+    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="flex items-center justify-between mb-6 shrink-0">
            <h2 className="text-2xl font-bold text-slate-50 ">Filing Cabinet</h2>
            <div className="flex space-x-2">
@@ -102,7 +102,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
        </div>
 
        {/* Breadcrumbs & Navigation */}
-       <div className="glass-panel  p-3 rounded-xl border border-white/10  flex items-center space-x-2 mb-6">
+       <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-3 rounded-xl border border-gray-200 dark:border-slate-700  flex items-center space-x-2 mb-6">
            <button onClick={() => setCurrentFolderId(null)} className="p-1 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-md">
                <Home className="w-4 h-4 text-slate-300 " />
            </button>
@@ -123,7 +123,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
        </div>
 
        {showUpload && (
-           <div className="mb-6 glass-panel  p-6 rounded-xl border border-white/10  max-w-2xl">
+           <div className="mb-6 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  max-w-2xl">
                <div className="flex justify-between items-center mb-4">
                    <h3 className="font-bold text-slate-50 ">Upload Documents</h3>
                    <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-slate-300 dark:hover:text-gray-200">Cancel</button>
@@ -145,7 +145,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
                        <div 
                          key={item.id}
                          onDoubleClick={() => item.type === 'folder' && handleFolderClick(item.id)}
-                         className="group relative glass-panel  border border-gray-100  rounded-xl p-4 flex flex-col items-center text-center hover:glass-panel dark:hover:bg-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer"
+                         className="group relative bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-100  rounded-xl p-4 flex flex-col items-center text-center hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer"
                        >
                            <div className="mb-3 transition-transform group-hover:scale-105">
                                {getIcon(item.type)}

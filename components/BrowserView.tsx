@@ -20,7 +20,7 @@ const BrowserView: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100  overflow-hidden">
       {/* Browser Toolbar */}
-      <div className="glass-panel  border-b border-white/10  p-2 flex items-center space-x-2 shrink-0">
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border-b border-gray-200 dark:border-slate-700  p-2 flex items-center space-x-2 shrink-0">
          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-400"><ArrowLeft className="w-4 h-4" /></button>
          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-400"><ArrowRight className="w-4 h-4" /></button>
          <button onClick={() => { setIsLoading(true); const u = currentUrl; setCurrentUrl(''); setTimeout(() => setCurrentUrl(u), 10); }} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-400"><RotateCw className="w-4 h-4" /></button>

@@ -67,7 +67,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel  relative">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  relative">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-bold text-slate-50 ">Functions & Private Events</h2>
@@ -84,7 +84,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
 
       <div className="space-y-6">
         {functions.map(func => (
-          <div key={func.id} className="glass-panel  rounded-xl border border-white/10  overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
+          <div key={func.id} className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
              <div className="p-6">
                <div className="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
                  <div className="flex items-center space-x-4">
@@ -111,15 +111,15 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div className="flex items-center p-3 glass-panel /30 rounded-lg">
+                  <div className="flex items-center p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /30 rounded-lg">
                      <Users className="w-5 h-5 text-gray-400 mr-3" />
                      <span className="text-slate-200  font-medium">{func.guests} Guests</span>
                   </div>
-                  <div className="flex items-center p-3 glass-panel /30 rounded-lg">
+                  <div className="flex items-center p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /30 rounded-lg">
                      <MapPin className="w-5 h-5 text-gray-400 mr-3" />
                      <span className="text-slate-200  font-medium">{func.area}</span>
                   </div>
-                  <div className="flex items-center p-3 glass-panel /30 rounded-lg">
+                  <div className="flex items-center p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /30 rounded-lg">
                      <DollarSign className="w-5 h-5 text-gray-400 mr-3" />
                      <span className="text-slate-200  font-medium capitalize">{func.status}</span>
                   </div>
@@ -138,7 +138,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                    </div>
                )}
              </div>
-             <div className="glass-panel /50 px-6 py-3 border-t border-gray-100  flex justify-end space-x-3">
+             <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 px-6 py-3 border-t border-gray-100  flex justify-end space-x-3">
                 <button className="text-sm font-medium text-slate-300  hover:text-slate-50 dark:hover:text-white">View Contract</button>
                 <button className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">Manage Booking</button>
              </div>
@@ -149,7 +149,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
       {/* New Function Modal */}
       {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="glass-panel  rounded-2xl w-full max-w-lg p-6 shadow-xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
+              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-lg p-6 shadow-xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
                   <div className="flex justify-between items-start mb-6">
                       <h3 className="text-lg font-bold text-slate-50 ">Book Private Function</h3>
                       <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-slate-400">
@@ -163,7 +163,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                           <input 
                             type="text" 
                             required 
-                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                             placeholder="e.g. John's 50th"
                             value={newFunction.eventName}
                             onChange={e => setNewFunction({...newFunction, eventName: e.target.value})}
@@ -175,7 +175,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                           <input 
                             type="text" 
                             required 
-                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                             placeholder="e.g. John Doe"
                             value={newFunction.clientName}
                             onChange={e => setNewFunction({...newFunction, clientName: e.target.value})}
@@ -188,7 +188,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                               <input 
                                 type="date" 
                                 required 
-                                className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                                 value={dateStr}
                                 onChange={e => setDateStr(e.target.value)}
                               />
@@ -198,7 +198,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                               <input 
                                 type="time" 
                                 required 
-                                className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                                 value={timeStr}
                                 onChange={e => setTimeStr(e.target.value)}
                               />
@@ -210,7 +210,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                               <label className="block text-sm font-medium text-slate-200  mb-1">Guest Count</label>
                               <input 
                                 type="number" 
-                                className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                                 value={newFunction.guests}
                                 onChange={e => setNewFunction({...newFunction, guests: parseInt(e.target.value)})}
                               />
@@ -218,7 +218,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                           <div>
                               <label className="block text-sm font-medium text-slate-200  mb-1">Area</label>
                               <select 
-                                className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                                 value={newFunction.area}
                                 onChange={e => setNewFunction({...newFunction, area: e.target.value as any})}
                               >
@@ -234,7 +234,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                           <div className="flex gap-2 mb-2">
                               <input 
                                 type="text" 
-                                className="flex-1 px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                                className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                                 placeholder="Add requirement (e.g. Projector)"
                                 value={reqInput}
                                 onChange={e => setReqInput(e.target.value)}
@@ -262,7 +262,7 @@ const FunctionsView: React.FC<FunctionsViewProps> = ({ functions, onSaveFunction
                           <input 
                             type="checkbox" 
                             id="deposit"
-                            className="w-4 h-4 rounded border-white/20 text-indigo-600 focus:ring-indigo-500"
+                            className="w-4 h-4 rounded border-gray-200 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
                             checked={newFunction.depositPaid}
                             onChange={e => setNewFunction({...newFunction, depositPaid: e.target.checked})}
                           />

@@ -36,6 +36,18 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
     return matchesSport && matchesDay;
   }).sort((a,b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
+  
+  const getEventColor = (sport: string, match: string) => {
+    const s = (sport + ' ' + match).toLowerCase();
+    if (s.includes('super rugby') || s.includes('crusaders')) return '#ff0000';
+    if (s.includes('nrl') || s.includes('warriors')) return '#00ff00';
+    if (s.includes('karaoke')) return '#800080';
+    if (s.includes('band')) return '#ffa500';
+    if (s.includes('quiz') || s.includes('weekly event')) return '#eab308';
+    if (s.includes('special') || s.includes('burger')) return '#f97316';
+    return '#3b82f6'; // default blue
+  };
+
   const getChannelColor = (channel: string) => {
     if (channel.includes('1')) return 'bg-blue-600 text-white';
     if (channel.includes('2')) return 'bg-yellow-500 text-black';
@@ -84,7 +96,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
             <h2 className="text-2xl font-bold text-slate-50  flex items-center">
@@ -104,7 +116,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
           
           <div className="flex gap-2">
             <select 
-              className="px-3 py-2 glass-panel  border border-white/10  rounded-lg outline-none"
+              className="px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
               value={filterDay}
               onChange={(e) => setFilterDay(e.target.value as any)}
             >
@@ -113,7 +125,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
                <option value="All">All Upcoming</option>
             </select>
             <select 
-              className="px-3 py-2 glass-panel  border border-white/10  rounded-lg outline-none"
+              className="px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
               value={filterSport}
               onChange={(e) => setFilterSport(e.target.value)}
             >
@@ -142,7 +154,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
 
        <div className="space-y-4">
          {filteredSchedule.map(item => (
-           <div key={item.id} className="glass-panel  rounded-xl border border-white/10  p-4 shadow-lg hover:shadow-xl transition-shadow flex flex-col md:flex-row items-center gap-4">
+           <div key={item.id} className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border-l-4 p-4 shadow-lg hover:shadow-xl transition-shadow flex flex-col md:flex-row items-center gap-4" style={{ borderLeftColor: getEventColor(item.sport, item.match) }}>
               
               {/* Time Column */}
               <div className="md:w-32 flex-shrink-0 text-center md:text-left">
@@ -176,7 +188,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
          ))}
 
          {filteredSchedule.length === 0 && (
-           <div className="text-center py-12 glass-panel /50 rounded-xl border border-dashed border-white/20 ">
+           <div className="text-center py-12 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 ">
              <Tv className="w-12 h-12 text-gray-300 mx-auto mb-3" />
              <p className="text-slate-400">No scheduled sport found for these filters.</p>
            </div>
@@ -186,12 +198,12 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
        {/* Add Modal */}
        {isModalOpen && (
          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="glass-panel  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95">
+            <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95">
                <h3 className="text-lg font-bold text-slate-50  mb-4">Add TV Listing</h3>
                <form onSubmit={handleSave} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-200  mb-1">Match / Event Name</label>
-                    <input type="text" required className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none" 
+                    <input type="text" required className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none" 
                       placeholder="e.g. Warriors vs Storm"
                       value={newItem.match || ''}
                       onChange={e => setNewItem({...newItem, match: e.target.value})}
@@ -200,7 +212,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
                   <div className="grid grid-cols-2 gap-4">
                      <div>
                         <label className="block text-sm font-medium text-slate-200  mb-1">Sport</label>
-                        <select className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                        <select className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                           value={newItem.sport}
                           onChange={e => setNewItem({...newItem, sport: e.target.value as any})}
                         >
@@ -214,7 +226,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
                      </div>
                      <div>
                         <label className="block text-sm font-medium text-slate-200  mb-1">Channel</label>
-                        <select className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                        <select className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                           value={newItem.channel}
                           onChange={e => setNewItem({...newItem, channel: e.target.value})}
                         >
@@ -229,7 +241,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
                   <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-200  mb-1">Start Time</label>
-                        <input type="datetime-local" required className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                        <input type="datetime-local" required className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                           onChange={e => setNewItem({...newItem, startTime: new Date(e.target.value)})}
                         />
                       </div>
@@ -242,7 +254,7 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-200  mb-1">Notes (Optional)</label>
-                    <input type="text" className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none" 
+                    <input type="text" className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none" 
                       placeholder="e.g. Sound On Main Screen"
                       value={newItem.notes || ''}
                       onChange={e => setNewItem({...newItem, notes: e.target.value})}

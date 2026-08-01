@@ -9,7 +9,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'admin-nikko',
     name: 'Nikko',
     email: 'work.nikko@gmail.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
+    avatar: '',
     color: '#10B981',
     visible: true,
     role: 'Admin',

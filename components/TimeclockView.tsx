@@ -1,8 +1,8 @@
 import React from 'react';
-import { User, StaffRole } from '../types';
+import { TeamMember, StaffRole } from '../types';
 
 interface TimeclockViewProps {
-  user: User | null;
+  user: TeamMember | null;
   staff: any[];
 }
 
@@ -14,7 +14,7 @@ const TimeclockView: React.FC<TimeclockViewProps> = ({ user }) => {
       
       {/* Container */}
       <div className="flex-1 w-full h-full p-4 overflow-hidden">
-        <div className="w-full h-full max-w-7xl mx-auto glass-panel overflow-hidden relative rounded-2xl flex flex-col">
+        <div className="w-full h-full max-w-7xl mx-auto bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden relative rounded-2xl flex flex-col">
           <div className="p-4 border-b border-gray-700/50 flex justify-between items-center bg-gray-800/30">
             <div>
               <h2 className="text-2xl font-bold text-white tracking-tight">Standalone Timeclock</h2>

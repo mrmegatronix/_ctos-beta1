@@ -42,7 +42,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
   const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Unknown';
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="flex justify-between items-center mb-8">
          <div>
              <h2 className="text-2xl font-bold text-slate-50  flex items-center">
@@ -76,7 +76,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                        <div>
                            <label className="block text-sm font-medium text-slate-200  mb-1">Type</label>
                            <select 
-                             className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                             className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                              value={newReport.type}
                              onChange={e => setNewReport({...newReport, type: e.target.value as any})}
                            >
@@ -92,7 +92,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                            <input 
                              type="datetime-local"
                              required
-                             className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                             className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                              onChange={e => setNewReport({...newReport, date: new Date(e.target.value)})}
                            />
                        </div>
@@ -112,7 +112,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                        <label className="block text-sm font-medium text-slate-200  mb-1">Description of Incident</label>
                        <textarea 
                          rows={3}
-                         className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                         className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                          placeholder="Describe what happened, who was involved, physical descriptions..."
                          value={newReport.description || ''}
                          onChange={e => setNewReport({...newReport, description: e.target.value})}
@@ -123,7 +123,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                        <label className="block text-sm font-medium text-slate-200  mb-1">Action Taken</label>
                        <textarea 
                          rows={2}
-                         className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                         className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                          placeholder="What did you do? (e.g. Refused service, offered water, asked to leave)"
                          value={newReport.actionTaken || ''}
                          onChange={e => setNewReport({...newReport, actionTaken: e.target.value})}
@@ -142,7 +142,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
 
        <div className="space-y-4">
            {incidents.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(incident => (
-               <div key={incident.id} className="glass-panel  border-l-4 border-red-500 rounded-r-xl p-6 shadow-lg">
+               <div key={incident.id} className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border-l-4 border-red-500 rounded-r-xl p-6 shadow-lg">
                    <div className="flex justify-between items-start mb-2">
                        <div>
                            <span className="font-bold text-red-600 uppercase tracking-wide text-sm mr-3">{incident.type}</span>
@@ -155,7 +155,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                    
                    <p className="text-slate-100  mb-4">{incident.description}</p>
                    
-                   <div className="glass-panel /30 p-3 rounded-lg text-sm text-slate-300 ">
+                   <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /30 p-3 rounded-lg text-sm text-slate-300 ">
                        <span className="font-bold text-slate-50  mr-2">Action Taken:</span>
                        {incident.actionTaken}
                    </div>

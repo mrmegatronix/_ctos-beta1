@@ -3,7 +3,7 @@ import { BookOpen } from 'lucide-react';
 
 const GeminiNotebookView: React.FC = () => {
   return (
-    <div className="flex-1 p-6 overflow-hidden flex flex-col glass-panel h-full w-full">
+    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm h-full w-full">
       <div className="flex items-center justify-between mb-4 shrink-0">
           <h2 className="text-2xl font-bold text-slate-50 flex items-center">
               <BookOpen className="w-6 h-6 mr-3 text-emerald-500" />

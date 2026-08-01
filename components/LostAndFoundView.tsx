@@ -45,7 +45,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
   const filteredItems = items.filter(i => i.itemDescription.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
                 <h2 className="text-2xl font-bold text-slate-50  flex items-center">
@@ -61,7 +61,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                     <input 
                         type="text" 
                         placeholder="Search items..." 
-                        className="w-full pl-9 pr-4 py-2 glass-panel  border border-white/10  rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -83,7 +83,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                         <label className="block text-sm font-medium text-slate-200  mb-1">Item Description</label>
                         <input 
                             type="text" required
-                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                             placeholder="e.g. Black iPhone 12 with floral case"
                             value={newItem.itemDescription || ''}
                             onChange={e => setNewItem({...newItem, itemDescription: e.target.value})}
@@ -93,7 +93,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                         <label className="block text-sm font-medium text-slate-200  mb-1">Location Found</label>
                         <input 
                             type="text" required
-                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                             placeholder="e.g. Table 12, under seat"
                             value={newItem.locationFound || ''}
                             onChange={e => setNewItem({...newItem, locationFound: e.target.value})}
@@ -107,9 +107,9 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
             </div>
         )}
 
-        <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg">
             <table className="w-full text-left">
-                <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
+                <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 text-xs uppercase text-slate-400 ">
                     <tr>
                         <th className="px-6 py-3">Date Found</th>
                         <th className="px-6 py-3">Item</th>
@@ -120,7 +120,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                     {filteredItems.map(item => (
-                        <tr key={item.id} className="hover:glass-panel dark:hover:bg-slate-700/30">
+                        <tr key={item.id} className="hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/30">
                             <td className="px-6 py-4 text-sm text-slate-400 ">{formatDate(new Date(item.dateFound))}</td>
                             <td className="px-6 py-4 font-medium text-slate-50 ">{item.itemDescription}</td>
                             <td className="px-6 py-4 text-sm text-slate-300 ">{item.locationFound}</td>

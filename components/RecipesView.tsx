@@ -38,7 +38,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
 
       <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded-r">
         <div className="flex items-center">
@@ -87,7 +87,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
                <input 
                   type="text" 
                   placeholder="Search by name or ingredient..." 
-                  className="w-full pl-10 pr-4 py-3 glass-panel  border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg shadow-inner"
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg shadow-inner"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                />
@@ -99,7 +99,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
                <div 
                   key={recipe.id} 
                   onClick={() => setSelectedRecipe(recipe)}
-                  className="group glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg hover:shadow-xl cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-700"
+                  className="group bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg hover:shadow-xl cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-700"
                >
                    <div className="h-48 bg-gray-200  relative overflow-hidden">
                        {recipe.image ? (
@@ -138,7 +138,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
        {/* Detail Modal */}
        {selectedRecipe && (
            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-               <div className="glass-panel  rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
+               <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
                    <div className="relative h-64 flex-shrink-0 bg-gray-200">
                         {selectedRecipe.image && (
                             <img src={selectedRecipe.image} className="w-full h-full object-cover" alt="" />
@@ -191,7 +191,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes , onSave }) => {
                                        </div>
                                        <div className="flex flex-wrap gap-2">
                                            {selectedRecipe.allergens.map(a => (
-                                               <span key={a} className="px-2 py-1 glass-panel  rounded border border-red-200 dark:border-red-800 text-sm font-medium text-red-700 dark:text-red-300">
+                                               <span key={a} className="px-2 py-1 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded border border-red-200 dark:border-red-800 text-sm font-medium text-red-700 dark:text-red-300">
                                                    {a}
                                                </span>
                                            ))}

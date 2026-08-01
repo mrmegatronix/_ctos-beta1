@@ -27,7 +27,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
   };
 
   return (
-    <div className="flex h-full flex-col p-6 space-y-6 glass-panel /50 overflow-y-auto">
+    <div className="flex h-full flex-col p-6 space-y-6 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 overflow-y-auto">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-slate-50 ">Staff Timesheets</h2>
@@ -40,7 +40,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                     type="date" 
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="pl-10 pr-4 py-2 glass-panel  border border-white/10  rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                 />
             </div>
             <button className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors shadow-lg">
@@ -50,10 +50,10 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
         </div>
       </div>
 
-      <div className="glass-panel  rounded-xl shadow-lg border border-gray-100  overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl shadow-lg border border-gray-100  overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="glass-panel /80 border-b border-gray-100 ">
+            <tr className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /80 border-b border-gray-100 ">
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Staff Member</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Rostered Shift</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Rostered Hrs</th>
@@ -70,7 +70,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
               const variance = actualHrs - rosteredHrs;
               
               return (
-                <tr key={member.id} className="hover:glass-panel dark:hover:bg-slate-700/30 transition-colors">
+                <tr key={member.id} className="hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/30 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       <div className={`w-8 h-8 rounded-full bg-${member.color}-100 flex items-center justify-center`}>
@@ -104,7 +104,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                             type="number" 
                             step="0.5"
                             placeholder="0.0"
-                            className="w-20 px-3 py-1 text-center glass-panel  border border-white/10  rounded-md text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-20 px-3 py-1 text-center bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-md text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
                             onChange={(e) => handleHourChange(member.id, e.target.value)}
                         />
                     </div>
@@ -141,7 +141,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-panel  p-4 rounded-xl border border-gray-100  flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-4 rounded-xl border border-gray-100  flex items-center space-x-4">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                 <Users className="w-6 h-6 text-blue-600" />
             </div>
@@ -150,7 +150,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                 <div className="text-xs text-slate-400 uppercase font-bold tracking-tight">Total Staff</div>
             </div>
         </div>
-        <div className="glass-panel  p-4 rounded-xl border border-gray-100  flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-4 rounded-xl border border-gray-100  flex items-center space-x-4">
             <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                 <Clock className="w-6 h-6 text-emerald-600" />
             </div>
@@ -161,7 +161,7 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                 <div className="text-xs text-slate-400 uppercase font-bold tracking-tight">Total Hours Today</div>
             </div>
         </div>
-        <div className="glass-panel  p-4 rounded-xl border border-gray-100  flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-4 rounded-xl border border-gray-100  flex items-center space-x-4">
             <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                 <FileText className="w-6 h-6 text-indigo-600" />
             </div>

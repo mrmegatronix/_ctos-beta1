@@ -72,8 +72,8 @@ const EventModal: React.FC<EventModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="glass-panel  rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100 ">
-        <div className="px-6 py-4 border-b border-gray-100  flex justify-between items-center glass-panel ">
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100 ">
+        <div className="px-6 py-4 border-b border-gray-100  flex justify-between items-center bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
           <h2 className="text-lg font-semibold text-slate-100 ">
             {initialEvent?.id ? 'Edit Event' : 'New Event'}
           </h2>
@@ -88,7 +88,7 @@ const EventModal: React.FC<EventModalProps> = ({
             <input 
               type="text" 
               required
-              className="w-full px-3 py-2 border border-white/10  glass-panel  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
               placeholder="e.g. Weekly Sync"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -101,7 +101,7 @@ const EventModal: React.FC<EventModalProps> = ({
               <input 
                 type="datetime-local" 
                 required
-                className="w-full px-3 py-2 border border-white/10  glass-panel  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                 value={start}
                 onChange={e => setStart(e.target.value)}
               />
@@ -111,7 +111,7 @@ const EventModal: React.FC<EventModalProps> = ({
               <input 
                 type="datetime-local" 
                 required
-                className="w-full px-3 py-2 border border-white/10  glass-panel  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                 value={end}
                 onChange={e => setEnd(e.target.value)}
               />
@@ -129,7 +129,7 @@ const EventModal: React.FC<EventModalProps> = ({
                   className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     attendees.includes(member.id) 
                       ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300' 
-                      : 'glass-panel  border-white/10  text-slate-300  hover:glass-panel dark:hover:bg-slate-700'
+                      : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border-gray-200 dark:border-slate-700  text-slate-300  hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700'
                   }`}
                 >
                   <img src={member.avatar} alt={member.name} className="w-5 h-5 rounded-full" />
@@ -143,7 +143,7 @@ const EventModal: React.FC<EventModalProps> = ({
             <label className="block text-sm font-medium text-slate-200  mb-1">Description</label>
             <textarea 
               rows={3}
-              className="w-full px-3 py-2 border border-white/10  glass-panel  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="Add details..."
               value={description}
               onChange={e => setDescription(e.target.value)}

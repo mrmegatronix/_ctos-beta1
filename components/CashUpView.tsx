@@ -93,8 +93,8 @@ const CashUpView: React.FC = () => {
     const varClose = totalClose - (tillKey === 'crt' ? -till.expectedFloat : till.expectedFloat); // special case CRT template has float at +40,000 for close?
 
     return (
-      <div className="glass-panel overflow-hidden rounded-xl border border-white/10 shadow-lg flex-1 min-w-[320px]">
-        <div className="bg-slate-800/80 px-4 py-2 border-b border-white/10 text-center font-bold text-slate-100">{title}</div>
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 shadow-lg flex-1 min-w-[320px]">
+        <div className="bg-slate-800/80 px-4 py-2 border-b border-gray-200 dark:border-slate-700 text-center font-bold text-slate-100">{title}</div>
         <table className="w-full text-sm">
           <thead className="bg-slate-700/50 text-slate-300">
             <tr>
@@ -115,19 +115,19 @@ const CashUpView: React.FC = () => {
               <tr key={d} className="hover:bg-slate-700/30">
                 <td className="px-2 py-1 font-mono text-slate-400">${d}</td>
                 <td className="px-1 py-1">
-                  <input type="number" min="0" className="w-full bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-center text-slate-200 focus:outline-none focus:border-indigo-500" 
+                  <input type="number" min="0" className="w-full bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-center text-slate-200 focus:outline-none focus:border-indigo-500" 
                     value={till.counts.open[d] || ''} onChange={e => handleTillChange(tillKey, 'open', d, e.target.value)} />
                 </td>
                 <td className="px-2 py-1 text-right text-slate-300 font-mono">{formatMoney(till.counts.open[d] * DENOM_VALUES[d])}</td>
                 <td className="px-1 py-1">
-                  <input type="number" min="0" className="w-full bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-center text-slate-200 focus:outline-none focus:border-indigo-500" 
+                  <input type="number" min="0" className="w-full bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-center text-slate-200 focus:outline-none focus:border-indigo-500" 
                     value={till.counts.close[d] || ''} onChange={e => handleTillChange(tillKey, 'close', d, e.target.value)} />
                 </td>
                 <td className="px-2 py-1 text-right text-slate-300 font-mono">{formatMoney(till.counts.close[d] * DENOM_VALUES[d])}</td>
               </tr>
             ))}
           </tbody>
-          <tfoot className="bg-slate-900/80 font-bold border-t-2 border-white/20">
+          <tfoot className="bg-slate-900/80 font-bold border-t-2 border-gray-200 dark:border-slate-700">
             <tr>
               <td className="px-2 py-2 text-slate-300">TOTAL</td>
               <td colSpan={2} className="px-2 py-2 text-right text-emerald-400 font-mono">{formatMoney(totalOpen)}</td>
@@ -153,25 +153,25 @@ const CashUpView: React.FC = () => {
     // We will standardise it into a vertical list.
 
     return (
-      <div className="glass-panel overflow-hidden rounded-xl border border-white/10 shadow-lg flex-1 min-w-[320px]">
-        <div className="bg-slate-800/80 px-4 py-2 border-b border-white/10 text-center font-bold text-slate-100">{title}</div>
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 shadow-lg flex-1 min-w-[320px]">
+        <div className="bg-slate-800/80 px-4 py-2 border-b border-gray-200 dark:border-slate-700 text-center font-bold text-slate-100">{title}</div>
         <div className="p-4 flex flex-col md:flex-row gap-4">
             
             {/* Left Col - Extras */}
             <div className="flex-1 space-y-2">
                 <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-400">Loose notes</span>
-                    <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
+                    <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
                            value={safe.counts.looseNotes || ''} onChange={e => handleSafeChange(safeKey, 'looseNotes', e.target.value)} />
                 </div>
                 <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-400">Loose Coins</span>
-                    <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
+                    <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
                            value={safe.counts.looseCoins || ''} onChange={e => handleSafeChange(safeKey, 'looseCoins', e.target.value)} />
                 </div>
                 <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-400">Petty Cash/Sub</span>
-                    <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
+                    <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
                            value={safe.counts.pettyCash || ''} onChange={e => handleSafeChange(safeKey, 'pettyCash', e.target.value)} />
                 </div>
 
@@ -179,27 +179,27 @@ const CashUpView: React.FC = () => {
                     <>
                         <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-400">CRT</span>
-                            <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" />
+                            <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" />
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-400">Hoppers</span>
-                            <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
+                            <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
                                 value={safe.counts.hoppers || ''} onChange={e => handleSafeChange(safeKey, 'hoppers', e.target.value)} />
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-400">Gaming Till</span>
-                            <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
+                            <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
                                 value={safe.counts.gamingTill || ''} onChange={e => handleSafeChange(safeKey, 'gamingTill', e.target.value)} />
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-400">Banking</span>
-                            <input type="number" className="w-24 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
+                            <input type="number" className="w-24 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-right text-slate-200 focus:outline-none" 
                                 value={safe.counts.banking || ''} onChange={e => handleSafeChange(safeKey, 'banking', e.target.value)} />
                         </div>
                     </>
                 )}
                 
-                <div className="pt-4 mt-4 border-t border-white/10">
+                <div className="pt-4 mt-4 border-t border-gray-200 dark:border-slate-700">
                     <div className="flex justify-between items-center font-bold">
                         <span className="text-slate-300">Total</span>
                         <span className="text-emerald-400 font-mono">{formatMoney(total)}</span>
@@ -214,11 +214,11 @@ const CashUpView: React.FC = () => {
             </div>
 
             {/* Right Col - Denoms (Only top 6 for safes usually, but we'll show all to be safe, filter > $2 in template) */}
-            <div className="flex-1 space-y-1 border-l border-white/10 pl-4">
+            <div className="flex-1 space-y-1 border-l border-gray-200 dark:border-slate-700 pl-4">
                 {['100', '50', '20', '10', '5', '2', '1', '0.5', '0.2', '0.1'].filter(d => safeKey === 'officeOpen' ? true : parseFloat(d) >= 5).map(d => (
                     <div key={d} className="flex justify-between items-center">
                         <span className="text-sm text-slate-400 font-mono">${d}</span>
-                        <input type="number" className="w-20 bg-slate-900/50 border border-white/10 rounded px-2 py-1 text-center text-slate-200 focus:outline-none" 
+                        <input type="number" className="w-20 bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-center text-slate-200 focus:outline-none" 
                             value={safe.counts.denominations[d as Denominations] || ''} onChange={e => handleSafeChange(safeKey, 'denominations', e.target.value, d as Denominations)} />
                     </div>
                 ))}
@@ -237,7 +237,7 @@ const CashUpView: React.FC = () => {
            </h3>
            <div className="flex space-x-4 items-center">
                <span className="text-slate-400">Date:</span>
-               <input type="date" className="glass-panel border border-white/20 rounded-lg px-4 py-2 text-slate-50 outline-none" 
+               <input type="date" className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border border-gray-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-50 outline-none" 
                       value={record.date} onChange={e => setRecord({...record, date: e.target.value})} />
                <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-all flex items-center">
                    <Save className="w-4 h-4 mr-2" /> Save Draft
@@ -247,7 +247,7 @@ const CashUpView: React.FC = () => {
 
        {/* TILLS */}
        <div className="space-y-4">
-           <h4 className="text-lg font-semibold text-slate-200 border-b border-white/10 pb-2">1. Tills (F&B / Gaming / TAB)</h4>
+           <h4 className="text-lg font-semibold text-slate-200 border-b border-gray-200 dark:border-slate-700 pb-2">1. Tills (F&B / Gaming / TAB)</h4>
            
            <div className="flex flex-wrap gap-4">
                {renderTillTable("F&B Till 1", "fb1")}
@@ -264,7 +264,7 @@ const CashUpView: React.FC = () => {
 
        {/* SAFES */}
        <div className="space-y-4 mt-8">
-           <h4 className="text-lg font-semibold text-slate-200 border-b border-white/10 pb-2">2. Safes</h4>
+           <h4 className="text-lg font-semibold text-slate-200 border-b border-gray-200 dark:border-slate-700 pb-2">2. Safes</h4>
            <div className="flex flex-wrap gap-4">
                {renderSafeTable("SAFE COUNT Office - OPEN", "officeOpen")}
                {renderSafeTable("GAMING SAFE", "gaming")}
@@ -274,14 +274,14 @@ const CashUpView: React.FC = () => {
 
        {/* NOTES */}
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-           <div className="glass-panel rounded-xl p-6 border border-white/10 shadow-lg">
+           <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-lg">
                <label className="block text-sm font-bold text-slate-200 mb-2">DAY NOTES:</label>
-               <textarea rows={4} className="w-full bg-slate-900/50 border border-white/10 rounded-lg p-3 text-slate-200 outline-none focus:border-indigo-500" 
+               <textarea rows={4} className="w-full bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-slate-200 outline-none focus:border-indigo-500" 
                          value={record.notes.day} onChange={e => setRecord({...record, notes: {...record.notes, day: e.target.value}})}></textarea>
            </div>
-           <div className="glass-panel rounded-xl p-6 border border-white/10 shadow-lg">
+           <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-lg">
                <label className="block text-sm font-bold text-slate-200 mb-2">NIGHT NOTES:</label>
-               <textarea rows={4} className="w-full bg-slate-900/50 border border-white/10 rounded-lg p-3 text-slate-200 outline-none focus:border-indigo-500" 
+               <textarea rows={4} className="w-full bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-slate-200 outline-none focus:border-indigo-500" 
                          value={record.notes.night} onChange={e => setRecord({...record, notes: {...record.notes, night: e.target.value}})}></textarea>
            </div>
        </div>

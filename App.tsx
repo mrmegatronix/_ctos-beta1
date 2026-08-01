@@ -29,7 +29,7 @@ import BookingsView from './components/BookingsView';
 import EntertainmentView from './components/EntertainmentView';
 import FunctionsView from './components/FunctionsView';
 import TVScheduleView from './components/TVScheduleView';
-import SettingsView from './components/SettingsView';
+// import SettingsView from './components/SettingsView';
 import RecipesView from './components/RecipesView';
 import StockView from './components/StockView';
 import SuppliersView from './components/SuppliersView';
@@ -45,6 +45,9 @@ import LoginScreen from './components/LoginScreen';
 import ActionToolbar from './components/ActionToolbar';
 import WeatherView from './components/WeatherView';
 import CalendarView from './components/CalendarView';
+import CategoryHubView, { CategoryHubLink } from './components/CategoryHubView';
+import EODSalesView from './components/EODSalesView';
+import MenuView from './components/MenuView';
 import { parseNaturalLanguageCommand } from './services/geminiService';
 import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents } from './services/googleService';
 
@@ -94,6 +97,11 @@ const App: React.FC = () => {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [timePunches, setTimePunches] = useState<TimePunch[]>([]);
   const [budgets, setBudgets] = useState<BudgetTracker[]>([]);
+  const [menus, setMenus] = useState<any[]>([]);
+  const [eodSales, setEodSales] = useState<any[]>([]);
+  
+  // Category Hub state
+  const [currentCategoryHub, setCurrentCategoryHub] = useState<{title: string, description: string, links: CategoryHubLink[]} | null>(null);
 
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -622,16 +630,9 @@ const App: React.FC = () => {
     ? `flex h-screen print:h-auto flex-col bg-animated-gradient transition-colors duration-300 text-lg relative overflow-hidden text-white`
     : `flex h-screen print:h-auto flex-col bg-slate-950 transition-colors duration-300 relative overflow-hidden text-white`;
 
-  // Add a global class for demo highlighting to the main container
   return (
-    <div className={`${containerClasses} demo-highlighting-active`}>
-      {/* Ambient background glows - Only show in FOH/BOH */}
-      {appMode !== 'OFFICE' && (
-          <>
-            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/10 dark:bg-rose-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse-glow-delayed"></div>
-          </>
-      )}
+    <div className={`${containerClasses}`}>
+
 
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-4 ${notification.type === 'success' ? 'bg-gray-900 text-white dark:bg-white dark:text-slate-900' : 'bg-red-500 text-white'}`}>
@@ -640,11 +641,7 @@ const App: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className={`flex items-center justify-between border-b ${
-          themeColor === 'red' ? 'border-rose-500/20 glow-accent-red' : 
-          themeColor === 'amber' ? 'border-amber-500/20 glow-accent-amber' : 
-          'border-cyan-500/20 glow-accent-blue'
-      } glass-panel px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm`}>
+      <header className={`flex items-center justify-between border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm`}>
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400">
             <Menu className="w-6 h-6" />
@@ -728,235 +725,195 @@ const App: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden print:overflow-visible">
         {/* Module Sidebar */}
-        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 transition-all duration-300 ease-in-out glass-panel overflow-y-auto custom-scrollbar relative z-20 print:hidden`}>
-           <div className="p-4 space-y-2">
-                {isFohMode ? (
-                    <div className="space-y-6">
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Service</div>
-                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Home className="w-6 h-6" /><span>Home</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'browser' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Monitor className="w-6 h-6" /><span>POS System</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('bookings')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'bookings' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Utensils className="w-6 h-6" /><span>Reservations</span>
-                        </button>
-                      </section>
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 transition-all duration-300 ease-in-out bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 overflow-y-auto custom-scrollbar relative z-20 print:hidden`}>
+    <div className="p-4 space-y-2">
+        {isFohMode ? (
+            <div className="space-y-2">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Front of House</div>
+                <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Home className="w-5 h-5" /><span>Service Hub</span>
+                </button>
+                <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'browser' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Monitor className="w-5 h-5" /><span>POS System</span>
+                </button>
+            </div>
+        ) : appMode === 'BOH' ? (
+            <div className="space-y-2">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Back of House</div>
+                <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Home className="w-5 h-5" /><span>Kitchen Hub</span>
+                </button>
+                <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'recipes' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <BookOpen className="w-5 h-5" /><span>Recipes</span>
+                </button>
+            </div>
+        ) : (
+            <div className="space-y-2 pb-10">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Management</div>
+                <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Home className="w-5 h-5" /><span>Dashboard</span>
+                </button>
+                
+                <button onClick={() => {
+                    setCurrentCategoryHub({
+                        title: 'Financials & POS',
+                        description: 'Manage cash flow, banking, budgets, and daily takings.',
+                        links: [
+                            { id: 'browser', label: 'POS Terminal', icon: Globe, description: 'Access the main point of sale interface' },
+                            { id: 'finance', label: 'Cashup & Recon', icon: DollarSign, description: 'End of day till balancing and safe counts' },
+                            { id: 'eodsales', label: 'EOD Sales Entry', icon: TrendingUp, description: 'Input daily sales to update inventory' },
+                            { id: 'budgeting', label: 'Budgeting', icon: TrendingUp, description: 'Track actuals against targets' }
+                        ]
+                    });
+                    setCurrentModule('category-hub');
+                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Financials & POS' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <DollarSign className="w-5 h-5" /><span>Financials & POS</span>
+                </button>
 
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Staff</div>
-                        <button onClick={() => setCurrentModule('timeclock')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'timeclock' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <ClockIcon className="w-6 h-6" /><span>Timeclock</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <ClipboardList className="w-6 h-6" /><span>My Roster</span>
-                        </button>
-                      </section>
+                <button onClick={() => {
+                    setCurrentCategoryHub({
+                        title: 'Events & Bookings',
+                        description: 'Manage reservations, functions, and entertainment.',
+                        links: [
+                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon, description: 'Master view of all events and bookings' },
+                            { id: 'bookings', label: 'Table Reservations', icon: Utensils, description: 'Manage dining room allocations' },
+                            { id: 'functions', label: 'Private Functions', icon: PartyPopper, description: 'Manage large group events and catering' },
+                            { id: 'entertainment', label: 'Entertainment', icon: Music, description: 'Band and DJ schedules' }
+                        ]
+                    });
+                    setCurrentModule('category-hub');
+                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Events & Bookings' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <CalendarIcon className="w-5 h-5" /><span>Events & Bookings</span>
+                </button>
 
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Entertainment</div>
-                        <button onClick={() => setCurrentModule('tvschedule')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'tvschedule' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Tv className="w-6 h-6" /><span>TV Guide</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('entertainment')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'entertainment' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Music className="w-6 h-6" /><span>Band Calendar</span>
-                        </button>
-                      </section>
+                <button onClick={() => {
+                    setCurrentCategoryHub({
+                        title: 'Staff & Labour',
+                        description: 'Manage team members, shifts, and timesheets.',
+                        links: [
+                            { id: 'staff', label: 'Team Directory', icon: Users, description: 'Manage staff profiles and permissions' },
+                            { id: 'roster', label: 'Rostering', icon: ClipboardList, description: 'Schedule shifts and manage leave' },
+                            { id: 'timeclock', label: 'Timeclock', icon: ClockIcon, description: 'Staff sign-in kiosk' },
+                            { id: 'timesheets', label: 'Timesheets', icon: FileText, description: 'Review and approve worked hours' }
+                        ]
+                    });
+                    setCurrentModule('category-hub');
+                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Staff & Labour' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Users className="w-5 h-5" /><span>Staff & Labour</span>
+                </button>
 
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Operations</div>
-                        <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <BookOpen className="w-6 h-6" /><span>Recipes</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('lostfound')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'lostfound' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Umbrella className="w-6 h-6" /><span>Lost & Found</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Wrench className="w-6 h-6" /><span>Report Issue</span>
-                        </button>
-                      </section>
-                    </div>
-                ) : appMode === 'BOH' ? (
-                    /* BOH MODE MENU */
-                    <div className="space-y-6">
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Kitchen Operations</div>
-                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'dashboard' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Home className="w-6 h-6" /><span>Kitchen Home</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'recipes' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <BookOpen className="w-6 h-6" /><span>Food Recipes</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('roster')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'roster' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <ClipboardList className="w-6 h-6" /><span>Kitchen Roster</span>
-                        </button>
-                      </section>
+                <button onClick={() => {
+                    setCurrentCategoryHub({
+                        title: 'Inventory',
+                        description: 'Manage stock levels, menus, and ordering.',
+                        links: [
+                            { id: 'stock', label: 'Products & Stock', icon: Boxes, description: 'View current inventory levels' },
+                            { id: 'menus', label: 'Menus & Allergens', icon: BookOpen, description: 'Manage food and beverage menus' },
+                            { id: 'ordering', label: 'Purchase Orders', icon: Truck, description: 'Create orders for suppliers' },
+                            { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList, description: 'Perform physical inventory counts' },
+                            { id: 'suppliers', label: 'Suppliers', icon: Truck, description: 'Manage vendor details' },
+                            { id: 'recipes', label: 'Recipes', icon: BookOpen, description: 'Standard operating procedures for items' }
+                        ]
+                    });
+                    setCurrentModule('category-hub');
+                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Inventory' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Boxes className="w-5 h-5" /><span>Inventory</span>
+                </button>
 
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Inventory & Supply</div>
-                        <button onClick={() => setCurrentModule('stock')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'stock' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Boxes className="w-6 h-6" /><span>Products</span>
-                        </button>
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-2">Reporting</div>
-                        <button onClick={() => setCurrentModule('incidents')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'incidents' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <ShieldAlert className="w-6 h-6" /><span>Incident Log</span>
-                        </button>
-                        <button onClick={() => setCurrentModule('maintenance')} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold mb-2 ${currentModule === 'maintenance' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm'}`}>
-                            <Wrench className="w-6 h-6" /><span>Equipment Issue</span>
-                        </button>
-                      </section>
-                    </div>
-                ) : (
-                    /* OFFICE MODE MENU */
-                    <div className="space-y-6 pb-10">
-                      <section>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Overview</div>
-                        <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                            <Home className="w-5 h-5" /><span>Dashboard</span>
-                        </button>
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Financials & POS</div>
-                        {[
-                            { id: 'browser', label: 'POS Terminal', icon: Globe },
-                            { id: 'finance', label: 'Cashup & Recon.', icon: DollarSign },
-                            { id: 'budgeting', label: 'Budgeting', icon: TrendingUp },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Events & Bookings</div>
-                        {[
-                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon },
-                            { id: 'bookings', label: 'Table Reservations', icon: Utensils },
-                            { id: 'functions', label: 'Private Functions', icon: PartyPopper },
-                            { id: 'entertainment', label: 'Entertainment', icon: Music },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Staff & Labour</div>
-                        {[
-                            { id: 'staff', label: 'Team Directory', icon: Users },
-                            { id: 'roster', label: 'Rostering', icon: ClipboardList },
-                            { id: 'timeclock', label: 'Timeclock', icon: ClockIcon },
-                            { id: 'timesheets', label: 'Timesheets', icon: FileText },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-
-                      <section>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Inventory</div>
-                        
-                        {/* Bar Products Menu */}
-                        <div className="mb-2">
-                          <button onClick={() => toggleMenu('barProducts')} className={`w-full flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === 'stock' && stockFilter?.type === 'Beverage' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                              <div className="flex items-center space-x-3">
-                                  <Boxes className="w-5 h-5" /><span>Bar Products</span>
-                              </div>
-                              {expandedMenus['barProducts'] ? <ChevronLeft className="w-4 h-4 -rotate-90 transition-transform" /> : <ChevronLeft className="w-4 h-4 transition-transform" />}
-                          </button>
-                          {expandedMenus['barProducts'] && (
-                             <div className="ml-8 mt-1 space-y-1">
-                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Beverage', group: 'supplier'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                   By Supplier
-                                </button>
-                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Beverage', group: 'category'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                   By Category
-                                </button>
-                             </div>
-                          )}
-                        </div>
-
-                        {/* Kitchen Products Menu */}
-                        <div className="mb-2">
-                          <button onClick={() => toggleMenu('kitchenProducts')} className={`w-full flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === 'stock' && stockFilter?.type === 'Food' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                              <div className="flex items-center space-x-3">
-                                  <Boxes className="w-5 h-5" /><span>Kitchen Products</span>
-                              </div>
-                              {expandedMenus['kitchenProducts'] ? <ChevronLeft className="w-4 h-4 -rotate-90 transition-transform" /> : <ChevronLeft className="w-4 h-4 transition-transform" />}
-                          </button>
-                          {expandedMenus['kitchenProducts'] && (
-                             <div className="ml-8 mt-1 space-y-1">
-                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Food', group: 'category'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                   By Category
-                                </button>
-                                <button onClick={() => { setCurrentModule('stock'); setStockFilter({type: 'Food', group: 'supplier'}); }} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                   By Supplier
-                                </button>
-                             </div>
-                          )}
-                        </div>
-
-                        {[
-                            { id: 'ordering', label: 'Purchase Orders', icon: Truck },
-                            { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList },
-                            { id: 'suppliers', label: 'Suppliers', icon: Truck },
-                            { id: 'recipes', label: 'Recipes', icon: BookOpen },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-                      
-                      <section>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3">Operations</div>
-                        {[
-                            { id: 'tvschedule', label: 'TV Guide', icon: Tv },
-                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert },
-                            { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-                            { id: 'lostfound', label: 'Lost & Found', icon: Umbrella },
-                            { id: 'documents', label: 'Documents', icon: FolderOpen },
-                        ].map((item) => (
-                            <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                                <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                            </button>
-                        ))}
-                      </section>
-                      
-                      {currentUser?.id === 'admin-nikko' && (
-                          <section>
-                            <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest mb-3 px-3">Admin Tools</div>
-                            {[
-                                { id: 'gemini', label: 'Google Notebook', icon: BookOpen },
-                                { id: 'ctsc', label: 'CTSC App', icon: Smartphone },
-                                { id: 'ctmatrix', label: 'CT Matrix Control', icon: Sliders },
-                            ].map((item) => (
-                                <button key={item.id} onClick={() => setCurrentModule(item.id as AppModule)} className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${currentModule === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                                    <item.icon className="w-5 h-5" /><span>{item.label}</span>
-                                </button>
-                            ))}
-                          </section>
-                      )}
-                    </div>
-               )}
-           </div>
-        </aside>
+                <button onClick={() => {
+                    setCurrentCategoryHub({
+                        title: 'Operations',
+                        description: 'Manage venue operations and daily tasks.',
+                        links: [
+                            { id: 'tvschedule', label: 'TV Guide', icon: Tv, description: 'Live sports and screen management' },
+                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert, description: 'Record compliance and security events' },
+                            { id: 'maintenance', label: 'Maintenance', icon: Wrench, description: 'Track broken equipment and repairs' },
+                            { id: 'lostfound', label: 'Lost & Found', icon: Umbrella, description: 'Track items left by customers' },
+                            { id: 'documents', label: 'Documents', icon: FolderOpen, description: 'Venue policies and files' }
+                        ]
+                    });
+                    setCurrentModule('category-hub');
+                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Operations' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <Wrench className="w-5 h-5" /><span>Operations</span>
+                </button>
+                
+                {currentUser?.id === 'admin-nikko' && (
+                    <>
+                    <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest mb-3 px-3 mt-6">Admin Tools</div>
+                    <button onClick={() => setCurrentModule('gemini')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'gemini' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <BookOpen className="w-5 h-5" /><span>Google Notebook</span>
+                    </button>
+                    </>
+                )}
+            </div>
+        )}
+    </div>
+</aside>
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col overflow-hidden print:h-auto print:overflow-visible relative">
           
+          {currentModule === 'category-hub' && currentCategoryHub && (
+            <CategoryHubView 
+                title={currentCategoryHub.title}
+                description={currentCategoryHub.description}
+                links={currentCategoryHub.links}
+                onSelectModule={setCurrentModule}
+            />
+          )}
+
+          {currentModule === 'eodsales' && (
+              <EODSalesView 
+                  stockItems={stockItems}
+                  onSalesSubmitted={(data) => {
+                      const newEodSales = [...eodSales, data];
+                      setEodSales(newEodSales);
+                      // Also deduct stock items
+                      const updatedStock = [...stockItems];
+                      data.itemsSold.forEach(sold => {
+                          const item = updatedStock.find(i => i.id === sold.stockId);
+                          if (item) {
+                              item.quantity = Math.max(0, item.quantity - sold.quantity);
+                          }
+                      });
+                      setStockItems(updatedStock);
+                      setNotification({ message: 'EOD Sales Processed Successfully', type: 'success' });
+                  }}
+              />
+          )}
+
+          {currentModule === 'menus' && (
+              <MenuView 
+                  menus={menus}
+                  onSaveMenu={(menu) => {
+                      const exists = menus.find(m => m.id === menu.id);
+                      if (exists) {
+                          setMenus(menus.map(m => m.id === menu.id ? menu : m));
+                      } else {
+                          setMenus([...menus, menu]);
+                      }
+                  }}
+                  onDeleteMenu={(id) => {
+                      setMenus(menus.filter(m => m.id !== id));
+                  }}
+              />
+          )}
+
+          {currentModule === 'timeclock' && (
+              <TimeclockView
+                  teamMembers={teamMembers}
+                  timePunches={timePunches}
+                  onClockIn={(punch) => {
+                      setTimePunches([...timePunches, punch]);
+                      setNotification({ message: 'Clocked In Successfully', type: 'success' });
+                  }}
+                  onClockOut={(punchId, timeOut) => {
+                      setTimePunches(timePunches.map(p => p.id === punchId ? { ...p, timeOut } : p));
+                      setNotification({ message: 'Clocked Out Successfully', type: 'success' });
+                  }}
+              />
+          )}
+
           {currentModule === 'dashboard' && (
              <DashboardView 
                mode={appMode} 

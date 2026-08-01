@@ -44,7 +44,7 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
   const revProgress = budget.targetRevenue ? Math.min(100, (budget.actualRevenue! / budget.targetRevenue!) * 100) : 0;
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="mb-6 flex justify-between items-center">
          <div>
              <h2 className="text-2xl font-bold text-slate-50  flex items-center">
@@ -58,7 +58,7 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
        </div>
 
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-           <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
+           <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  shadow-lg">
                <div className="flex items-center justify-between mb-4">
                    <h3 className="font-bold text-slate-200  flex items-center">
                        <DollarSign className="w-5 h-5 mr-1 text-emerald-500" /> Revenue Target
@@ -66,7 +66,7 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                </div>
                <div className="flex items-end mb-2">
                    <span className="text-3xl font-bold text-slate-50  mr-2">
-                       $<input type="number" value={budget.targetRevenue} onChange={e => setBudget({...budget, targetRevenue: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/20  w-32 focus:outline-none focus:border-indigo-500" />
+                       $<input type="number" value={budget.targetRevenue} onChange={e => setBudget({...budget, targetRevenue: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-gray-200 dark:border-slate-700  w-32 focus:outline-none focus:border-indigo-500" />
                    </span>
                </div>
                <div className="w-full bg-gray-100  rounded-full h-2.5 mt-4">
@@ -75,7 +75,7 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                <p className="text-sm text-slate-400 mt-2">Actual: ${budget.actualRevenue?.toFixed(2) || '0.00'} ({revProgress.toFixed(1)}%)</p>
            </div>
 
-           <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
+           <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  shadow-lg">
                <div className="flex items-center justify-between mb-4">
                    <h3 className="font-bold text-slate-200  flex items-center">
                        <Target className="w-5 h-5 mr-1 text-rose-500" /> COGS Target
@@ -83,14 +83,14 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                </div>
                <div className="flex items-end mb-2">
                    <span className="text-3xl font-bold text-slate-50  mr-2">
-                       $<input type="number" value={budget.targetCogs} onChange={e => setBudget({...budget, targetCogs: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/20  w-32 focus:outline-none focus:border-rose-500" />
+                       $<input type="number" value={budget.targetCogs} onChange={e => setBudget({...budget, targetCogs: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-gray-200 dark:border-slate-700  w-32 focus:outline-none focus:border-rose-500" />
                    </span>
                </div>
                <p className="text-sm font-medium text-rose-600 dark:text-rose-400 mt-2">Target: {cogsPercent.toFixed(1)}% of Revenue</p>
                <p className="text-sm text-slate-400 mt-1">Actual: ${budget.actualCogs?.toFixed(2) || '0.00'} ({actualCogsPercent.toFixed(1)}%)</p>
            </div>
 
-           <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
+           <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  shadow-lg">
                <div className="flex items-center justify-between mb-4">
                    <h3 className="font-bold text-slate-200  flex items-center">
                        <Percent className="w-5 h-5 mr-1 text-blue-500" /> Labour Target
@@ -98,7 +98,7 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                </div>
                <div className="flex items-end mb-2">
                    <span className="text-3xl font-bold text-slate-50  mr-2">
-                       $<input type="number" value={budget.targetLabour} onChange={e => setBudget({...budget, targetLabour: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/20  w-32 focus:outline-none focus:border-blue-500" />
+                       $<input type="number" value={budget.targetLabour} onChange={e => setBudget({...budget, targetLabour: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-gray-200 dark:border-slate-700  w-32 focus:outline-none focus:border-blue-500" />
                    </span>
                </div>
                <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-2">Target: {labourPercent.toFixed(1)}% of Revenue</p>
@@ -106,22 +106,22 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
            </div>
        </div>
 
-       <div className="glass-panel  rounded-xl border border-white/10  p-6 shadow-lg">
+       <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  p-6 shadow-lg">
            <h3 className="font-bold text-slate-50  mb-4">Manual Actuals Entry</h3>
            <p className="text-sm text-slate-400 mb-6">In a fully integrated environment, these values would pull automatically from Finance and Timesheets. For now, you can enter them manually here.</p>
            
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                   <label className="block text-sm font-medium text-slate-200  mb-1">Actual Revenue</label>
-                  <input type="number" value={budget.actualRevenue} onChange={e => setBudget({...budget, actualRevenue: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50 " />
+                  <input type="number" value={budget.actualRevenue} onChange={e => setBudget({...budget, actualRevenue: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50 " />
               </div>
               <div>
                   <label className="block text-sm font-medium text-slate-200  mb-1">Actual COGS</label>
-                  <input type="number" value={budget.actualCogs} onChange={e => setBudget({...budget, actualCogs: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50 " />
+                  <input type="number" value={budget.actualCogs} onChange={e => setBudget({...budget, actualCogs: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50 " />
               </div>
               <div>
                   <label className="block text-sm font-medium text-slate-200  mb-1">Actual Labour</label>
-                  <input type="number" value={budget.actualLabour} onChange={e => setBudget({...budget, actualLabour: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50 " />
+                  <input type="number" value={budget.actualLabour} onChange={e => setBudget({...budget, actualLabour: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50 " />
               </div>
            </div>
        </div>

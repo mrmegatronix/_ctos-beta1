@@ -4,7 +4,7 @@ import ActionToolbar from './ActionToolbar';
 
 const WeatherView: React.FC = () => {
   return (
-    <div className="flex flex-col h-full glass-panel overflow-y-auto">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-y-auto">
       <div className="p-6 pb-2">
          <ActionToolbar title="Local Weather" isFohMode={false} />
       </div>

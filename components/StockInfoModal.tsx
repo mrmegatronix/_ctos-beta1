@@ -36,7 +36,7 @@ export const StockInfoModal: React.FC<StockInfoModalProps> = ({ item, suppliers,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="glass-panel rounded-2xl w-full max-w-3xl p-6 shadow-xl animate-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-2xl w-full max-w-3xl p-6 shadow-xl animate-in zoom-in-95 duration-200 my-8">
         <div className="flex justify-between items-start mb-6">
           <h3 className="text-xl font-bold text-slate-50">{item.id.startsWith('stk-') ? 'Add New Item' : 'Edit Stock Item'}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-slate-200">

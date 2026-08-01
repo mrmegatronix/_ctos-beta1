@@ -52,8 +52,8 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full glass-panel  overflow-hidden">
-      <div className="p-6 border-b border-white/10  flex justify-between items-center glass-panel /50">
+    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  overflow-hidden">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-700  flex justify-between items-center bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50">
         <div>
           <h2 className="text-2xl font-bold text-slate-50  flex items-center">
             <ClipboardList className="w-6 h-6 mr-2 text-indigo-500" /> Stocktake
@@ -84,13 +84,13 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
             placeholder="Filter items..." 
             value={filter}
             onChange={e => setFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  focus:ring-2 focus:ring-indigo-500 outline-none"
           />
         </div>
 
-        <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg">
           <table className="w-full text-left">
-            <thead className="glass-panel /50 text-xs uppercase text-slate-400  border-b border-white/10 ">
+            <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 text-xs uppercase text-slate-400  border-b border-gray-200 dark:border-slate-700 ">
               <tr>
                 <th className="px-6 py-4 font-semibold">Item Name</th>
                 <th className="px-6 py-4 font-semibold">Category</th>
@@ -105,7 +105,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                 const variance = isActive && counts[item.id] !== undefined ? counts[item.id] - item.quantity : 0;
                 
                 return (
-                  <tr key={item.id} className={`hover:glass-panel dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
+                  <tr key={item.id} className={`hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
                     <td className="px-6 py-4 font-medium text-slate-50 ">{item.name}</td>
                     <td className="px-6 py-4 text-slate-300 ">
                       <span className="px-2 py-1 bg-gray-100  rounded text-xs">{item.category}</span>
@@ -120,7 +120,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                         value={actual}
                         onChange={(e) => handleCountChange(item.id, e.target.value)}
                         placeholder={item.quantity.toString()}
-                        className="w-24 text-center px-3 py-1.5 border border-white/20  rounded-md glass-panel  text-slate-50  focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50"
+                        className="w-24 text-center px-3 py-1.5 border border-gray-200 dark:border-slate-700  rounded-md bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50"
                       />
                     </td>
                     <td className="px-6 py-4 text-right">

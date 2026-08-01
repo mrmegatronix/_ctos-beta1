@@ -107,7 +107,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
   const totalTakings = weeklyCash + weeklyEftpos;
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-bold text-slate-50 ">Finance & Cash Up</h2>
@@ -116,19 +116,19 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
         <div className="flex bg-gray-100  rounded-lg p-1">
             <button 
               onClick={() => setActiveTab('history')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'history' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
             >
               History
             </button>
             <button 
               onClick={() => setActiveTab('entry')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'entry' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'entry' ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
             >
               New Entry
             </button>
             <button 
               onClick={() => setActiveTab('invoices')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'invoices' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'invoices' ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  shadow-lg text-slate-50 ' : 'text-slate-400 '}`}
             >
               Invoices & Delivery
             </button>
@@ -138,21 +138,21 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
       {activeTab === 'history' && (
         <div className="space-y-6">
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
+              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><DollarSign className="w-5 h-5"/></div>
                     <span className="text-sm text-slate-400">Total Cash</span>
                  </div>
                  <div className="text-2xl font-bold text-slate-50 ">${weeklyCash.toFixed(2)}</div>
               </div>
-              <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
+              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><CreditCard className="w-5 h-5"/></div>
                     <span className="text-sm text-slate-400">Total Eftpos</span>
                  </div>
                  <div className="text-2xl font-bold text-slate-50 ">${weeklyEftpos.toFixed(2)}</div>
               </div>
-              <div className="glass-panel  p-6 rounded-xl border border-white/10  shadow-lg">
+              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  shadow-lg">
                  <div className="flex items-center space-x-3 mb-2">
                     <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg"><TrendingUp className="w-5 h-5"/></div>
                     <span className="text-sm text-slate-400">Total Takings</span>
@@ -161,9 +161,9 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
               </div>
            </div>
 
-           <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden">
+           <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden">
              <table className="w-full text-left">
-                <thead className="glass-panel /50 text-xs uppercase text-slate-400  border-b border-white/10 ">
+                <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm text-xs uppercase text-slate-400  border-b border-gray-200 dark:border-slate-700 ">
                     <tr>
                         <th className="px-6 py-4">Date</th>
                         <th className="px-6 py-4">Staff</th>
@@ -175,7 +175,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                     {records.map(rec => (
-                        <tr key={rec.id} className="hover:glass-panel dark:hover:bg-slate-700/30 transition-colors">
+                        <tr key={rec.id} className="hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/30 transition-colors">
                             <td className="px-6 py-4 text-sm font-medium text-slate-50 ">{formatDate(rec.date)}</td>
                             <td className="px-6 py-4 text-sm text-slate-400  flex items-center">
                                 <span className="w-6 h-6 rounded-full bg-gray-200  flex items-center justify-center text-xs mr-2 font-bold">{getStaffName(rec.staffId).charAt(0)}</span>
@@ -243,7 +243,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                                     <button onClick={startCamera} className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                                         <Camera className="w-4 h-4" /> <span>Use Camera</span>
                                     </button>
-                                    <label className="flex-1 flex items-center justify-center space-x-2 py-2.5 glass-panel  border border-white/10  text-slate-200  rounded-lg hover:glass-panel dark:hover:bg-slate-600 transition-colors cursor-pointer">
+                                    <label className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  text-slate-200  rounded-lg hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-600 transition-colors cursor-pointer">
                                         <Upload className="w-4 h-4" /> <span>Upload File</span>
                                         <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileUpload} />
                                     </label>
@@ -259,13 +259,13 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
 
                       {/* Right: Details Form */}
                       <div className="space-y-4">
-                          <h4 className="font-semibold text-slate-200  border-b border-white/10  pb-2">Document Details</h4>
+                          <h4 className="font-semibold text-slate-200  border-b border-gray-200 dark:border-slate-700  pb-2">Document Details</h4>
                           
                           <div className="grid grid-cols-2 gap-4">
                               <div>
                                   <label className="block text-xs font-medium text-slate-400 mb-1">Document Type</label>
                                   <select 
-                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm outline-none"
                                     value={newInvoice.type}
                                     onChange={e => setNewInvoice({...newInvoice, type: e.target.value as any})}
                                   >
@@ -277,7 +277,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                                   <label className="block text-xs font-medium text-slate-400 mb-1">Date</label>
                                   <input 
                                     type="date" 
-                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm outline-none"
                                     value={newInvoice.date ? newInvoice.date.toISOString().substr(0,10) : ''}
                                     onChange={e => setNewInvoice({...newInvoice, date: new Date(e.target.value)})}
                                   />
@@ -288,7 +288,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                               <label className="block text-xs font-medium text-slate-400 mb-1">Supplier Name</label>
                               <input 
                                 type="text" 
-                                className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
+                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm outline-none"
                                 placeholder="e.g. Gourmet Foods"
                                 value={newInvoice.supplierName || ''}
                                 onChange={e => setNewInvoice({...newInvoice, supplierName: e.target.value})}
@@ -300,7 +300,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                                   <label className="block text-xs font-medium text-slate-400 mb-1">Reference No.</label>
                                   <input 
                                     type="text" 
-                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm outline-none"
                                     placeholder="INV-..."
                                     value={newInvoice.reference || ''}
                                     onChange={e => setNewInvoice({...newInvoice, reference: e.target.value})}
@@ -310,7 +310,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                                   <label className="block text-xs font-medium text-slate-400 mb-1">Total Amount ($)</label>
                                   <input 
                                     type="number" 
-                                    className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg text-sm outline-none"
+                                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm outline-none"
                                     placeholder="0.00"
                                     value={newInvoice.amount || ''}
                                     onChange={e => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})}
@@ -330,13 +330,13 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
               </div>
 
               {/* Invoices List */}
-              <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
-                  <div className="px-6 py-4 border-b border-white/10  flex justify-between items-center">
+              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700  flex justify-between items-center">
                       <h3 className="font-bold text-slate-50 ">Recent Uploads</h3>
                       <button className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">View All</button>
                   </div>
                   <table className="w-full text-left">
-                      <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
+                      <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm text-xs uppercase text-slate-400 ">
                           <tr>
                               <th className="px-6 py-3">Date</th>
                               <th className="px-6 py-3">Type</th>
@@ -348,7 +348,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                           {invoices.map(inv => (
-                              <tr key={inv.id} className="hover:glass-panel dark:hover:bg-slate-700/30">
+                              <tr key={inv.id} className="hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/30">
                                   <td className="px-6 py-3 text-sm text-slate-300 ">{formatDate(new Date(inv.date))}</td>
                                   <td className="px-6 py-3">
                                       <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${inv.type === 'invoice' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>

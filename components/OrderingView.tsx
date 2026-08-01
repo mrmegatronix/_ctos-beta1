@@ -58,7 +58,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
   const getStockName = (id: string) => stockItems.find(s => s.id === id)?.name || 'Unknown Item';
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="mb-6 flex justify-between items-center">
          <div>
              <h2 className="text-2xl font-bold text-slate-50  flex items-center">
@@ -74,14 +74,14 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
        </div>
 
        {isCreating ? (
-         <div className="glass-panel  rounded-xl border border-white/10  p-6 shadow-lg mb-8">
+         <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  p-6 shadow-lg mb-8">
             <h3 className="text-lg font-bold text-slate-50  mb-4">New Purchase Order</h3>
             
             <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
                     <label className="block text-sm font-medium text-slate-200  mb-1">Supplier</label>
                     <select 
-                      className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50 "
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50 "
                       value={newOrder.supplierId || ''}
                       onChange={(e) => setNewOrder({...newOrder, supplierId: e.target.value})}
                     >
@@ -103,7 +103,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                     {(newOrder.items || []).map((item, idx) => (
                         <div key={idx} className="flex gap-4 items-center">
                             <select 
-                              className="flex-1 px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  text-sm"
+                              className="flex-1 px-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  text-sm"
                               value={item.stockId}
                               onChange={(e) => handleUpdateItem(idx, 'stockId', e.target.value)}
                             >
@@ -115,7 +115,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                                   type="number" 
                                   placeholder="Qty" 
                                   min="1"
-                                  className="w-full px-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  text-sm"
+                                  className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  text-sm"
                                   value={item.quantity}
                                   onChange={(e) => handleUpdateItem(idx, 'quantity', parseInt(e.target.value) || 0)}
                                 />
@@ -126,7 +126,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                                   type="number" 
                                   placeholder="Price" 
                                   step="0.01"
-                                  className="w-full pl-7 pr-3 py-2 border border-white/20  rounded-lg glass-panel  text-slate-50  text-sm"
+                                  className="w-full pl-7 pr-3 py-2 border border-gray-200 dark:border-slate-700  rounded-lg bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-slate-50  text-sm"
                                   value={item.unitPrice}
                                   onChange={(e) => handleUpdateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)}
                                 />
@@ -137,7 +137,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                         </div>
                     ))}
                     {(!newOrder.items || newOrder.items.length === 0) && (
-                        <div className="p-4 border border-dashed border-white/20  rounded-lg text-center text-slate-400 text-sm">
+                        <div className="p-4 border border-dashed border-gray-200 dark:border-slate-700  rounded-lg text-center text-slate-400 text-sm">
                             No items added yet.
                         </div>
                     )}
@@ -162,9 +162,9 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
          </div>
        ) : null}
 
-       <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
+       <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg">
           <table className="w-full text-left">
-             <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
+             <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 text-xs uppercase text-slate-400 ">
                  <tr>
                      <th className="px-6 py-4 font-semibold">Date</th>
                      <th className="px-6 py-4 font-semibold">Supplier</th>
@@ -176,7 +176,7 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
              </thead>
              <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                  {orders.map(order => (
-                     <tr key={order.id} className={`hover:glass-panel dark:hover:bg-slate-700/50 transition-colors ${order.isDemo ? 'demo-highlight' : ''}`}>
+                     <tr key={order.id} className={`hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/50 transition-colors ${order.isDemo ? 'demo-highlight' : ''}`}>
                          <td className="px-6 py-4 text-sm text-slate-300 ">{formatDate(order.date)}</td>
                          <td className="px-6 py-4 font-medium text-slate-50 ">{getSupplierName(order.supplierId)}</td>
                          <td className="px-6 py-4 text-sm text-slate-400">{order.items.length} items</td>

@@ -30,7 +30,7 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ tasks, onUpdateStatus
   const completedTasks = tasks.filter(t => t.status === 'completed');
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
       <div className="mb-8 flex justify-between items-center">
          <div>
              <h2 className="text-2xl font-bold text-slate-50 ">Maintenance Log</h2>
@@ -59,7 +59,7 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ tasks, onUpdateStatus
             </h3>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {pendingTasks.map(task => (
-                    <div key={task.id} className="glass-panel  border border-white/10  rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
+                    <div key={task.id} className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-xl p-5 shadow-lg hover:shadow-xl transition-all">
                         <div className="flex justify-between items-start mb-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wide ${getPriorityColor(task.priority)}`}>
                                 {task.priority} Priority
@@ -97,7 +97,7 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ tasks, onUpdateStatus
                     </div>
                 ))}
                 {pendingTasks.length === 0 && (
-                    <div className="col-span-full p-8 text-center glass-panel /50 rounded-xl border border-dashed border-white/20 ">
+                    <div className="col-span-full p-8 text-center bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 ">
                         <p className="text-slate-400 ">No active maintenance issues. Good job!</p>
                     </div>
                 )}
@@ -110,9 +110,9 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ tasks, onUpdateStatus
                 <CheckCircle2 className="w-5 h-5 mr-2 text-green-500" />
                 Recently Completed
             </h3>
-            <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden">
                 <table className="w-full text-left">
-                    <thead className="glass-panel /50 text-xs uppercase text-slate-400 ">
+                    <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 text-xs uppercase text-slate-400 ">
                         <tr>
                             <th className="px-6 py-3 font-semibold">Task</th>
                             <th className="px-6 py-3 font-semibold">Priority</th>
@@ -121,7 +121,7 @@ const MaintenanceView: React.FC<MaintenanceViewProps> = ({ tasks, onUpdateStatus
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                         {completedTasks.map(task => (
-                            <tr key={task.id} className="hover:glass-panel dark:hover:bg-slate-700/50 transition-colors">
+                            <tr key={task.id} className="hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/50 transition-colors">
                                 <td className="px-6 py-3">
                                     <div className="text-sm font-medium text-slate-50 ">{task.title}</div>
                                 </td>

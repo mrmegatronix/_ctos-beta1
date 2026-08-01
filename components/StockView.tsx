@@ -61,10 +61,10 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full glass-panel  overflow-hidden relative">
+    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  overflow-hidden relative">
       {/* Top Stats */}
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-panel  rounded-xl p-4 border border-white/10  shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl p-4 border border-gray-200 dark:border-slate-700  shadow-lg flex items-center space-x-4">
            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
              <Package className="w-6 h-6" />
            </div>
@@ -74,7 +74,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
            </div>
         </div>
         
-        <div className="glass-panel  rounded-xl p-4 border border-white/10  shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl p-4 border border-gray-200 dark:border-slate-700  shadow-lg flex items-center space-x-4">
            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400">
              <AlertTriangle className="w-6 h-6" />
            </div>
@@ -84,7 +84,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
            </div>
         </div>
 
-        <div className="glass-panel  rounded-xl p-4 border border-white/10  shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl p-4 border border-gray-200 dark:border-slate-700  shadow-lg flex items-center space-x-4">
            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 dark:text-emerald-400">
              <TrendingDown className="w-6 h-6" />
            </div>
@@ -104,10 +104,10 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
              <span>Add Stock Item</span>
           </button>
         </div>
-        <div className="glass-panel  rounded-xl border border-white/10  overflow-hidden shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="glass-panel /50 border-b border-white/10  text-xs uppercase text-slate-400 ">
+              <tr className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border-b border-gray-200 dark:border-slate-700  text-xs uppercase text-slate-400 ">
                 <th className="px-6 py-4 font-semibold">Item Name</th>
                 <th className="px-6 py-4 font-semibold">Size</th>
                 <th className="px-6 py-4 font-semibold">Supplier</th>
@@ -185,7 +185,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
       {/* Transfer Modal */}
       {transferItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="glass-panel  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
                   <div className="flex justify-between items-start mb-4">
                       <h3 className="text-lg font-bold text-slate-50 ">Transfer Stock</h3>
                       <button onClick={() => setTransferItem(null)} className="text-gray-400 hover:text-slate-400">
@@ -193,7 +193,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       </button>
                   </div>
                   
-                  <div className="mb-4 p-3 glass-panel /50 rounded-lg">
+                  <div className="mb-4 p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-lg">
                       <div className="text-sm text-slate-400 ">Item</div>
                       <div className="font-semibold text-slate-50 ">{transferItem.name}</div>
                       <div className="text-xs text-slate-400 mt-1">Current Stock: {transferItem.quantity} {transferItem.unit}</div>
@@ -206,7 +206,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                             type="number" 
                             min="1"
                             max={transferItem.quantity}
-                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                             value={transferQty}
                             onChange={(e) => setTransferQty(parseInt(e.target.value) || 0)}
                           />
@@ -214,7 +214,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       <div>
                           <label className="block text-sm font-medium text-slate-200  mb-1">Destination Site</label>
                           <select 
-                            className="w-full px-3 py-2 glass-panel  border border-white/20  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
                             value={transferDest}
                             onChange={(e) => setTransferDest(e.target.value)}
                           >

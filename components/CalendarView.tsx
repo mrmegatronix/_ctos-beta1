@@ -47,7 +47,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full glass-panel  overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  overflow-hidden">
       
       {/* Header Toolbar */}
       <div className="p-4 border-b border-gray-100  flex-shrink-0">
@@ -74,9 +74,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
           <div className="flex items-center justify-between mt-4">
               <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 bg-gray-100  rounded-lg p-1">
-                      <button onClick={handlePrev} className="p-1 hover:glass-panel dark:hover:bg-slate-700 rounded shadow-lg"><ChevronLeft className="w-5 h-5 text-slate-400" /></button>
-                      <button onClick={() => setCurrentDate(new Date())} className="px-3 py-1 text-sm font-medium hover:glass-panel dark:hover:bg-slate-700 rounded shadow-lg">Today</button>
-                      <button onClick={handleNext} className="p-1 hover:glass-panel dark:hover:bg-slate-700 rounded shadow-lg"><ChevronRight className="w-5 h-5 text-slate-400" /></button>
+                      <button onClick={handlePrev} className="p-1 hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700 rounded shadow-lg"><ChevronLeft className="w-5 h-5 text-slate-400" /></button>
+                      <button onClick={() => setCurrentDate(new Date())} className="px-3 py-1 text-sm font-medium hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700 rounded shadow-lg">Today</button>
+                      <button onClick={handleNext} className="p-1 hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700 rounded shadow-lg"><ChevronRight className="w-5 h-5 text-slate-400" /></button>
                   </div>
                   <h2 className="text-lg font-bold text-slate-50 ">
                       {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
@@ -84,13 +84,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
               </div>
               
               <div className="flex items-center space-x-2 bg-gray-100  rounded-lg p-1">
-                  <button onClick={() => setViewMode('schedule')} className={`p-2 rounded-md transition-colors ${viewMode === 'schedule' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 hover:text-slate-200 '}`} title="Schedule View">
+                  <button onClick={() => setViewMode('schedule')} className={`p-2 rounded-md transition-colors ${viewMode === 'schedule' ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  shadow-lg text-slate-50 ' : 'text-slate-400 hover:text-slate-200 '}`} title="Schedule View">
                       <List className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setViewMode('week')} className={`p-2 rounded-md transition-colors ${viewMode === 'week' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 hover:text-slate-200 '}`} title="Week View">
+                  <button onClick={() => setViewMode('week')} className={`p-2 rounded-md transition-colors ${viewMode === 'week' ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  shadow-lg text-slate-50 ' : 'text-slate-400 hover:text-slate-200 '}`} title="Week View">
                       <CalendarIcon className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setViewMode('month')} className={`p-2 rounded-md transition-colors ${viewMode === 'month' ? 'glass-panel  shadow-lg text-slate-50 ' : 'text-slate-400 hover:text-slate-200 '}`} title="Month View">
+                  <button onClick={() => setViewMode('month')} className={`p-2 rounded-md transition-colors ${viewMode === 'month' ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  shadow-lg text-slate-50 ' : 'text-slate-400 hover:text-slate-200 '}`} title="Month View">
                       <LayoutGrid className="w-4 h-4" />
                   </button>
               </div>
@@ -103,17 +103,17 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
           {/* WEEK VIEW */}
           {viewMode === 'week' && (
               <div className="flex min-h-[1000px] w-full min-w-[800px]">
-                  <div className="w-14 flex-shrink-0 border-r border-white/10  sticky left-0 z-20 glass-panel ">
+                  <div className="w-14 flex-shrink-0 border-r border-gray-200 dark:border-slate-700  sticky left-0 z-20 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
                       {HOURS.map(h => <div key={h} className="h-16 relative"><span className="absolute -top-3 right-2 text-xs text-gray-400">{h === 0 ? '12A' : h < 12 ? `${h}A` : h === 12 ? '12P' : `${h-12}P`}</span></div>)}
                   </div>
                   <div className="flex-1 flex relative">
                       {weekDays.map((day, i) => (
                           <div key={i} className="flex-1 border-l border-gray-100  relative group first:border-l-0">
-                              <div className="sticky top-0 glass-panel  z-10 text-center py-2 border-b border-white/10 ">
+                              <div className="sticky top-0 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  z-10 text-center py-2 border-b border-gray-200 dark:border-slate-700 ">
                                   <div className="text-xs font-bold uppercase text-slate-400 ">{day.toLocaleDateString('default', { weekday: 'short' })}</div>
                                   <div className={`text-xl font-black mt-1 ${isSameDay(day, new Date()) ? themeText : 'text-slate-50 '}`}>{day.getDate()}</div>
                               </div>
-                              {HOURS.map(h => <div key={h} className="h-16 border-b border-gray-50 /20 hover:glass-panel dark:hover:bg-slate-800/50" />)}
+                              {HOURS.map(h => <div key={h} className="h-16 border-b border-gray-50 /20 hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-800/50" />)}
                               {filteredEvents.filter(e => isSameDay(e.start, day)).map(e => {
                                   const startHour = e.start.getHours() + e.start.getMinutes() / 60;
                                   const endHour = e.end.getHours() + e.end.getMinutes() / 60;
@@ -143,7 +143,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
                       <div className="text-center py-20 text-slate-400">No events scheduled.</div>
                   ) : (
                       filteredEvents.slice().sort((a,b) => a.start.getTime() - b.start.getTime()).map(e => (
-                          <div key={e.id} onClick={() => onEditLocation(e)} className="flex items-start p-4 rounded-xl border border-gray-100  hover:shadow-xl transition-shadow cursor-pointer glass-panel  group">
+                          <div key={e.id} onClick={() => onEditLocation(e)} className="flex items-start p-4 rounded-xl border border-gray-100  hover:shadow-xl transition-shadow cursor-pointer bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  group">
                               <div className="w-32 flex-shrink-0 border-r border-gray-100  pr-4">
                                   <div className="text-sm font-bold text-slate-400 ">{e.start.toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
                                   <div className="text-xl font-black text-slate-50  mt-1">{e.start.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
@@ -170,16 +170,16 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
           {/* MONTH VIEW (Simplified representation) */}
           {viewMode === 'month' && (
               <div className="p-6">
-                 <div className="grid grid-cols-7 gap-px bg-gray-200  border border-white/10  rounded-2xl overflow-hidden shadow-inner">
+                 <div className="grid grid-cols-7 gap-px bg-gray-200  border border-gray-200 dark:border-slate-700  rounded-2xl overflow-hidden shadow-inner">
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                        <div key={day} className="glass-panel  p-3 text-center text-sm font-bold text-slate-400  uppercase tracking-wider">{day}</div>
+                        <div key={day} className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-3 text-center text-sm font-bold text-slate-400  uppercase tracking-wider">{day}</div>
                     ))}
                     {Array.from({ length: 35 }).map((_, i) => {
                         const date = addDays(weekStart, i - weekStart.getDay() + 1); // rough month generation
                         const isToday = isSameDay(date, new Date());
                         const dayEvents = filteredEvents.filter(e => isSameDay(e.start, date));
                         return (
-                           <div key={i} className={`glass-panel  min-h-[120px] p-2 ${isToday ? 'bg-indigo-50/30' : ''}`}>
+                           <div key={i} className={`bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  min-h-[120px] p-2 ${isToday ? 'bg-indigo-50/30' : ''}`}>
                                <div className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full mb-2 ${isToday ? themeBg + ' text-white shadow-xl' : 'text-slate-50 '}`}>
                                    {date.getDate()}
                                </div>

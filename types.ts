@@ -5,7 +5,7 @@ export enum ViewMode {
   MONTH = 'Month'
 }
 
-export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting' | 'gemini' | 'ctsc' | 'ctmatrix';
+export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting' | 'gemini' | 'ctsc' | 'ctmatrix' | 'contacts' | 'email' | 'menus' | 'eodsales' | 'category-hub';
 
 export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
@@ -402,4 +402,49 @@ export interface DetailedCashUpRecord {
     day: string;
     night: string;
   };
+}
+
+export interface Allergen {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
+export const STANDARD_ALLERGENS: Allergen[] = [
+  { id: 'dairy', name: 'Dairy' },
+  { id: 'eggs', name: 'Eggs' },
+  { id: 'nuts', name: 'Tree Nuts' },
+  { id: 'peanuts', name: 'Peanuts' },
+  { id: 'shellfish', name: 'Shellfish' },
+  { id: 'fish', name: 'Fish' },
+  { id: 'soy', name: 'Soy' },
+  { id: 'wheat', name: 'Wheat/Gluten' },
+  { id: 'sesame', name: 'Sesame' }
+];
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  allergens: string[]; // array of allergen IDs
+  isAvailable: boolean;
+  isDemo?: boolean;
+}
+
+export interface Menu {
+  id: string;
+  title: string;
+  items: MenuItem[];
+  isActive: boolean;
+  isDemo?: boolean;
+}
+
+export interface EODSalesData {
+  id: string;
+  date: Date;
+  staffId: string;
+  itemsSold: { stockId: string; quantity: number }[];
+  isDemo?: boolean;
 }

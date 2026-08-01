@@ -55,7 +55,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
 
   return (
     <div className="min-h-screen transition-colors flex items-center justify-center p-4" style={{ backgroundImage: `url(./login-bg.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-      <div className="glass-panel  w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 ">
+      <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 ">
         <div className="p-4 bg-indigo-600/90 text-center">
            <div className="w-12 h-12 bg-black rounded-full mx-auto mb-2 border-2 border-amber-500 flex items-center justify-center">
              <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover rounded-full" />
@@ -67,7 +67,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
         <div className="p-6 flex-1 flex flex-col items-center">
            <div className="mb-4 flex space-x-4">
               {[0, 1, 2, 3].map(i => (
-                <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all ${pin.length > i ? 'bg-indigo-600 border-indigo-600 scale-110' : 'border-white/20'}`}></div>
+                <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all ${pin.length > i ? 'bg-indigo-600 border-indigo-600 scale-110' : 'border-gray-200 dark:border-slate-700'}`}></div>
               ))}
            </div>
            
@@ -102,7 +102,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
            </div>
         </div>
 
-        <div className="p-3 glass-panel  text-center text-xs text-gray-400">
+        <div className="p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  text-center text-xs text-gray-400">
            <div>Use your 4-digit staff PIN to sign in.</div>
            <button onClick={() => alert('Please contact Management to reset your PIN.')} className="mt-2 text-indigo-500 hover:underline">Forgot PIN / Request Access</button>
            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">

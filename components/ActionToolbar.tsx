@@ -18,7 +18,7 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
   };
 
   const baseBtnClass = isFohMode 
-    ? "flex flex-col items-center justify-center p-4 glass-panel rounded-xl border-2 border-white/10 shadow-lg transition-all text-slate-200" 
+    ? "flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl border-2 border-gray-200 dark:border-slate-700 shadow-lg transition-all text-slate-200" 
     : "p-2 rounded-lg text-slate-300 transition-colors";
 
   const getBtnClass = (isDisabled: boolean) => 

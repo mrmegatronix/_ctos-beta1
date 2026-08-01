@@ -29,7 +29,7 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events , onSave }
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar glass-panel ">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-bold text-slate-50 ">Entertainment Schedule</h2>
@@ -42,10 +42,10 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events , onSave }
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {events.map(event => (
-          <div key={event.id} className="glass-panel  rounded-xl border border-white/10  p-6 flex flex-col hover:shadow-xl transition-shadow">
+          <div key={event.id} className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  p-6 flex flex-col hover:shadow-xl transition-shadow">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-3 glass-panel  rounded-lg">
+                <div className="p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-lg">
                   {getIcon(event.type)}
                 </div>
                 <div>
@@ -64,7 +64,7 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events , onSave }
             <p className="text-slate-300  mb-4 flex-1">{event.description}</p>
             
             {event.performerName && (
-              <div className="mb-4 p-3 glass-panel /50 rounded-lg flex justify-between items-center text-sm">
+              <div className="mb-4 p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 rounded-lg flex justify-between items-center text-sm">
                 <span className="text-slate-400 ">Performer:</span>
                 <span className="font-medium text-slate-50 ">{event.performerName}</span>
               </div>
