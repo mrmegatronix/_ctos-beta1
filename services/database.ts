@@ -9,7 +9,7 @@ import { INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIA
 // This service uses Firebase Firestore as the backend database.
 // Each collection maps to a Firestore collection.
 
-const DB_VERSION = '1.9';
+const DB_VERSION = '2.0';
 
 // Firestore collection names
 const COLLECTIONS = {
