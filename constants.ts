@@ -553,3 +553,10 @@ export const INITIAL_INCIDENTS: IncidentReport[] = [];
 export const INITIAL_LOST_FOUND: LostItem[] = [];
 export const INITIAL_TV_SCHEDULE: TVScheduleItem[] = [];
 export const INITIAL_STOCKTAKES: StocktakeSession[] = [];
+
+export const INITIAL_ORDERS: any[] = [];
+export const INITIAL_TIME_PUNCHES: any[] = [];
+export const INITIAL_BUDGETS: any[] = [];
+export const SOCIAL_LINKS = [];
+export const HOURS: number[] = Array.from({ length: 24 }, (_, i) => i);
+export const INITIAL_FILES: any[] = [];
