@@ -24,6 +24,7 @@ import {
   Contact,
   ClipboardList
 } from 'lucide-react';
+import WeatherWidget from './WeatherWidget';
 
 interface DashboardViewProps {
   mode: AppMode;
@@ -49,8 +50,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
   const upcomingBands = entertainmentEvents.filter(e => {
     const d = new Date(e.date);
-    return d >= new Date(today.setHours(0,0,0,0));
-  }).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 4);
+    return d.getDate() === today.getDate() && d.getMonth() === today.getMonth();
+  });
   
   const todaysBookings = bookings.filter(b => {
     const d = new Date(b.date || b.time);
@@ -71,10 +72,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center justify-between mb-8">
              <div>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Office Dashboard</h1>
-                <p className="text-gray-500 dark:text-gray-400">Welcome back, {user.name}. Here is your overview for today.</p>
+                <p className="text-gray-500 dark:text-gray-400">Welcome back, {user.name}.</p>
              </div>
-             <div className="text-sm font-medium text-gray-500 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
-                {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+             <div className="flex flex-col items-end gap-3">
+                <div className="text-sm font-medium text-gray-500 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
+                    {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+                <div className="w-64">
+                    <WeatherWidget />
+                </div>
              </div>
           </div>
 
@@ -177,6 +183,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
              {/* Right Sidebar: Schedule */}
              <div className="space-y-6">
+                <WeatherWidget />
+                
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Today's Schedule</h3>
                     <div className="space-y-4">
@@ -213,7 +221,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     return (
       <div className="flex-1 p-8 overflow-auto">
          <div className="max-w-6xl mx-auto space-y-8">
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 relative">
+               <div className="absolute right-0 top-0 w-64 text-left">
+                  <WeatherWidget />
+               </div>
                <h1 className="text-4xl font-bold text-white mb-2">Front of House</h1>
                <p className="text-slate-400">Select a terminal or module to begin service.</p>
             </div>
@@ -251,7 +262,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({
          <div className="max-w-6xl mx-auto space-y-8">
             <div className="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
                <h1 className="text-4xl font-bold text-white">Kitchen Dashboard</h1>
-               <div className="text-slate-400 text-lg">{today.toLocaleDateString()}</div>
+               <div className="flex items-center space-x-6">
+                   <div className="w-64">
+                       <WeatherWidget />
+                   </div>
+                   <div className="text-slate-400 text-lg">{today.toLocaleDateString()}</div>
+               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

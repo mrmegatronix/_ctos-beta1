@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
+  ChevronLeft, ChevronRight, ChevronDown, Calendar as CalendarIcon, 
   Menu, Bell, Settings, Search, Plus, Moon, Sun, Download, LogIn, LogOut,
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
@@ -18,7 +18,17 @@ import {
   addDays, getStartOfWeek, formatTime, 
   isSameDay, formatDate, generateId 
 } from './utils';
-import { HOURS, INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE } from './constants';
+import { 
+    INITIAL_SHIFTS, 
+    INITIAL_EVENTS, 
+    INITIAL_BOOKINGS, 
+    INITIAL_SUPPLIERS, 
+    INITIAL_STOCK, 
+    INITIAL_MAINTENANCE,
+    INITIAL_TV_SCHEDULE,
+    INITIAL_MENUS,
+    HOURS, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS 
+} from './constants';
 import EventModal from './components/EventModal';
 import AIAssistant from './components/AIAssistant';
 import DashboardView from './components/DashboardView';
@@ -64,6 +74,7 @@ const App: React.FC = () => {
   const [appMode, setAppMode] = useState<AppMode>('OFFICE');
 
   // Navigation State
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [currentModule, setCurrentModule] = useState<AppModule>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
@@ -97,7 +108,7 @@ const App: React.FC = () => {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [timePunches, setTimePunches] = useState<TimePunch[]>([]);
   const [budgets, setBudgets] = useState<BudgetTracker[]>([]);
-  const [menus, setMenus] = useState<any[]>([]);
+  const [menus, setMenus] = useState<any[]>(INITIAL_MENUS);
   const [eodSales, setEodSales] = useState<any[]>([]);
   
   // Category Hub state
@@ -322,7 +333,6 @@ const App: React.FC = () => {
            }
        }
        setAppMode(mode);
-       setIsDarkMode(mode !== 'OFFICE');
        showNotification(`Switched to ${mode} Mode`, 'success');
        setIsSidebarOpen(true);
        
@@ -339,7 +349,6 @@ const App: React.FC = () => {
           mode = 'BOH';
       }
       setAppMode(mode);
-      setIsDarkMode(mode !== 'OFFICE');
       setIsSidebarOpen(true);
       
       if (mode === 'FOH') setCurrentModule('browser');
@@ -351,7 +360,6 @@ const App: React.FC = () => {
   const handleLogout = () => {
       setCurrentUser(null);
       setAppMode('OFFICE'); // Reset mode
-      setIsDarkMode(false);
       setCurrentModule('dashboard');
   };
 
@@ -624,11 +632,7 @@ const App: React.FC = () => {
 
 
   // Determine dynamic container classes
-  const containerClasses = appMode === 'OFFICE'
-    ? `flex h-screen print:h-auto flex-col transition-colors duration-300 relative overflow-hidden bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white`
-    : appMode === 'FOH'
-    ? `flex h-screen print:h-auto flex-col bg-animated-gradient transition-colors duration-300 text-lg relative overflow-hidden text-white`
-    : `flex h-screen print:h-auto flex-col bg-slate-950 transition-colors duration-300 relative overflow-hidden text-white`;
+  const containerClasses = "flex h-screen print:h-auto flex-col transition-colors duration-300 relative overflow-hidden bg-gray-50 dark:bg-[#0B0F19] text-gray-900 dark:text-white";
 
   return (
     <div className={`${containerClasses}`}>
@@ -641,7 +645,7 @@ const App: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className={`flex items-center justify-between border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm`}>
+      <header className={`flex items-center justify-between border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-xl px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm`}>
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400">
             <Menu className="w-6 h-6" />
@@ -649,9 +653,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center space-x-3">
              <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${
-                 themeColor === 'red' ? 'border-rose-500' : 
-                 themeColor === 'amber' ? 'border-amber-500' : 
-                 'border-cyan-500'
+                 appMode === "OFFICE" ? "border-indigo-500" : appMode === "FOH" ? "border-emerald-500" : "border-amber-500"
              } shadow-sm bg-black flex items-center justify-center flex-shrink-0`}>
                <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
              </div>
@@ -672,19 +674,19 @@ const App: React.FC = () => {
           <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
               <button 
                   onClick={() => setExplicitMode('OFFICE')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'OFFICE' ? 'bg-rose-500 text-white shadow-sm glow-accent-red' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'OFFICE' ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   OFFICE
               </button>
               <button 
                   onClick={() => setExplicitMode('FOH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'FOH' ? 'bg-amber-500 text-white shadow-sm glow-accent-amber' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'FOH' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   FOH
               </button>
               <button 
                   onClick={() => setExplicitMode('BOH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'BOH' ? 'bg-cyan-500 text-white shadow-sm glow-accent-blue' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'BOH' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   BOH
               </button>
@@ -708,7 +710,7 @@ const App: React.FC = () => {
           </button>
           
           <div className="flex items-center space-x-3">
-             <img src={currentUser.avatar} alt={currentUser.name} className={`w-8 h-8 rounded-full border-2 ${isFohMode ? 'border-blue-400' : 'border-red-400'}`} />
+             <img src={currentUser.avatar} alt={currentUser.name} className={`w-8 h-8 rounded-full border-2 ${appMode === "OFFICE" ? "border-indigo-500" : appMode === "FOH" ? "border-emerald-500" : "border-amber-500"}`} />
              <div className="hidden md:block text-right">
                  <div className="text-sm font-bold text-gray-900 dark:text-white">{currentUser.name}</div>
                  <div className="text-xs text-gray-500 dark:text-gray-400">{currentUser.role}</div>
@@ -725,130 +727,182 @@ const App: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden print:overflow-visible">
         {/* Module Sidebar */}
-        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 transition-all duration-300 ease-in-out bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 overflow-y-auto custom-scrollbar relative z-20 print:hidden`}>
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 transition-all duration-300 ease-in-out bg-white dark:bg-[#111827]/80 backdrop-blur-xl border-r border-gray-200 dark:border-white/5 overflow-y-auto custom-scrollbar relative z-20 print:hidden`}>
     <div className="p-4 space-y-2">
         {isFohMode ? (
             <div className="space-y-2">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Front of House</div>
-                <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Service Hub</span>
                 </button>
-                <button onClick={() => setCurrentModule('browser')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'browser' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                <button onClick={() => setCurrentModule("browser")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "browser" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Monitor className="w-5 h-5" /><span>POS System</span>
                 </button>
+                <button onClick={() => setCurrentModule("bookings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "bookings" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Utensils className="w-5 h-5" /><span>Table Reservations</span>
+                </button>
+                <button onClick={() => setCurrentModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <BookOpen className="w-5 h-5" /><span>Menus & Allergens</span>
+                </button>
+                <button onClick={() => setCurrentModule("tvschedule")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "tvschedule" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Tv className="w-5 h-5" /><span>TV Guide</span>
+                </button>
+                <button onClick={() => setCurrentModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <ClockIcon className="w-5 h-5" /><span>Timeclock</span>
+                </button>
             </div>
-        ) : appMode === 'BOH' ? (
+        ) : appMode === "BOH" ? (
             <div className="space-y-2">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Back of House</div>
-                <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Kitchen Hub</span>
                 </button>
-                <button onClick={() => setCurrentModule('recipes')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'recipes' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                <button onClick={() => setCurrentModule("recipes")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "recipes" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <BookOpen className="w-5 h-5" /><span>Recipes</span>
+                </button>
+                <button onClick={() => setCurrentModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <BookOpen className="w-5 h-5" /><span>Menus & Allergens</span>
+                </button>
+                <button onClick={() => setCurrentModule("maintenance")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "maintenance" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Wrench className="w-5 h-5" /><span>Maintenance</span>
+                </button>
+                <button onClick={() => setCurrentModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <ClockIcon className="w-5 h-5" /><span>Timeclock</span>
                 </button>
             </div>
         ) : (
             <div className="space-y-2 pb-10">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Management</div>
-                <button onClick={() => setCurrentModule('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-indigo-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Dashboard</span>
                 </button>
                 
-                <button onClick={() => {
-                    setCurrentCategoryHub({
-                        title: 'Financials & POS',
-                        description: 'Manage cash flow, banking, budgets, and daily takings.',
-                        links: [
-                            { id: 'browser', label: 'POS Terminal', icon: Globe, description: 'Access the main point of sale interface' },
-                            { id: 'finance', label: 'Cashup & Recon', icon: DollarSign, description: 'End of day till balancing and safe counts' },
-                            { id: 'eodsales', label: 'EOD Sales Entry', icon: TrendingUp, description: 'Input daily sales to update inventory' },
-                            { id: 'budgeting', label: 'Budgeting', icon: TrendingUp, description: 'Track actuals against targets' }
-                        ]
-                    });
-                    setCurrentModule('category-hub');
-                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Financials & POS' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                    <DollarSign className="w-5 h-5" /><span>Financials & POS</span>
-                </button>
+                {/* Financials & POS */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "finance" ? null : "finance")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "finance" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <DollarSign className="w-5 h-5" /><span>Financials & POS</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "finance" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "finance" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "browser", label: "POS Terminal" }, { id: "finance", label: "Cashup & Recon" }, { id: "eodsales", label: "EOD Sales Entry" }, { id: "budgeting", label: "Budgeting" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-                <button onClick={() => {
-                    setCurrentCategoryHub({
-                        title: 'Events & Bookings',
-                        description: 'Manage reservations, functions, and entertainment.',
-                        links: [
-                            { id: 'calendar', label: 'Venue Calendar', icon: CalendarIcon, description: 'Master view of all events and bookings' },
-                            { id: 'bookings', label: 'Table Reservations', icon: Utensils, description: 'Manage dining room allocations' },
-                            { id: 'functions', label: 'Private Functions', icon: PartyPopper, description: 'Manage large group events and catering' },
-                            { id: 'entertainment', label: 'Entertainment', icon: Music, description: 'Band and DJ schedules' }
-                        ]
-                    });
-                    setCurrentModule('category-hub');
-                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Events & Bookings' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                    <CalendarIcon className="w-5 h-5" /><span>Events & Bookings</span>
-                </button>
+                {/* Events & Bookings */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "events" ? null : "events")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "events" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <CalendarIcon className="w-5 h-5" /><span>Events & Bookings</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "events" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "events" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "calendar", label: "Venue Calendar" }, { id: "bookings", label: "Table Reservations" }, { id: "functions", label: "Private Functions" }, { id: "entertainment", label: "Entertainment" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-                <button onClick={() => {
-                    setCurrentCategoryHub({
-                        title: 'Staff & Labour',
-                        description: 'Manage team members, shifts, and timesheets.',
-                        links: [
-                            { id: 'staff', label: 'Team Directory', icon: Users, description: 'Manage staff profiles and permissions' },
-                            { id: 'roster', label: 'Rostering', icon: ClipboardList, description: 'Schedule shifts and manage leave' },
-                            { id: 'timeclock', label: 'Timeclock', icon: ClockIcon, description: 'Staff sign-in kiosk' },
-                            { id: 'timesheets', label: 'Timesheets', icon: FileText, description: 'Review and approve worked hours' }
-                        ]
-                    });
-                    setCurrentModule('category-hub');
-                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Staff & Labour' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                    <Users className="w-5 h-5" /><span>Staff & Labour</span>
-                </button>
+                {/* Staff & Labour */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "staff" ? null : "staff")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "staff" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <Users className="w-5 h-5" /><span>Staff & Labour</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "staff" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "staff" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "staff", label: "Team Directory" }, { id: "roster", label: "Rostering" }, { id: "timeclock", label: "Timeclock" }, { id: "timesheets", label: "Timesheets" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-                <button onClick={() => {
-                    setCurrentCategoryHub({
-                        title: 'Inventory',
-                        description: 'Manage stock levels, menus, and ordering.',
-                        links: [
-                            { id: 'stock', label: 'Products & Stock', icon: Boxes, description: 'View current inventory levels' },
-                            { id: 'menus', label: 'Menus & Allergens', icon: BookOpen, description: 'Manage food and beverage menus' },
-                            { id: 'ordering', label: 'Purchase Orders', icon: Truck, description: 'Create orders for suppliers' },
-                            { id: 'stocktake', label: 'Stocktaking', icon: ClipboardList, description: 'Perform physical inventory counts' },
-                            { id: 'suppliers', label: 'Suppliers', icon: Truck, description: 'Manage vendor details' },
-                            { id: 'recipes', label: 'Recipes', icon: BookOpen, description: 'Standard operating procedures for items' }
-                        ]
-                    });
-                    setCurrentModule('category-hub');
-                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Inventory' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                    <Boxes className="w-5 h-5" /><span>Inventory</span>
-                </button>
-
-                <button onClick={() => {
-                    setCurrentCategoryHub({
-                        title: 'Operations',
-                        description: 'Manage venue operations and daily tasks.',
-                        links: [
-                            { id: 'tvschedule', label: 'TV Guide', icon: Tv, description: 'Live sports and screen management' },
-                            { id: 'incidents', label: 'Incident Log', icon: ShieldAlert, description: 'Record compliance and security events' },
-                            { id: 'maintenance', label: 'Maintenance', icon: Wrench, description: 'Track broken equipment and repairs' },
-                            { id: 'lostfound', label: 'Lost & Found', icon: Umbrella, description: 'Track items left by customers' },
-                            { id: 'documents', label: 'Documents', icon: FolderOpen, description: 'Venue policies and files' }
-                        ]
-                    });
-                    setCurrentModule('category-hub');
-                }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentCategoryHub?.title === 'Operations' && currentModule === 'category-hub' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                    <Wrench className="w-5 h-5" /><span>Operations</span>
-                </button>
+                {/* Inventory */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "inventory" ? null : "inventory")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "inventory" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <Boxes className="w-5 h-5" /><span>Inventory</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "inventory" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "inventory" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "stock", label: "Products & Stock" }, { id: "menus", label: "Menus & Allergens" }, { id: "ordering", label: "Purchase Orders" }, { id: "stocktake", label: "Stocktaking" }, { id: "suppliers", label: "Suppliers" }, { id: "recipes", label: "Recipes" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
                 
-                {currentUser?.id === 'admin-nikko' && (
+                {/* Integrations & Screens */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "integrations" ? null : "integrations")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "integrations" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <Monitor className="w-5 h-5" /><span>Integrations & Screens</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "integrations" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "integrations" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "media", label: "Adverts & Media" }, { id: "ctmatrix", label: "CT Matrix" }, { id: "ctsc", label: "CTSC Console" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Operations */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "ops" ? null : "ops")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "ops" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <Wrench className="w-5 h-5" /><span>Operations</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "ops" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "ops" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "tvschedule", label: "TV Guide" }, { id: "incidents", label: "Incident Log" }, { id: "maintenance", label: "Maintenance" }, { id: "lostfound", label: "Lost & Found" }, { id: "documents", label: "Documents" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                
+                {currentUser?.id === "admin-nikko" && (
                     <>
                     <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest mb-3 px-3 mt-6">Admin Tools</div>
-                    <button onClick={() => setCurrentModule('gemini')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === 'gemini' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                        <BookOpen className="w-5 h-5" /><span>Google Notebook</span>
+                    <button onClick={() => setCurrentModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-indigo-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <Settings className="w-5 h-5" /><span>Settings</span>
                     </button>
                     </>
                 )}
             </div>
         )}
     </div>
-</aside>
+        </aside>
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col overflow-hidden print:h-auto print:overflow-visible relative">
@@ -941,7 +995,7 @@ const App: React.FC = () => {
 
           {currentModule === 'roster' && (
              <div className="flex flex-col h-full">
-                <div className="px-6 pt-6">
+                <div className="px-6 pt-6 print:hidden">
                     <ActionToolbar title="Staff Roster" isFohMode={isFohMode} onPrint={() => window.print()} />
                 </div>
                 <RosterView 
@@ -958,8 +1012,8 @@ const App: React.FC = () => {
 
           {currentModule === 'stock' && (
              <div className="flex flex-col h-full">
-                <div className="px-6 pt-6">
-                    <ActionToolbar title={stockFilter ? `${stockFilter.type} Products` : "Products"} isFohMode={isFohMode} />
+                <div className="px-6 pt-6 print:hidden">
+                    <ActionToolbar title={stockFilter ? `${stockFilter.type} Products` : "Products"} isFohMode={isFohMode} onPrint={() => window.print()} />
                 </div>
                 <StockView 
                   items={stockItems} 

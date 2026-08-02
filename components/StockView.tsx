@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { StockItem, Supplier } from '../types';
-import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2 } from 'lucide-react';
+import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2, Printer, CheckSquare, FileText, ClipboardList } from 'lucide-react';
 import { StockInfoModal } from './StockInfoModal';
 
 interface StockViewProps {
@@ -15,6 +15,8 @@ interface StockViewProps {
 
 const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantity, onSaveItem, filterType, groupBy }) => {
   const [editingItem, setEditingItem] = useState<StockItem | null>(null);
+  const [printFormat, setPrintFormat] = useState<'inventory' | 'stocktake' | 'reorder'>('inventory');
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   const handleAdd = () => {
     setEditingItem({
@@ -45,6 +47,9 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
 
   const lowStockItems = displayItems.filter(i => i.quantity <= i.minLevel);
   
+  // Items to display during print based on selected print format
+  const printableItems = printFormat === 'reorder' ? lowStockItems : displayItems;
+
   // Transfer Modal State
   const [transferItem, setTransferItem] = useState<StockItem | null>(null);
   const [transferQty, setTransferQty] = useState<number>(1);
@@ -53,98 +58,184 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
   const handleTransfer = () => {
       if (transferItem && transferQty > 0) {
           onUpdateQuantity(transferItem.id, -transferQty);
-          // In a real app, we would log this transfer to a separate table
           console.log(`Transferred ${transferQty} of ${transferItem.name} to ${transferDest}`);
           setTransferItem(null);
           setTransferQty(1);
       }
   };
 
+  const triggerPrint = (format: 'inventory' | 'stocktake' | 'reorder') => {
+      setPrintFormat(format);
+      setShowPrintModal(false);
+      setTimeout(() => {
+          window.print();
+      }, 150);
+  };
+
   return (
-    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  overflow-hidden relative">
-      {/* Top Stats */}
-      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl p-4 border border-gray-200 dark:border-slate-700  shadow-lg flex items-center space-x-4">
+    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden relative print:bg-white print:text-black print:overflow-visible print:h-auto">
+      {/* Printable Header (Visible only when printing) */}
+      <div className="hidden print:block px-6 pt-4 pb-2 mb-4 border-b-2 border-gray-800">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="text-2xl font-black tracking-wider uppercase text-gray-900">COASTERS TAVERN</div>
+            <div className="text-base font-bold text-gray-700 mt-0.5">
+              {printFormat === 'stocktake' 
+                ? '📋 STOCKTAKE PHYSICAL COUNT SHEET' 
+                : printFormat === 'reorder' 
+                  ? '⚠️ LOW STOCK & REORDER REPORT' 
+                  : '📦 STOCK INVENTORY LIST'}
+            </div>
+            <div className="text-xs text-gray-600 mt-1">
+              Category: <span className="font-semibold text-gray-900">{filterType || 'All Categories'}</span>
+              {groupBy && <span> | Grouping: <span className="font-semibold text-gray-900">{groupBy}</span></span>}
+            </div>
+          </div>
+          <div className="text-right text-xs text-gray-600">
+            <div><strong>Date:</strong> {new Date().toLocaleDateString('en-NZ', { dateStyle: 'medium' })} {new Date().toLocaleTimeString('en-NZ', { timeStyle: 'short' })}</div>
+            <div><strong>Total Listed Items:</strong> {printableItems.length}</div>
+            {printFormat === 'inventory' && (
+              <div><strong>Total Inventory Value:</strong> ${displayItems.reduce((acc, i) => acc + (i.price * i.quantity), 0).toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            )}
+            {printFormat === 'stocktake' && (
+              <div className="mt-1 text-[11px] border border-gray-400 px-2 py-1 rounded bg-gray-50 text-left">
+                <div>Counted by: ________________________</div>
+                <div className="mt-0.5">Checked by: ________________________</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Top Stats (Hidden during print) */}
+      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 print:hidden">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-slate-700 shadow-lg flex items-center space-x-4">
            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
              <Package className="w-6 h-6" />
            </div>
            <div>
-             <div className="text-sm text-slate-400 ">Total Items</div>
-             <div className="text-2xl font-bold text-slate-50 ">{displayItems.length}</div>
+             <div className="text-sm text-slate-400">Total Items</div>
+             <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{displayItems.length}</div>
            </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl p-4 border border-gray-200 dark:border-slate-700  shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-slate-700 shadow-lg flex items-center space-x-4">
            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400">
              <AlertTriangle className="w-6 h-6" />
            </div>
            <div>
-             <div className="text-sm text-slate-400 ">Low Stock Alerts</div>
-             <div className="text-2xl font-bold text-slate-50 ">{lowStockItems.length}</div>
+             <div className="text-sm text-slate-400">Low Stock Alerts</div>
+             <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{lowStockItems.length}</div>
            </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl p-4 border border-gray-200 dark:border-slate-700  shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-slate-700 shadow-lg flex items-center space-x-4">
            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 dark:text-emerald-400">
              <TrendingDown className="w-6 h-6" />
            </div>
            <div>
-             <div className="text-sm text-slate-400 ">Inventory Value</div>
-             <div className="text-2xl font-bold text-slate-50 ">
+             <div className="text-sm text-slate-400">Inventory Value</div>
+             <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                 ${displayItems.reduce((acc, i) => acc + (i.price * i.quantity), 0).toFixed(0)}
              </div>
            </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto custom-scrollbar px-6 pb-6">
-        <div className="flex justify-end mb-4">
-          <button onClick={handleAdd} className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-lg">
-             <Plus className="w-5 h-5" />
-             <span>Add Stock Item</span>
-          </button>
+      <div className="flex-1 overflow-auto custom-scrollbar px-6 pb-6 print:overflow-visible print:p-0 print:px-6">
+        {/* Action Controls (Hidden during print) */}
+        <div className="flex justify-between items-center mb-4 print:hidden">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs uppercase font-bold text-slate-400">Active View:</span>
+            <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+              {filterType || 'All Items'} ({displayItems.length})
+            </span>
+            {lowStockItems.length > 0 && (
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                {lowStockItems.length} Low Stock
+              </span>
+            )}
+          </div>
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => setShowPrintModal(true)} 
+              className="flex items-center space-x-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg transition-colors font-medium text-sm shadow-sm"
+              title="Print Stock Sheets"
+            >
+               <Printer className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+               <span>Print Stock List</span>
+            </button>
+            <button 
+              onClick={handleAdd} 
+              className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-lg font-medium text-sm"
+            >
+               <Plus className="w-4 h-4" />
+               <span>Add Stock Item</span>
+            </button>
+          </div>
         </div>
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden shadow-lg">
-          <table className="w-full text-left border-collapse">
+
+        {/* Stock Items Table */}
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-lg print:border-gray-300 print:shadow-none print:rounded-none">
+          <table className="w-full text-left border-collapse print:text-xs">
             <thead>
-              <tr className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border-b border-gray-200 dark:border-slate-700  text-xs uppercase text-slate-400 ">
-                <th className="px-6 py-4 font-semibold">Item Name</th>
-                <th className="px-6 py-4 font-semibold">Size</th>
-                <th className="px-6 py-4 font-semibold">Supplier</th>
-                <th className="px-6 py-4 font-semibold">Cost Price</th>
-                <th className="px-6 py-4 font-semibold">Sell Price</th>
-                <th className="px-6 py-4 font-semibold">Cost Per Serve</th>
-                <th className="px-6 py-4 font-semibold">Stock Count</th>
-                <th className="px-6 py-4 font-semibold">Par Level</th>
-                <th className="px-6 py-4 font-semibold text-blue-400">Order Amount</th>
-                <th className="px-6 py-4 font-semibold text-right">Actions</th>
+              <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 text-xs uppercase text-slate-500 dark:text-slate-400 print:bg-gray-100 print:text-gray-900 print:border-b-2 print:border-gray-400">
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Item Name</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Category</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Size / Unit</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Supplier</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Cost</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Sell</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Cost %</th>
+                <th className="px-4 py-3 font-semibold text-center print:py-1.5 print:px-2">Stock</th>
+                <th className="px-4 py-3 font-semibold text-center print:py-1.5 print:px-2">Par</th>
+                <th className="px-4 py-3 font-semibold text-center text-blue-600 dark:text-blue-400 print:text-gray-900 print:py-1.5 print:px-2">Order</th>
+                
+                {/* Physical Count Column for Stocktake Count Sheet Printouts */}
+                <th className="hidden print:table-cell px-3 py-1.5 font-bold text-center border-l border-gray-300">
+                  {printFormat === 'stocktake' ? 'Physical Count' : 'Check'}
+                </th>
+
+                <th className="px-4 py-3 font-semibold text-right print:hidden">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-              {displayItems.length === 0 && (
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700 print:divide-gray-300">
+              {printableItems.length === 0 && (
                  <tr>
-                    <td colSpan={10} className="px-6 py-8 text-center text-slate-400">
+                    <td colSpan={11} className="px-6 py-8 text-center text-slate-400 print:text-gray-600">
                        No products found for the selected category. Add items to continue.
                     </td>
                  </tr>
               )}
-              {displayItems.map(item => {
+              {printableItems.map(item => {
                 const orderAmount = Math.max(0, item.minLevel - item.quantity);
                 const costPerServe = item.price > 0 && item.cost > 0 ? ((item.cost / item.price) * 100).toFixed(1) + '%' : '$' + (item.cost || 0).toFixed(2);
+                const isLow = item.quantity <= item.minLevel;
                 return (
-                  <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
-                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-50">{item.name} <span className="block text-xs text-slate-400">{item.category}</span></td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.unit || '-'}</td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.supplierId || 'Unknown'}</td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">${(item.cost || 0).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">${(item.price || 0).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{costPerServe}</td>
-                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-50">{item.quantity}</td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.minLevel}</td>
-                    <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">
+                  <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors print:hover:bg-transparent ${item.isDemo ? 'demo-highlight' : ''} ${isLow ? 'bg-red-50/30 dark:bg-red-950/20' : ''}`}>
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">
+                      {item.name}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 print:text-gray-700 print:py-1.5 print:px-2">
+                      {item.category}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{item.unit || '-'}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{item.supplierId || 'Unknown'}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">${(item.cost || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">${(item.price || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{costPerServe}</td>
+                    <td className="px-4 py-3 font-bold text-center text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">{item.quantity}</td>
+                    <td className="px-4 py-3 text-center text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{item.minLevel}</td>
+                    <td className="px-4 py-3 font-bold text-center text-blue-600 dark:text-blue-400 print:text-gray-900 print:py-1.5 print:px-2">
                       {orderAmount > 0 ? orderAmount : '-'}
                     </td>
-                    <td className="px-6 py-4 text-right flex items-center justify-end space-x-2">
+                    
+                    {/* Blank checkbox / box for physical count printout */}
+                    <td className="hidden print:table-cell px-3 py-1.5 text-center border-l border-gray-300">
+                      <div className="w-14 h-5 border border-dashed border-gray-400 mx-auto rounded"></div>
+                    </td>
+
+                    <td className="px-4 py-3 text-right flex items-center justify-end space-x-2 print:hidden">
                       <button 
                           onClick={() => onUpdateQuantity(item.id, -1)}
                           className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400"
@@ -181,6 +272,84 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
           </table>
         </div>
       </div>
+
+      {/* Print Options Modal */}
+      {showPrintModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 print:hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200 dark:border-slate-700 animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                  <Printer className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">Print Stock Sheets</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Choose a printer-friendly layout format</p>
+                </div>
+              </div>
+              <button onClick={() => setShowPrintModal(false)} className="text-gray-400 hover:text-slate-600 dark:hover:text-slate-300">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 my-5">
+              <button
+                onClick={() => triggerPrint('inventory')}
+                className="w-full text-left p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
+              >
+                <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    Full Inventory Stock List
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Complete product listing with cost, sell prices, current stock, par levels, and inventory valuation.
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => triggerPrint('stocktake')}
+                className="w-full text-left p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
+              >
+                <ClipboardList className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-50 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    Stocktake Physical Count Sheet
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Includes blank physical count boxes and signature lines for paper clipboard stocktakes.
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => triggerPrint('reorder')}
+                className="w-full text-left p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
+              >
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-50 group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                    Low Stock & Reorder Sheet ({lowStockItems.length} items)
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Filters strictly to items below par level for fast ordering and supplier purchasing.
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-2 border-t border-gray-100 dark:border-slate-700">
+              <button 
+                onClick={() => setShowPrintModal(false)} 
+                className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Transfer Modal */}
       {transferItem && (

@@ -18,7 +18,7 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
   };
 
   const baseBtnClass = isFohMode 
-    ? "flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl border-2 border-gray-200 dark:border-slate-700 shadow-lg transition-all text-slate-200" 
+    ? "flex flex-col items-center justify-center p-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-lg border border-gray-200 dark:border-slate-700 transition-all text-slate-300" 
     : "p-2 rounded-lg text-slate-300 transition-colors";
 
   const getBtnClass = (isDisabled: boolean) => 
@@ -29,11 +29,11 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
 
   if (isFohMode) {
       return (
-          <div className="grid grid-cols-4 gap-4 mb-6">
-              <button disabled={!onEdit} onClick={onEdit} className={getBtnClass(!onEdit)}><Edit className={iconClass} /><span className={labelClass}>Edit</span></button>
-              <button onClick={handlePrint} className={getBtnClass(false)}><Printer className={iconClass} /><span className={labelClass}>Print</span></button>
-              <button disabled={!onShare} onClick={onShare} className={getBtnClass(!onShare)}><Share2 className={iconClass} /><span className={labelClass}>Share</span></button>
-              <button onClick={onSend || (() => window.location.href = `mailto:?subject=${encodeURIComponent((title || '') + ' Report')}`)} className={getBtnClass(false)}><Send className={iconClass} /><span className={labelClass}>Send</span></button>
+          <div className="flex items-center space-x-2 mb-6">
+              <button disabled={!onEdit} onClick={onEdit} className={getBtnClass(!onEdit)} title="Edit"><Edit className={iconClass} /><span className={labelClass}>Edit</span></button>
+              <button onClick={handlePrint} className={getBtnClass(false)} title="Print"><Printer className={iconClass} /><span className={labelClass}>Print</span></button>
+              <button disabled={!onShare} onClick={onShare} className={getBtnClass(!onShare)} title="Share"><Share2 className={iconClass} /><span className={labelClass}>Share</span></button>
+              <button onClick={onSend || (() => window.location.href = `mailto:?subject=${encodeURIComponent((title || '') + ' Report')}`)} className={getBtnClass(false)} title="Send"><Send className={iconClass} /><span className={labelClass}>Send</span></button>
           </div>
       );
   }

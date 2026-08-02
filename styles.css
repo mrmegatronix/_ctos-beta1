@@ -46,20 +46,69 @@ body,
 /* Base Print Styles */
 @media print {
   @page {
-    margin: 1cm;
+    margin: 0.6cm;
     size: auto;
   }
-  body {
-    background: white !important;
-    color: black !important;
+  
+  html,
+  body,
+  #root {
+    height: auto !important;
+    min-height: 100% !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 10pt;
   }
-  .print-hide {
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .print-hide,
+  .print\:hidden {
     display: none !important;
   }
-  .print-only {
+
+  .print-only,
+  .print\:block {
     display: block !important;
   }
-  .print-break-inside-avoid {
-    break-inside: avoid;
+
+  .print\:flex {
+    display: flex !important;
+  }
+
+  .print\:table {
+    display: table !important;
+  }
+
+  .print\:table-row {
+    display: table-row !important;
+  }
+
+  .print\:table-cell {
+    display: table-cell !important;
+  }
+
+  .print-break-inside-avoid,
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Table styling for print */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    color: #111827 !important;
+    border-color: #cbd5e1 !important;
   }
 }

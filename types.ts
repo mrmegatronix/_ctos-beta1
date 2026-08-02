@@ -79,6 +79,7 @@ export interface StockItem {
   category: string;
   quantity: number;
   unit: string;
+  volumeMl?: number; // Total volume in ml (e.g. 1000 for 1L bottle, 50000 for 50L keg)
   minLevel: number; 
   price: number;
   supplierId?: string;
@@ -331,6 +332,7 @@ export interface StockItem {
   category: string;
   quantity: number;
   unit: string;
+  volumeMl?: number; // Total volume in ml (e.g. 1000 for 1L bottle, 50000 for 50L keg)
   minLevel: number; 
   price: number;
   supplierId?: string;
@@ -430,6 +432,8 @@ export interface MenuItem {
   category: string;
   allergens: string[]; // array of allergen IDs
   isAvailable: boolean;
+  stockItemId?: string; // ID of the StockItem to deduct from
+  deductionMl?: number; // Amount to deduct (e.g., 15 for 15ml, 425 for Pint)
   isDemo?: boolean;
 }
 
