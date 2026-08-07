@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TeamMember, isMasterAdmin, isAdminOrAbove } from '../types';
-import { ShieldCheck, Crown, Shield, Users, Delete, KeyRound, Check } from 'lucide-react';
+import { TeamMember } from '../types';
+import { Crown, Delete, Check } from 'lucide-react';
 
 interface LoginScreenProps {
   staff: TeamMember[];
@@ -135,61 +135,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
               </button>
             </div>
           </div>
-
-          {/* Quick Login Role Directory for Testing / Kiosk Fast Switch */}
-          <div className="w-full max-w-xs pt-3 border-t border-slate-100 dark:border-slate-700/60">
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 text-center">
-              Quick Role Authentication
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                onClick={() => {
-                  const u = staff.find(s => s.id === 'admin-nikko' || s.pinCode === '5551');
-                  if (u) onLogin(u);
-                }}
-                className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-left hover:scale-[1.02] transition-transform"
-              >
-                <div className="flex items-center space-x-1 text-amber-600 dark:text-amber-400 font-bold text-[11px]">
-                  <Crown className="w-3 h-3" />
-                  <span>Master</span>
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">PIN 5551</div>
-              </button>
-
-              <button
-                onClick={() => {
-                  const u = staff.find(s => s.role === 'Duty Manager' || s.accessLevel === 'admin');
-                  if (u) onLogin(u);
-                }}
-                className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/50 text-left hover:scale-[1.02] transition-transform"
-              >
-                <div className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 font-bold text-[11px]">
-                  <Shield className="w-3 h-3" />
-                  <span>Manager</span>
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">PIN 1001</div>
-              </button>
-
-              <button
-                onClick={() => {
-                  const u = staff.find(s => s.role === 'Front of House' || s.accessLevel === 'standard');
-                  if (u) onLogin(u);
-                }}
-                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-left hover:scale-[1.02] transition-transform"
-              >
-                <div className="flex items-center space-x-1 text-slate-700 dark:text-slate-300 font-bold text-[11px]">
-                  <Users className="w-3 h-3" />
-                  <span>Staff</span>
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">PIN 1005</div>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-700/60 text-center text-[11px] text-slate-400">
-          <div>Enter your 4-digit staff PIN code to sign in.</div>
+        <div className="p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400">
+          <div>Enter your authorized 4-digit staff PIN code to sign in.</div>
         </div>
       </div>
     </div>

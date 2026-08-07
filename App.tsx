@@ -63,7 +63,7 @@ import MenuView from './components/MenuView';
 import { parseNaturalLanguageCommand } from './services/geminiService';
 import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents } from './services/googleService';
 
-import TimeclockView from './components/TimeclockView';
+import CTClockView from './components/CTClockView';
 import StocktakeView from './components/StocktakeView';
 import OrderingView from './components/OrderingView';
 import BudgetingView from './components/BudgetingView';
@@ -1036,16 +1036,11 @@ const App: React.FC = () => {
           )}
 
           {currentModule === 'timeclock' && (
-              <TimeclockView
-                  teamMembers={teamMembers}
-                  timePunches={timePunches}
-                  onClockIn={(punch) => {
-                      setTimePunches([...timePunches, punch]);
-                      setNotification({ message: 'Clocked In Successfully', type: 'success' });
-                  }}
-                  onClockOut={(punchId, timeOut) => {
-                      setTimePunches(timePunches.map(p => p.id === punchId ? { ...p, timeOut } : p));
-                      setNotification({ message: 'Clocked Out Successfully', type: 'success' });
+              <CTClockView
+                  staff={teamMembers}
+                  currentUser={currentUser}
+                  onPunchSuccess={() => {
+                      showNotification('Timeclock punch processed successfully', 'success');
                   }}
               />
           )}
@@ -1186,7 +1181,6 @@ const App: React.FC = () => {
             />
           )}
           
-          {currentModule === 'timeclock' && currentUser && <TimeclockView user={currentUser} staff={teamMembers} />}
           {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
           {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
