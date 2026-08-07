@@ -22,7 +22,9 @@ import {
   Shield,
   Award,
   Crown,
-  ChevronRight
+  ChevronRight,
+  Printer,
+  FolderTree
 } from 'lucide-react';
 
 interface VideoOutput {
@@ -266,6 +268,30 @@ const CTMatrixControlView: React.FC = () => {
           >
             <Smartphone className="w-4 h-4" />
             <span>TV Remote</span>
+            <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-70" />
+          </a>
+
+          <a
+            href="/ct-matrix/postermaker.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 px-3.5 py-2.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-200 font-bold rounded-2xl text-xs transition-colors"
+            title="Open A4 Poster Maker Studio"
+          >
+            <Printer className="w-4 h-4" />
+            <span>A4 Poster Maker</span>
+            <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-70" />
+          </a>
+
+          <a
+            href="/ct-matrix/files.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 px-3.5 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-200 font-bold rounded-2xl text-xs transition-colors"
+            title="Open Online File Browser"
+          >
+            <FolderTree className="w-4 h-4" />
+            <span>File Browser</span>
             <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-70" />
           </a>
 
