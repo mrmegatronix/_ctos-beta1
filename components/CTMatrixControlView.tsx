@@ -268,6 +268,18 @@ const CTMatrixControlView: React.FC = () => {
             <span>TV Remote</span>
             <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-70" />
           </a>
+
+          <a
+            href="https://mrmegatronix.github.io/_ct-LAND/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 px-3.5 py-2.5 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 text-cyan-200 font-bold rounded-2xl text-xs transition-colors"
+            title="Open CT-LAND Ecosystem Hub"
+          >
+            <Compass className="w-4 h-4" />
+            <span>CT-LAND Hub</span>
+            <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-70" />
+          </a>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import {
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
   BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp,
-  Smartphone, Sliders, Crown, Shield
+  Smartphone, Sliders, Crown, Shield, UploadCloud
 } from 'lucide-react';
 import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry, isMasterAdmin, isAdminOrAbove } from './types';
 import MediaView from './components/MediaView';
@@ -15,6 +15,7 @@ import { db } from './services/database';
 import { startAutoSync } from './services/sheetSync';
 import { startCsvSync } from './services/csvSync';
 import { startHourlyPublicScan } from './services/publicSync';
+import { PublicFolderUploadModal } from './components/PublicFolderUploadModal';
 import { 
   addDays, getStartOfWeek, formatTime, 
   isSameDay, formatDate, generateId 
@@ -126,6 +127,7 @@ const App: React.FC = () => {
     return true; // Default to dark mode as requested
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPublicUploadOpen, setIsPublicUploadOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Partial<CalendarEvent> | undefined>(undefined);
   const [isAIProcessing, setIsAIProcessing] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -973,6 +975,10 @@ const App: React.FC = () => {
                     <button onClick={() => setCurrentModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                         <Settings className="w-5 h-5" /><span>System & Permissions</span>
                     </button>
+                    <button onClick={() => setIsPublicUploadOpen(true)} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 transition-all mt-1">
+                        <UploadCloud className="w-4 h-4 text-amber-500" />
+                        <span>Upload to Public Folder</span>
+                    </button>
                     </>
                 )}
             </div>
@@ -1191,6 +1197,7 @@ const App: React.FC = () => {
 
       <AIAssistant onCommand={handleAICommand} isProcessing={isAIProcessing} />
       <EventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSaveEvent} onDelete={handleDeleteEvent} initialEvent={editingEvent} teamMembers={teamMembers} />
+      <PublicFolderUploadModal isOpen={isPublicUploadOpen} onClose={() => setIsPublicUploadOpen(false)} onShowNotification={showNotification} />
     </div>
   );
 };
