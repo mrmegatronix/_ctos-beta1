@@ -72,8 +72,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
               <Crown className="w-7 h-7 text-amber-400" />
             </div>
           </div>
-          <h1 className="text-xl font-black text-white tracking-wide">Coasters Tavern</h1>
-          <p className="text-indigo-300 text-xs font-semibold mt-0.5">Venue OS & Master Access Control</p>
+          <h1 className="text-xl font-black text-white tracking-wide">CTOS</h1>
+          <p className="text-indigo-300 text-xs font-semibold mt-0.5">Venue OS & Access Control</p>
         </div>
 
         {/* PIN Entry Area */}

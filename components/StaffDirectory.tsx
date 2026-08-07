@@ -289,8 +289,8 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                 <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">PIN Code:</span>
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                      {isUserAdmin ? member.pinCode : '••••'}
+                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 tracking-widest">
+                      ••••
                     </span>
                   </div>
                   <div className="flex items-center justify-between truncate">
