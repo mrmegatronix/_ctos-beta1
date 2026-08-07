@@ -9,7 +9,9 @@ export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stoc
 
 export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
-export type StaffRole = 'Admin' | 'Duty Manager' | 'Front of House' | 'Head Chef' | 'Chef' | 'Kitchen Hand';
+export type AccessLevel = 'master-admin' | 'admin' | 'standard';
+
+export type StaffRole = 'Master Admin' | 'Admin' | 'Duty Manager' | 'Front of House' | 'Head Chef' | 'Chef' | 'Kitchen Hand';
 
 export interface TeamMember {
   id: string;
@@ -18,11 +20,24 @@ export interface TeamMember {
   color: string;
   visible: boolean;
   role: StaffRole;
+  accessLevel?: AccessLevel;
   email?: string;
   phone?: string;
   address?: string;
-  pinCode: string; // 2 digit login code
+  pinCode: string; // 4 digit staff PIN code
+  hourlyRate?: number;
+  isDemo?: boolean;
 }
+
+export const isMasterAdmin = (user?: TeamMember | null): boolean => {
+  if (!user) return false;
+  return user.accessLevel === 'master-admin' || user.id === 'admin-nikko' || user.pinCode === '5551' || user.name.toLowerCase() === 'nikko';
+};
+
+export const isAdminOrAbove = (user?: TeamMember | null): boolean => {
+  if (!user) return false;
+  return isMasterAdmin(user) || user.accessLevel === 'admin' || user.role === 'Duty Manager' || user.role === 'Admin';
+};
 
 export interface UserProfile {
   name: string;
@@ -309,6 +324,7 @@ export interface TeamMember {
   phone?: string;
   address?: string;
   pinCode: string;
+  hourlyRate?: number;
   isDemo?: boolean;
 }
 

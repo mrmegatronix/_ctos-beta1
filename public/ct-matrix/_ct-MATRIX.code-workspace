@@ -1,0 +1,37 @@
+{
+	"folders": [
+		{
+			"path": "../_ct-MMR"
+		},
+		{
+			"path": "../_ct-MOM"
+		},
+		{
+			"path": "../__auto-dash"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../_ct-WEA1"
+		},
+		{
+			"path": "../__sec-DASH"
+		},
+		{
+			"path": "../___ct-stuff"
+		},
+		{
+			"path": "../_ct-ACE"
+		},
+		{
+			"path": "../_ct-NIM"
+		},
+		{
+			"path": "../_ct-FIR"
+		}
+	],
+	"settings": {
+		"git.autofetch": true
+	}
+}

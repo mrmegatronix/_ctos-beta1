@@ -1,15 +1,15 @@
-
 import React, { useState } from 'react';
 import { TVScheduleItem } from '../types';
 import { formatTime, formatDate, generateId } from '../utils';
-import { Tv, Search, Plus, Volume2, Calendar, Radio, RefreshCw, AlertCircle } from 'lucide-react';
+import { Tv, Plus, Volume2, Calendar, Radio, RefreshCw, Trash2, X, Clock, PlayCircle } from 'lucide-react';
 
 interface TVScheduleViewProps {
   schedule: TVScheduleItem[];
   onSave: (item: TVScheduleItem) => void;
+  onDelete?: (id: string) => void;
 }
 
-const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => {
+const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave, onDelete }) => {
   const [filterSport, setFilterSport] = useState<string>('All');
   const [filterDay, setFilterDay] = useState<'Today' | 'Tomorrow' | 'All'>('Today');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,257 +17,364 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave }) => 
     isLive: true,
     sport: 'Rugby',
     startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 2 * 60 * 60 * 1000) // Default 2 hours
+    endTime: new Date(Date.now() + 2 * 60 * 60 * 1000)
   });
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
   const isSameDay = (d1: Date, d2: Date) => 
-    d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth();
+    d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
 
   const filteredSchedule = schedule.filter(item => {
+    const itemDate = item.startTime instanceof Date ? item.startTime : new Date(item.startTime);
     const matchesSport = filterSport === 'All' || item.sport === filterSport;
     let matchesDay = true;
-    if (filterDay === 'Today') matchesDay = isSameDay(new Date(item.startTime), today);
-    if (filterDay === 'Tomorrow') matchesDay = isSameDay(new Date(item.startTime), tomorrow);
-    
+    if (filterDay === 'Today') matchesDay = isSameDay(itemDate, today);
+    if (filterDay === 'Tomorrow') matchesDay = isSameDay(itemDate, tomorrow);
     return matchesSport && matchesDay;
-  }).sort((a,b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  }).sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
-  
   const getEventColor = (sport: string, match: string) => {
-    const s = (sport + ' ' + match).toLowerCase();
-    if (s.includes('super rugby') || s.includes('crusaders')) return '#ff0000';
-    if (s.includes('nrl') || s.includes('warriors')) return '#00ff00';
-    if (s.includes('karaoke')) return '#800080';
-    if (s.includes('band')) return '#ffa500';
-    if (s.includes('quiz') || s.includes('weekly event')) return '#eab308';
-    if (s.includes('special') || s.includes('burger')) return '#f97316';
-    return '#3b82f6'; // default blue
+    const s = `${sport} ${match}`.toLowerCase();
+    if (s.includes('super rugby') || s.includes('all blacks') || s.includes('crusaders')) return '#ef4444';
+    if (s.includes('nrl') || s.includes('warriors')) return '#10b981';
+    if (s.includes('cricket') || s.includes('black caps')) return '#0ea5e9';
+    if (s.includes('ufc') || s.includes('fight') || s.includes('boxing')) return '#f59e0b';
+    if (s.includes('premier league') || s.includes('football') || s.includes('fifa')) return '#8b5cf6';
+    return '#6366f1';
   };
 
   const getChannelColor = (channel: string) => {
     if (channel.includes('1')) return 'bg-blue-600 text-white';
-    if (channel.includes('2')) return 'bg-yellow-500 text-black';
-    if (channel.includes('3')) return 'bg-red-600 text-white';
-    if (channel.includes('4')) return 'bg-green-600 text-white';
+    if (channel.includes('2')) return 'bg-amber-500 text-slate-900';
+    if (channel.includes('3')) return 'bg-rose-600 text-white';
+    if (channel.includes('4')) return 'bg-emerald-600 text-white';
     if (channel.includes('Select')) return 'bg-purple-600 text-white';
-    return 'bg-gray-700 text-white';
+    return 'bg-slate-700 text-white';
   };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItem.match || !newItem.channel || !newItem.startTime) return;
 
+    const start = newItem.startTime instanceof Date ? newItem.startTime : new Date(newItem.startTime);
+
     onSave({
-      id: generateId(),
-      sport: newItem.sport as any,
-      match: newItem.match,
+      id: `tv-${generateId()}`,
+      sport: (newItem.sport as any) || 'Rugby',
+      match: newItem.match.trim(),
       channel: newItem.channel,
-      startTime: newItem.startTime,
-      endTime: newItem.endTime || new Date(newItem.startTime.getTime() + 2*60*60*1000),
-      isLive: newItem.isLive || false,
-      notes: newItem.notes
+      startTime: start,
+      endTime: newItem.endTime ? (newItem.endTime instanceof Date ? newItem.endTime : new Date(newItem.endTime)) : new Date(start.getTime() + 2 * 60 * 60 * 1000),
+      isLive: newItem.isLive ?? true,
+      notes: newItem.notes?.trim() || undefined
     });
+
     setIsModalOpen(false);
     setNewItem({ isLive: true, sport: 'Rugby', startTime: new Date() });
   };
 
-  const [isSyncing, setIsSyncing] = useState(false);
-
   const handleSyncSky = async () => {
     setIsSyncing(true);
     try {
-      // In production, this should point to your hosted backend URL.
-      const res = await fetch('http://localhost:5000/api/sync-sky');
+      const res = await fetch('/api/sync-sky');
       if (res.ok) {
-        alert("Sky TV Schedule Synced Successfully! It may take a moment to appear.");
-        // The App.tsx realtime listener should auto-update the list soon.
-      } else {
-        alert("Failed to sync TV schedule.");
+        const data = await res.json();
+        if (data && Array.isArray(data.items)) {
+          for (const item of data.items) {
+            onSave(item);
+          }
+        }
       }
-    } catch (e) {
-      console.error("Sync Error:", e);
-      alert("Error contacting the backend sync server. Make sure it is running.");
+    } catch {
+      // Offline fallback
+    } finally {
+      setIsSyncing(false);
     }
-    setIsSyncing(false);
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
-       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-50  flex items-center">
-              <Tv className="w-6 h-6 mr-3 text-sky-500" />
-              Live Sport TV Schedule
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+              <Tv className="w-7 h-7 mr-3 text-sky-600 dark:text-sky-400" />
+              Live Sports Broadcast Schedule
             </h2>
-            <p className="text-slate-400 ">Sky Sport Listings for Main Screen & Garden Bar.</p>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300">
+              {filteredSchedule.length} Fixtures
+            </span>
           </div>
-
-      <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded-r">
-        <div className="flex items-center">
-          <AlertCircle className="w-6 h-6 mr-3" />
-          <h3 className="font-bold">Under Construction</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Sky Sport and live broadcast planner for Main Bar, Garden Screen & Sports Lounges.
+          </p>
         </div>
-        <p className="mt-1 text-sm">This module is currently being built. Data entered here will not be permanently saved yet.</p>
-      </div>
-          
-          <div className="flex gap-2">
-            <select 
-              className="px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
-              value={filterDay}
-              onChange={(e) => setFilterDay(e.target.value as any)}
-            >
-               <option value="Today">Today</option>
-               <option value="Tomorrow">Tomorrow</option>
-               <option value="All">All Upcoming</option>
-            </select>
-            <select 
-              className="px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
-              value={filterSport}
-              onChange={(e) => setFilterSport(e.target.value)}
-            >
-               <option value="All">All Sports</option>
-               <option value="Rugby">Rugby</option>
-               <option value="League">League</option>
-               <option value="Cricket">Cricket</option>
-               <option value="Football">Football</option>
-               <option value="UFC">UFC</option>
-            </select>
-            <button 
-              onClick={handleSyncSky}
-              disabled={isSyncing}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} /> Sync Sky TV
-            </button>
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-700 transition-colors flex items-center"
-            >
-              <Plus className="w-4 h-4 mr-2" /> Add Listing
-            </button>
-          </div>
-       </div>
 
-       <div className="space-y-4">
-         {filteredSchedule.map(item => (
-           <div key={item.id} className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border-l-4 p-4 shadow-lg hover:shadow-xl transition-shadow flex flex-col md:flex-row items-center gap-4" style={{ borderLeftColor: getEventColor(item.sport, item.match) }}>
-              
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleSyncSky}
+            disabled={isSyncing}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center shadow-sm disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Syncing...' : 'Sync TV Guide'}
+          </button>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-sky-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-sky-700 transition-colors flex items-center space-x-1.5 shadow-lg shadow-sky-600/20"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add TV Fixture</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-black uppercase text-slate-400 mr-2">Timeline:</span>
+          {(['Today', 'Tomorrow', 'All'] as const).map(day => (
+            <button
+              key={day}
+              onClick={() => setFilterDay(day)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                filterDay === day
+                  ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              {day === 'All' ? 'All Upcoming' : day}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-black uppercase text-slate-400 mr-2">Sport:</span>
+          {['All', 'Rugby', 'League', 'Cricket', 'Football', 'UFC', 'Other'].map(sport => (
+            <button
+              key={sport}
+              onClick={() => setFilterSport(sport)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                filterSport === sport
+                  ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                  : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+            >
+              {sport}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Schedule Items */}
+      <div className="space-y-4">
+        {filteredSchedule.map(item => {
+          const itemTime = item.startTime instanceof Date ? item.startTime : new Date(item.startTime);
+          const accentColor = getEventColor(item.sport, item.match);
+
+          return (
+            <div
+              key={item.id}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center gap-5 relative overflow-hidden"
+            >
+              <div
+                className="absolute left-0 top-0 bottom-0 w-2"
+                style={{ backgroundColor: accentColor }}
+              />
+
               {/* Time Column */}
-              <div className="md:w-32 flex-shrink-0 text-center md:text-left">
-                  <div className="text-lg font-bold text-slate-50 ">{formatTime(new Date(item.startTime))}</div>
-                  <div className="text-xs text-slate-400 ">{formatDate(new Date(item.startTime))}</div>
-                  {item.isLive && (
-                    <span className="inline-flex items-center mt-1 px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse">
-                      <Radio className="w-3 h-3 mr-1" /> LIVE
-                    </span>
-                  )}
+              <div className="pl-3 md:w-36 flex-shrink-0">
+                <div className="text-xl font-black text-slate-900 dark:text-slate-50">{formatTime(itemTime)}</div>
+                <div className="text-xs font-medium text-slate-400 flex items-center mt-0.5">
+                  <Calendar className="w-3 h-3 mr-1" />
+                  {formatDate(itemTime)}
+                </div>
+                {item.isLive && (
+                  <span className="inline-flex items-center mt-1.5 px-2 py-0.5 bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 rounded-md text-[10px] font-black uppercase tracking-wider animate-pulse border border-red-200 dark:border-red-800">
+                    <Radio className="w-2.5 h-2.5 mr-1" /> LIVE
+                  </span>
+                )}
               </div>
 
               {/* Match Info */}
-              <div className="flex-1 text-center md:text-left w-full">
-                  <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                     <span className="text-xs font-semibold uppercase text-slate-400  tracking-wide">{item.sport}</span>
+              <div className="flex-1 w-full">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                    {item.sport}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{item.match}</h3>
+                {item.notes && (
+                  <div className="flex items-center text-sky-600 dark:text-sky-400 text-xs font-semibold mt-1">
+                    <Volume2 className="w-3.5 h-3.5 mr-1" /> {item.notes}
                   </div>
-                  <h3 className="text-xl font-bold text-slate-50 ">{item.match}</h3>
-                  {item.notes && (
-                    <div className="flex items-center justify-center md:justify-start text-sky-600 dark:text-sky-400 text-sm font-medium mt-1">
-                      <Volume2 className="w-4 h-4 mr-1" /> {item.notes}
-                    </div>
-                  )}
+                )}
               </div>
 
-              {/* Channel Badge */}
-              <div className={`px-4 py-2 rounded-lg font-bold text-sm shadow-lg ${getChannelColor(item.channel)}`}>
-                 {item.channel}
+              {/* Channel and Actions */}
+              <div className="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-700">
+                <div className={`px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-sm ${getChannelColor(item.channel)}`}>
+                  {item.channel}
+                </div>
+
+                {onDelete && (
+                  <button
+                    onClick={() => {
+                      if (confirm(`Remove "${item.match}" from TV listings?`)) {
+                        onDelete(item.id);
+                      }
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-red-600 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+                    title="Delete Fixture"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-           </div>
-         ))}
-
-         {filteredSchedule.length === 0 && (
-           <div className="text-center py-12 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 ">
-             <Tv className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-             <p className="text-slate-400">No scheduled sport found for these filters.</p>
-           </div>
-         )}
-       </div>
-
-       {/* Add Modal */}
-       {isModalOpen && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95">
-               <h3 className="text-lg font-bold text-slate-50  mb-4">Add TV Listing</h3>
-               <form onSubmit={handleSave} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-200  mb-1">Match / Event Name</label>
-                    <input type="text" required className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none" 
-                      placeholder="e.g. Warriors vs Storm"
-                      value={newItem.match || ''}
-                      onChange={e => setNewItem({...newItem, match: e.target.value})}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                     <div>
-                        <label className="block text-sm font-medium text-slate-200  mb-1">Sport</label>
-                        <select className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
-                          value={newItem.sport}
-                          onChange={e => setNewItem({...newItem, sport: e.target.value as any})}
-                        >
-                          <option value="Rugby">Rugby</option>
-                          <option value="League">League</option>
-                          <option value="Cricket">Cricket</option>
-                          <option value="Football">Football</option>
-                          <option value="UFC">UFC</option>
-                          <option value="Other">Other</option>
-                        </select>
-                     </div>
-                     <div>
-                        <label className="block text-sm font-medium text-slate-200  mb-1">Channel</label>
-                        <select className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
-                          value={newItem.channel}
-                          onChange={e => setNewItem({...newItem, channel: e.target.value})}
-                        >
-                          <option value="Sky Sport 1">Sky Sport 1</option>
-                          <option value="Sky Sport 2">Sky Sport 2</option>
-                          <option value="Sky Sport 3">Sky Sport 3</option>
-                          <option value="Sky Sport 4">Sky Sport 4</option>
-                          <option value="Sky Sport Select">Sky Sport Select</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-200  mb-1">Start Time</label>
-                        <input type="datetime-local" required className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
-                          onChange={e => setNewItem({...newItem, startTime: new Date(e.target.value)})}
-                        />
-                      </div>
-                      <div className="flex items-end pb-2">
-                        <label className="flex items-center space-x-2 cursor-pointer">
-                           <input type="checkbox" checked={newItem.isLive} onChange={e => setNewItem({...newItem, isLive: e.target.checked})} className="w-5 h-5 rounded text-sky-600" />
-                           <span className="text-sm font-medium">Live Broadcast</span>
-                        </label>
-                      </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-200  mb-1">Notes (Optional)</label>
-                    <input type="text" className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none" 
-                      placeholder="e.g. Sound On Main Screen"
-                      value={newItem.notes || ''}
-                      onChange={e => setNewItem({...newItem, notes: e.target.value})}
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-3 pt-4">
-                    <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-300  hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">Cancel</button>
-                    <button type="submit" className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700">Add Listing</button>
-                  </div>
-               </form>
             </div>
-         </div>
-       )}
+          );
+        })}
+
+        {filteredSchedule.length === 0 && (
+          <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+            <Tv className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h4 className="font-bold text-slate-800 dark:text-slate-200">No Scheduled Sports Broadcasts</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Add a fixture manually or sync Sky TV guide.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Add Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-700">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center">
+                <PlayCircle className="w-5 h-5 mr-2 text-sky-600" />
+                Add Live Broadcast Fixture
+              </h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  Match / Event Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="e.g. Warriors vs Broncos, All Blacks vs Springboks"
+                  value={newItem.match || ''}
+                  onChange={e => setNewItem({ ...newItem, match: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                    Sport
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-sky-500"
+                    value={newItem.sport}
+                    onChange={e => setNewItem({ ...newItem, sport: e.target.value as any })}
+                  >
+                    <option value="Rugby">Rugby Union</option>
+                    <option value="League">Rugby League</option>
+                    <option value="Cricket">Cricket</option>
+                    <option value="Football">Football / Soccer</option>
+                    <option value="UFC">UFC / Combat</option>
+                    <option value="Other">Other Sport</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                    Channel
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-sky-500"
+                    value={newItem.channel}
+                    onChange={e => setNewItem({ ...newItem, channel: e.target.value })}
+                  >
+                    <option value="Sky Sport 1">Sky Sport 1</option>
+                    <option value="Sky Sport 2">Sky Sport 2</option>
+                    <option value="Sky Sport 3">Sky Sport 3</option>
+                    <option value="Sky Sport 4">Sky Sport 4</option>
+                    <option value="Sky Sport Select">Sky Sport Select</option>
+                    <option value="Freeview / TVNZ">Freeview / TVNZ</option>
+                    <option value="Optus Sport / DAZN">Optus / DAZN</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  Start Date & Time *
+                </label>
+                <input
+                  type="datetime-local"
+                  required
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-sky-500"
+                  onChange={e => setNewItem({ ...newItem, startTime: new Date(e.target.value) })}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2 p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                <input
+                  type="checkbox"
+                  id="liveCheck"
+                  checked={newItem.isLive}
+                  onChange={e => setNewItem({ ...newItem, isLive: e.target.checked })}
+                  className="w-4 h-4 rounded text-sky-600"
+                />
+                <label htmlFor="liveCheck" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+                  Live Broadcast Flag (Audio & Priority)
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  Screen Routing & Audio Notes
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="e.g. Main screen audio ON, Garden screens mirror"
+                  value={newItem.notes || ''}
+                  onChange={e => setNewItem({ ...newItem, notes: e.target.value })}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-md"
+                >
+                  Add Fixture
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

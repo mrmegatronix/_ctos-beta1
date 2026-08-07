@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIVE SLIDE COMMANDER</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --surface: #0f172a;
+      --accent: #06b6d4;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+    }
+    body {
+        background: var(--bg); color: var(--text);
+        font-family: 'Inter', sans-serif; margin: 0; padding: 2rem;
+        display: flex; flex-direction: column; align-items: center;
+    }
+    .card {
+        background: var(--surface); border: 2px solid var(--accent);
+        padding: 2rem; border-radius: 24px; width: 100%; max-width: 600px;
+        box-shadow: 0 0 50px rgba(6, 182, 212, 0.15);
+    }
+    .title { font-weight: 900; font-size: 1.5rem; color: var(--accent); margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+    .label { font-size: 0.7rem; font-weight: 900; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase; }
+    input, textarea, select {
+        width: 100%; background: #000; border: 1px solid var(--border);
+        color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 1.5rem;
+        font-family: inherit; font-size: 1rem; box-sizing: border-box;
+    }
+    textarea { height: 120px; resize: none; }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn {
+        padding: 18px; border-radius: 12px; font-weight: 900; border: none;
+        cursor: pointer; text-transform: uppercase; transition: 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary { background: #1e293b; color: #fff; }
+    .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    /* Compact Mode */
+    body.compact { padding: 1rem; }
+    body.compact .card { padding: 1.2rem; border-radius: 12px; max-width: 100%; border-width: 1px; }
+    body.compact .title { font-size: 1rem; margin-bottom: 1rem; }
+    body.compact .label { font-size: 0.6rem; margin-bottom: 4px; }
+    body.compact input, body.compact textarea, body.compact select { 
+        padding: 8px; font-size: 0.85rem; margin-bottom: 0.8rem; border-radius: 8px; 
+    }
+    body.compact textarea { height: 70px; }
+    body.compact .btn { padding: 10px; font-size: 0.8rem; border-radius: 8px; }
+    body.compact .btn-group { margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="title">Live Slide Commander</div>
+    
+    <div style="display:flex; gap: 10px; justify-content: center; margin-bottom: 2rem;">
+        <button class="btn btn-secondary" style="padding: 10px; font-size: 0.7rem;" onclick="loadTemplateLastDrinks()">+ 10 MIN LAST DRINKS</button>
+        <button class="btn btn-secondary" style="padding: 10px; font-size: 0.7rem;" onclick="loadTemplateBarClosed()">+ BAR CLOSED</button>
+    </div>
+
+    <div class="label">Primary Heading</div>
+    <input type="text" id="live-title" placeholder="URGENT ANNOUNCEMENT...">
+
+    <div class="label">Detailed Subtext</div>
+    <textarea id="live-detail" placeholder="Enter full details here..."></textarea>
+    
+    <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <div class="label">Accent Color</div>
+            <input type="color" id="live-accent" value="#06b6d4" style="height: 50px; padding: 4px;">
+        </div>
+        <div>
+            <div class="label">Broadcast Mode</div>
+            <select id="live-mode">
+                <option value="OVERRIDE">OVERRIDE (PAUSE LOOP)</option>
+                <option value="INJECT">INJECT INTO LOOP</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-primary" onclick="pushLiveSlide()">Push to Billboard</button>
+        <button class="btn btn-secondary" onclick="clearLiveSlide()">Clear Live</button>
+    </div>
+</div>
+
+<script>
+    const bc = new BroadcastChannel('ct_matrix_sync');
+    if (window.location.search.includes('compact=true')) {
+        document.body.classList.add('compact');
+    }
+
+    function getTabId() {
+        if (window.getMatrixTabId) return window.getMatrixTabId();
+        if (!window.matrixTabId) {
+            window.matrixTabId = 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        return window.matrixTabId;
+    }
+
+    function pushLiveSlide() {
+        const payload = {
+            active: true,
+            title: document.getElementById('live-title').value,
+            detail: document.getElementById('live-detail').value,
+            accent: document.getElementById('live-accent').value,
+            mode: document.getElementById('live-mode').value
+        };
+        
+        // If it's the last drinks template, attach the countdown and auto-transition flag
+        if (payload.title === 'LAST DRINKS' && document.getElementById('live-mode').value === 'OVERRIDE') {
+            payload.countdownFinish = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+            payload.autoBarClosed = true;
+        } else if (payload.title === 'BAR IS NOW CLOSED' && document.getElementById('live-mode').value === 'OVERRIDE') {
+            payload.autoClearAfter = 2 * 60 * 60 * 1000; // 2 hours
+        }
+
+        const msg = { type: 'LIVE_SLIDE', payload, senderTabId: getTabId(), commandId: 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
+        bc.postMessage(msg);
+        
+        try {
+            if (window.parent && window.parent.sendToFirebase) {
+                window.parent.sendToFirebase(msg);
+            } else if (window.sendToFirebase) {
+                window.sendToFirebase(msg);
+            } else {
+                window.parent.postMessage({ action: 'RELAY_FIREBASE', msg }, '*');
+            }
+        } catch (err) {
+            window.parent.postMessage({ action: 'RELAY_FIREBASE', msg }, '*');
+        }
+        
+        // Visual feedback
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = '✓ PUSHED TO CLOUD';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = '';
+        }, 2000);
+    }
+
+    function clearLiveSlide() {
+        const msg = { type: 'LIVE_SLIDE', payload: { active: false }, senderTabId: getTabId(), commandId: 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
+        bc.postMessage(msg);
+
+        try {
+            if (window.parent && window.parent.sendToFirebase) {
+                window.parent.sendToFirebase(msg);
+            } else if (window.sendToFirebase) {
+                window.sendToFirebase(msg);
+            } else {
+                window.parent.postMessage({ action: 'RELAY_FIREBASE', msg }, '*');
+            }
+        } catch (err) {
+            window.parent.postMessage({ action: 'RELAY_FIREBASE', msg }, '*');
+        }
+
+        document.getElementById('live-title').value = '';
+        document.getElementById('live-detail').value = '';
+        
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = '✓ CLEARED';
+        setTimeout(() => {
+            btn.innerText = originalText;
+        }, 2000);
+    }
+
+    function loadTemplateLastDrinks() {
+        document.getElementById('live-title').value = 'LAST DRINKS';
+        document.getElementById('live-detail').value = 'The bar will be closing in 10 minutes. Please make your final purchases now.';
+        document.getElementById('live-accent').value = '#f59e0b'; // Orange
+        document.getElementById('live-mode').value = 'OVERRIDE';
+    }
+
+    function loadTemplateBarClosed() {
+        document.getElementById('live-title').value = 'BAR IS NOW CLOSED';
+        document.getElementById('live-detail').value = 'Last drinks has finished. Thank you for visiting, please travel home safely.';
+        document.getElementById('live-accent').value = '#ef4444'; // Red
+        document.getElementById('live-mode').value = 'OVERRIDE';
+    }
+</script>
+<script type="module">
+    // Direct Firebase integration (works when loaded standalone, not in iframe)
+    if (window.self === window.top) {
+        import('./firebase-config.js').then(({ db, ref, set }) => {
+            const COMMAND_PATH = 'matrix_command';
+            function getClientIdForFirebase() {
+                let id = localStorage.getItem('matrix_client_id');
+                if (!id) { id = 'client_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('matrix_client_id', id); }
+                return id;
+            }
+            window.sendToFirebase = function(msg) {
+                if (!db) return;
+                const payload = { ...msg, source: getClientIdForFirebase(), isFirebaseBridge: true };
+                set(ref(db, COMMAND_PATH), payload)
+                    .then(() => console.log('[COMMANDER] ✅ Firebase write OK:', msg.type))
+                    .catch((err) => console.error('[COMMANDER] ❌ Firebase write FAILED:', err));
+                
+                const STATE_PATH = 'matrix_state';
+                const PERSISTENT_TYPES = ['MODULE_FILTER', 'SETTINGS_UPDATE', 'LIVE_SLIDE'];
+                if (PERSISTENT_TYPES.includes(msg.type)) {
+                    import('./firebase-config.js').then(({ update }) => {
+                        update(ref(db, STATE_PATH + '/' + msg.type), payload);
+                        update(ref(db, STATE_PATH), { _last_updated_by: getClientIdForFirebase() });
+                    });
+                }
+            };
+            console.log('[COMMANDER] ✅ Direct Firebase loaded.');
+        });
+    }
+</script>
+<script type="module" src="firebase-bridge.js"></script>
+</body>
+</html>
+

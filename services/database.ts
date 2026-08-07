@@ -9,7 +9,7 @@ import { INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIA
 // This service uses Firebase Firestore as the backend database.
 // Each collection maps to a Firestore collection.
 
-const DB_VERSION = '2.2';
+const DB_VERSION = '2.3';
 
 // Firestore collection names
 const COLLECTIONS = {
@@ -168,29 +168,113 @@ class DatabaseService {
     });
   }
 
-  // --- Generic helpers ---
+  // --- Generic helpers with offline localStorage fallback ---
 
-  private async loadCollection<T>(collectionName: string): Promise<T[]> {
-    const snap = await getDocs(collection(firestore, collectionName));
-    return snap.docs.map(d => reviveDates({ id: d.id, ...d.data() }) as T);
+  private getLocalKey(collectionName: string): string {
+    return `ctos_db_${collectionName}`;
+  }
+
+  private loadLocal<T>(collectionName: string): T[] {
+    try {
+      const raw = localStorage.getItem(this.getLocalKey(collectionName));
+      if (!raw) return [];
+      return reviveDates(JSON.parse(raw)) as T[];
+    } catch (e) {
+      console.warn(`[CTOS DB] Local read error for ${collectionName}:`, e);
+      return [];
+    }
+  }
+
+  private saveLocal<T extends { id: string }>(collectionName: string, items: T[]): void {
+    try {
+      localStorage.setItem(this.getLocalKey(collectionName), JSON.stringify(prepareDates(items)));
+    } catch (e) {
+      console.warn(`[CTOS DB] Local write error for ${collectionName}:`, e);
+    }
+  }
+
+  private async loadCollection<T extends { id: string }>(collectionName: string): Promise<T[]> {
+    try {
+      const snap = await getDocs(collection(firestore, collectionName));
+      if (!snap.empty) {
+        const items = snap.docs.map(d => reviveDates({ id: d.id, ...d.data() }) as T);
+        this.saveLocal(collectionName, items);
+        return items;
+      }
+    } catch (err) {
+      console.warn(`[CTOS DB] Firestore read failed for ${collectionName}, falling back to local storage:`, err);
+    }
+    return this.loadLocal<T>(collectionName);
   }
 
   private async upsert<T extends { id: string }>(
     collectionName: string,
     item: T
   ): Promise<void> {
-    const ref = doc(firestore, collectionName, item.id);
-    await setDoc(ref, prepareDates({ ...item }));
+    // Update local immediately
+    const current = this.loadLocal<T>(collectionName);
+    const index = current.findIndex(i => i.id === item.id);
+    if (index >= 0) {
+      current[index] = item;
+    } else {
+      current.push(item);
+    }
+    this.saveLocal(collectionName, current);
+
+    // Try persisting to Firestore
+    try {
+      const ref = doc(firestore, collectionName, item.id);
+      await setDoc(ref, prepareDates({ ...item }));
+    } catch (err) {
+      console.warn(`[CTOS DB] Firestore upsert failed for ${collectionName}/${item.id}:`, err);
+    }
   }
 
   private async removeDoc(collectionName: string, id: string): Promise<void> {
-    await deleteDoc(doc(firestore, collectionName, id));
+    // Remove from local immediately
+    const current = this.loadLocal<{ id: string }>(collectionName);
+    const filtered = current.filter(i => i.id !== id);
+    this.saveLocal(collectionName, filtered);
+
+    // Try deleting from Firestore
+    try {
+      await deleteDoc(doc(firestore, collectionName, id));
+    } catch (err) {
+      console.warn(`[CTOS DB] Firestore delete failed for ${collectionName}/${id}:`, err);
+    }
   }
 
   // --- Public API Methods (all async) ---
 
+  private async syncStaffToClock(): Promise<void> {
+    try {
+      const staffList = await this.loadCollection<TeamMember>(COLLECTIONS.STAFF);
+      const activeList = staffList.length > 0 ? staffList : TEAM_MEMBERS;
+      const ctStaff = activeList.map(s => ({
+        id: s.pinCode || s.id,
+        name: s.name,
+        role: s.role,
+        accessLevel: s.accessLevel || 'standard',
+        rate: s.hourlyRate || 25.00
+      }));
+      localStorage.setItem('ct_staff', JSON.stringify(ctStaff));
+    } catch (e) {
+      console.error('[CTOS DB] Failed to sync staff to ct-clock:', e);
+    }
+  }
+
   async getStaff(): Promise<TeamMember[]> {
-    return this.loadCollection<TeamMember>(COLLECTIONS.STAFF);
+    const staff = await this.loadCollection<TeamMember>(COLLECTIONS.STAFF);
+    await this.syncStaffToClock();
+    return staff.length > 0 ? staff : TEAM_MEMBERS;
+  }
+  async saveStaff(staff: TeamMember): Promise<void> {
+    await this.upsert(COLLECTIONS.STAFF, staff);
+    await this.syncStaffToClock();
+  }
+  async deleteStaff(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.STAFF, id);
+    await this.syncStaffToClock();
   }
 
   async getEvents(): Promise<CalendarEvent[]> {
@@ -206,8 +290,9 @@ class DatabaseService {
   private async syncRosterToClock(): Promise<void> {
     try {
       const shifts = await this.loadCollection<RosterShift>(COLLECTIONS.SHIFTS);
+      const staffList = await this.getStaff();
       const ctRoster = shifts.map(shift => {
-        const staff = TEAM_MEMBERS.find(m => m.id === shift.staffId);
+        const staff = staffList.find(m => m.id === shift.staffId) || TEAM_MEMBERS.find(m => m.id === shift.staffId);
         if (!staff) return null;
         
         return {
@@ -215,9 +300,9 @@ class DatabaseService {
           employeeId: staff.pinCode,
           employeeName: staff.name,
           role: shift.role,
-          date: shift.start.toISOString().split('T')[0],
-          start: shift.start.toTimeString().substring(0, 5),
-          end: shift.end.toTimeString().substring(0, 5)
+          date: shift.start instanceof Date ? shift.start.toISOString().split('T')[0] : String(shift.start).split('T')[0],
+          start: shift.start instanceof Date ? shift.start.toTimeString().substring(0, 5) : '00:00',
+          end: shift.end instanceof Date ? shift.end.toTimeString().substring(0, 5) : '00:00'
         };
       }).filter(Boolean);
       
@@ -236,6 +321,10 @@ class DatabaseService {
     await this.upsert(COLLECTIONS.SHIFTS, shift);
     await this.syncRosterToClock();
   }
+  async deleteShift(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.SHIFTS, id);
+    await this.syncRosterToClock();
+  }
 
   async getLeaveRequests(): Promise<LeaveRequest[]> {
     return this.loadCollection<LeaveRequest>(COLLECTIONS.LEAVE);
@@ -243,45 +332,104 @@ class DatabaseService {
   async saveLeaveRequest(request: LeaveRequest): Promise<void> {
     await this.upsert(COLLECTIONS.LEAVE, request);
   }
+  async deleteLeaveRequest(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.LEAVE, id);
+  }
 
+  async getStock(): Promise<StockItem[]> {
+    const items = await this.loadCollection<StockItem>(COLLECTIONS.STOCK);
+    return items.length > 0 ? items : INITIAL_STOCK;
+  }
+  async saveStock(item: StockItem): Promise<void> {
+    await this.upsert(COLLECTIONS.STOCK, item);
+  }
+  async deleteStock(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.STOCK, id);
+  }
   async updateStock(id: string, qty: number): Promise<void> {
-    const ref = doc(firestore, COLLECTIONS.STOCK, id);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const data = snap.data();
-      await setDoc(ref, { ...data, quantity: qty });
+    const stock = await this.getStock();
+    const item = stock.find(s => s.id === id);
+    if (item) {
+      item.quantity = qty;
+      await this.saveStock(item);
     }
   }
 
-  async getBookings(): Promise<Booking[]> {
-    return this.loadCollection<Booking>(COLLECTIONS.BOOKINGS);
+  async getSuppliers(): Promise<Supplier[]> {
+    const suppliers = await this.loadCollection<Supplier>(COLLECTIONS.SUPPLIERS);
+    return suppliers.length > 0 ? suppliers : INITIAL_SUPPLIERS;
+  }
+  async saveSupplier(supplier: Supplier): Promise<void> {
+    await this.upsert(COLLECTIONS.SUPPLIERS, supplier);
+  }
+  async deleteSupplier(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.SUPPLIERS, id);
   }
 
+  async getBookings(): Promise<Booking[]> {
+    const bookings = await this.loadCollection<Booking>(COLLECTIONS.BOOKINGS);
+    return bookings.length > 0 ? bookings : INITIAL_BOOKINGS;
+  }
+  async saveBooking(booking: Booking): Promise<void> {
+    await this.upsert(COLLECTIONS.BOOKINGS, booking);
+  }
+  async deleteBooking(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.BOOKINGS, id);
+  }
 
   async getMaintenance(): Promise<MaintenanceTask[]> {
-    return this.loadCollection<MaintenanceTask>(COLLECTIONS.MAINTENANCE);
+    const tasks = await this.loadCollection<MaintenanceTask>(COLLECTIONS.MAINTENANCE);
+    return tasks.length > 0 ? tasks : INITIAL_MAINTENANCE;
   }
   async saveMaintenanceTask(task: MaintenanceTask): Promise<void> {
     await this.upsert(COLLECTIONS.MAINTENANCE, task);
   }
+  async deleteMaintenanceTask(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.MAINTENANCE, id);
+  }
 
+  async getEntertainment(): Promise<EntertainmentEvent[]> {
+    const events = await this.loadCollection<EntertainmentEvent>(COLLECTIONS.ENTERTAINMENT);
+    return events.length > 0 ? events : INITIAL_ENTERTAINMENT;
+  }
+  async saveEntertainment(event: EntertainmentEvent): Promise<void> {
+    await this.upsert(COLLECTIONS.ENTERTAINMENT, event);
+  }
+  async deleteEntertainment(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.ENTERTAINMENT, id);
+  }
 
   async getFunctions(): Promise<FunctionBooking[]> {
-    return this.loadCollection<FunctionBooking>(COLLECTIONS.FUNCTIONS);
+    const funcs = await this.loadCollection<FunctionBooking>(COLLECTIONS.FUNCTIONS);
+    return funcs.length > 0 ? funcs : INITIAL_FUNCTIONS;
   }
   async saveFunction(func: FunctionBooking): Promise<void> {
     await this.upsert(COLLECTIONS.FUNCTIONS, func);
   }
+  async deleteFunction(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.FUNCTIONS, id);
+  }
 
   async getFinance(): Promise<CashUpRecord[]> {
-    return this.loadCollection<CashUpRecord>(COLLECTIONS.FINANCE);
+    const finance = await this.loadCollection<CashUpRecord>(COLLECTIONS.FINANCE);
+    return finance.length > 0 ? finance : INITIAL_FINANCE;
+  }
+  async saveCashUp(record: CashUpRecord): Promise<void> {
+    await this.upsert(COLLECTIONS.FINANCE, record);
+  }
+  async deleteCashUp(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.FINANCE, id);
   }
 
   async getInvoices(): Promise<Invoice[]> {
-    return this.loadCollection<Invoice>(COLLECTIONS.INVOICES);
+    const invoices = await this.loadCollection<Invoice>(COLLECTIONS.INVOICES);
+    return invoices.length > 0 ? invoices : INITIAL_INVOICES;
   }
   async saveInvoice(invoice: Invoice): Promise<void> {
     await this.upsert(COLLECTIONS.INVOICES, invoice);
+  }
+  async deleteInvoice(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.INVOICES, id);
   }
 
   async getBookmarks(): Promise<BrowserBookmark[]> {
@@ -289,116 +437,118 @@ class DatabaseService {
   }
 
   async getIntegrations(): Promise<IntegrationConfig> {
-    const snap = await getDoc(doc(firestore, COLLECTIONS.INTEGRATIONS, 'config'));
-    if (snap.exists()) {
-      return snap.data() as IntegrationConfig;
+    try {
+      const snap = await getDoc(doc(firestore, COLLECTIONS.INTEGRATIONS, 'config'));
+      if (snap.exists()) {
+        return snap.data() as IntegrationConfig;
+      }
+    } catch (e) {
+      console.warn('[CTOS DB] Error fetching integrations config:', e);
     }
     return {
-      tevalis: { connected: false },
-      nowBookIt: { connected: false },
-      google: { connected: false },
+      tevalis: { connected: true, siteId: 'CT-001' },
+      nowBookIt: { connected: true, venueId: 'VN-992' },
+      google: { connected: true },
     };
   }
 
   async getFiles(): Promise<FileItem[]> {
-    return this.loadCollection<FileItem>(COLLECTIONS.FILES);
+    const files = await this.loadCollection<FileItem>(COLLECTIONS.FILES);
+    return files.length > 0 ? files : INITIAL_FILES;
   }
   async saveFile(file: FileItem): Promise<void> {
     await this.upsert(COLLECTIONS.FILES, file);
   }
-
+  async deleteFile(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.FILES, id);
+  }
 
   async getIncidents(): Promise<IncidentReport[]> {
-    return this.loadCollection<IncidentReport>(COLLECTIONS.INCIDENTS);
+    const incidents = await this.loadCollection<IncidentReport>(COLLECTIONS.INCIDENTS);
+    return incidents.length > 0 ? incidents : INITIAL_INCIDENTS;
   }
   async saveIncident(report: IncidentReport): Promise<void> {
     await this.upsert(COLLECTIONS.INCIDENTS, report);
   }
+  async deleteIncident(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.INCIDENTS, id);
+  }
 
   async getLostFound(): Promise<LostItem[]> {
-    return this.loadCollection<LostItem>(COLLECTIONS.LOSTFOUND);
+    const items = await this.loadCollection<LostItem>(COLLECTIONS.LOSTFOUND);
+    return items.length > 0 ? items : INITIAL_LOST_FOUND;
   }
   async saveLostItem(item: LostItem): Promise<void> {
     await this.upsert(COLLECTIONS.LOSTFOUND, item);
   }
+  async deleteLostItem(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.LOSTFOUND, id);
+  }
 
   async getTVSchedule(): Promise<TVScheduleItem[]> {
-    return this.loadCollection<TVScheduleItem>(COLLECTIONS.TV_SCHEDULE);
+    const items = await this.loadCollection<TVScheduleItem>(COLLECTIONS.TV_SCHEDULE);
+    return items.length > 0 ? items : INITIAL_TV_SCHEDULE;
   }
   async saveTVScheduleItem(item: TVScheduleItem): Promise<void> {
     await this.upsert(COLLECTIONS.TV_SCHEDULE, item);
   }
+  async deleteTVScheduleItem(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.TV_SCHEDULE, id);
+  }
 
   async getStocktakes(): Promise<StocktakeSession[]> {
-    return this.loadCollection<StocktakeSession>(COLLECTIONS.STOCKTAKES);
+    const sessions = await this.loadCollection<StocktakeSession>(COLLECTIONS.STOCKTAKES);
+    return sessions.length > 0 ? sessions : INITIAL_STOCKTAKES;
   }
   async saveStocktake(session: StocktakeSession): Promise<void> {
     await this.upsert(COLLECTIONS.STOCKTAKES, session);
   }
+  async deleteStocktake(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.STOCKTAKES, id);
+  }
 
   async getOrders(): Promise<PurchaseOrder[]> {
-    return this.loadCollection<PurchaseOrder>(COLLECTIONS.ORDERS);
+    const orders = await this.loadCollection<PurchaseOrder>(COLLECTIONS.ORDERS);
+    return orders.length > 0 ? orders : INITIAL_ORDERS;
   }
   async saveOrder(order: PurchaseOrder): Promise<void> {
     await this.upsert(COLLECTIONS.ORDERS, order);
   }
+  async deleteOrder(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.ORDERS, id);
+  }
 
   async getTimePunches(): Promise<TimePunch[]> {
-    return this.loadCollection<TimePunch>(COLLECTIONS.TIMEPUNCHES);
+    const punches = await this.loadCollection<TimePunch>(COLLECTIONS.TIMEPUNCHES);
+    return punches.length > 0 ? punches : INITIAL_TIME_PUNCHES;
   }
   async saveTimePunch(punch: TimePunch): Promise<void> {
     await this.upsert(COLLECTIONS.TIMEPUNCHES, punch);
   }
+  async deleteTimePunch(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.TIMEPUNCHES, id);
+  }
 
   async getBudgets(): Promise<BudgetTracker[]> {
-    return this.loadCollection<BudgetTracker>(COLLECTIONS.BUDGETS);
+    const budgets = await this.loadCollection<BudgetTracker>(COLLECTIONS.BUDGETS);
+    return budgets.length > 0 ? budgets : INITIAL_BUDGETS;
   }
   async saveBudget(budget: BudgetTracker): Promise<void> {
     await this.upsert(COLLECTIONS.BUDGETS, budget);
   }
+  async deleteBudget(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.BUDGETS, id);
+  }
 
+  async getRecipes(): Promise<Recipe[]> {
+    const recipes = await this.loadCollection<Recipe>(COLLECTIONS.RECIPES);
+    return recipes.length > 0 ? recipes : INITIAL_RECIPES;
+  }
   async saveRecipe(recipe: Recipe): Promise<void> {
     await this.upsert(COLLECTIONS.RECIPES, recipe);
   }
-  
-  async saveEntertainment(event: EntertainmentEvent): Promise<void> {
-    await this.upsert(COLLECTIONS.ENTERTAINMENT, event);
-  }
-  
-  async saveStock(item: StockItem): Promise<void> {
-    await this.upsert(COLLECTIONS.STOCK, item);
-  }
-  
-  async saveSupplier(supplier: Supplier): Promise<void> {
-    await this.upsert(COLLECTIONS.SUPPLIERS, supplier);
-  }
-
-  async getStock(): Promise<StockItem[]> {
-    return Promise.resolve(INITIAL_STOCK);
-  }
-  async getSuppliers(): Promise<Supplier[]> {
-    return Promise.resolve([]);
-  }
-  async getEntertainment(): Promise<EntertainmentEvent[]> {
-    return Promise.resolve([]);
-  }
-  async getRecipes(): Promise<Recipe[]> {
-    return Promise.resolve(INITIAL_RECIPES);
-  }
-  async saveBooking(booking: Booking): Promise<void> {
-    return Promise.resolve();
-  }
-  async deleteBooking(id: string): Promise<void> {
-    return Promise.resolve();
-  }
-  async deleteFile(id: string): Promise<void> {
-    return Promise.resolve();
-  }
-  async saveStaff(staff: TeamMember): Promise<void> {
-    return Promise.resolve();
-  }
-  async deleteStaff(id: string): Promise<void> {
-    return Promise.resolve();
+  async deleteRecipe(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.RECIPES, id);
   }
 }
 

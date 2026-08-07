@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>_ct-MATRIX | LED Billboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    /* 
+      LED Billboard CSS 
+      Target: 400x200 dimensions.
+    */
+    :root {
+      --neon-gold: #FFD700;
+      --neon-blue: #06b6d4;
+      --neon-pink: #ec4899;
+      --theme-color: #06b6d4;
+      --theme-glow: rgba(6, 182, 212, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 400px;
+      height: 200px;
+      background-color: #050505;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Subtle LED grid overlay */
+    body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.4) 1px, transparent 1px);
+      background-size: 3px 3px;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Ambient neon glow */
+    .glow-bg {
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      background: radial-gradient(circle at center, var(--theme-glow) 0%, transparent 60%);
+      opacity: 0.3;
+      z-index: 0;
+      animation: pulse-ambient 4s infinite alternate ease-in-out;
+    }
+
+    #viewport {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateX(40px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+
+    /* Premium Background System */
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-color: #000;
+    }
+
+    .slide-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: subtleZoom 35s linear infinite alternate;
+      transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .slide-bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .slide-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 40%, rgba(0, 0, 0, 0.7));
+    }
+
+    /* Premium Event Card (Glassmorphic) */
+    .premium-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 32px 20px 42px 20px;
+      /* Top clears tag, bottom clears footer */
+      text-align: center;
+      gap: 5px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* Event Type Tag */
+    .premium-tag-wrapper {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 15;
+    }
+
+    .day-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--theme-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      box-shadow: 0 0 12px var(--theme-glow), 0 0 4px var(--theme-glow);
+      animation: pulse-glow-small 3s infinite ease-in-out;
+    }
+
+    /* Title */
+    .premium-title-wrapper {
+      width: 95%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+      flex-shrink: 0;
+    }
+
+    .premium-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #fff;
+      text-shadow: 0 0 15px var(--theme-glow);
+      max-width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Accent Divider Bar — 75% width, centered */
+    .premium-accent-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 15;
+      flex-shrink: 0;
+    }
+
+    .accent-bar {
+      width: 75%;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--theme-color);
+      box-shadow: 0 0 12px var(--theme-glow), 0 0 4px var(--theme-glow);
+      animation: pulse-glow-bar 3s infinite ease-in-out;
+    }
+
+    /* Subtitle / Description */
+    .premium-desc-wrapper {
+      width: 90%;
+      display: flex;
+      justify-content: center;
+      z-index: 15;
+      flex-shrink: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .premium-desc {
+      font-size: 0.8rem;
+      color: rgba(243, 244, 246, 0.9);
+      font-weight: 600;
+      line-height: 1.25;
+      max-width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-wrap: balance;
+    }
+
+    /* Consolidated Premium Footer Row */
+    .premium-footer-row {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      right: 10px;
+      z-index: 30;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 3px 10px;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--theme-color);
+      border-radius: 8px;
+      box-shadow: 0 0 12px var(--theme-glow), 0 0 4px var(--theme-glow), 0 5px 15px rgba(0, 0, 0, 0.5);
+      box-sizing: border-box;
+      min-height: 28px;
+      height: auto;
+      gap: 6px;
+      animation: content-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards, pulse-glow-small 3s infinite ease-in-out;
+      opacity: 0;
+    }
+
+    .footer-left {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .footer-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .footer-right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .premium-meta {
+      display: flex;
+      gap: 6px;
+    }
+
+    .premium-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--theme-color);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      box-shadow: 0 0 8px var(--theme-glow);
+      animation: pulse-glow-small 3s infinite ease-in-out;
+    }
+
+    .time-pill {
+      background: rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 0 10px var(--theme-glow) !important;
+    }
+
+    .price-badge {
+      background: var(--theme-color);
+      color: #000;
+      font-weight: 900;
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      box-shadow: 0 0 15px var(--theme-glow), 0 0 6px var(--theme-glow);
+      animation: pulse-glow-small 3s infinite;
+    }
+
+    .premium-footer {
+      font-size: 0.55rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
+    }
+
+    .footer-combined-box {
+      gap: 6px;
+      padding: 3px 8px;
+    }
+
+    .footer-combined-box .premium-footer {
+      white-space: normal;
+      text-align: right;
+      max-width: 150px;
+      line-height: 1.1;
+      color: #fff;
+    }
+
+    .footer-qr-img {
+      background: #fff;
+      padding: 2px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .footer-qr-img img {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+
+    /* Logo Zoom & Flame Animations */
+    .logo-wrapper {
+      position: relative;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      animation: cinematicZoom 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .flame-anchor {
+      position: absolute;
+      left: 50%;
+      width: 0;
+      height: 0;
+      z-index: 3;
+      transform: scale(0.35);
+    }
+
+    /* Live broadcast */
+    .live-card {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+
+    .live-label {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      color: var(--theme-color);
+      margin-bottom: 5px;
+      font-weight: 900;
+    }
+
+    .live-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 5px;
+      color: #fff;
+      text-shadow: 0 0 20px var(--theme-glow);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .live-subtitle {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-weight: 600;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .live-system-alert {
+      position: absolute;
+      bottom: 8px;
+      width: 100%;
+      text-align: center;
+      font-family: 'JetBrains Mono';
+      font-size: 0.5rem;
+      color: var(--theme-color);
+      opacity: 0.5;
+    }
+
+    /* Social card */
+    .social-card {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 15px;
+      box-sizing: border-box;
+      gap: 4px;
+    }
+
+    .social-icon {
+      font-size: 2.2rem;
+    }
+
+    .social-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 10px var(--theme-glow);
+    }
+
+    .social-handle {
+      font-size: 0.75rem;
+      color: var(--theme-color);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    /* Menu slide styles */
+    .menu-overlay-ui {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      box-sizing: border-box;
+    }
+
+    .premium-card-inner,
+    .special-event-card-inner,
+    .live-card-inner,
+    .social-card-inner,
+    .menu-sidebar-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      width: 100%;
+      height: auto;
+      box-sizing: border-box;
+      min-height: 0;
+    }
+
+    .menu-sidebar-inner {
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 4px;
+    }
+
+    .menu-sidebar {
+      width: 60%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+      gap: 4px;
+    }
+
+    .menu-badge {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 1px 6px;
+      background: var(--theme-color);
+      color: #000;
+      font-size: 0.55rem;
+      font-weight: 900;
+      border-radius: 3px;
+      letter-spacing: 1px;
+    }
+
+    .menu-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .menu-accent {
+      width: 30px;
+      height: 2px;
+      background: var(--theme-color);
+    }
+
+    .menu-desc {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .menu-panning-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      animation: panDownAnimation 45s linear infinite alternate;
+    }
+
+    /* Special Event slide styles */
+    .special-event-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 32px 20px 42px 20px;
+      text-align: center;
+      gap: 5px;
+      box-sizing: border-box;
+    }
+
+    .special-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #000;
+      font-size: 0.55rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    .special-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      text-shadow: 0 0 15px var(--theme-glow);
+    }
+
+    .special-desc {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Countdown */
+    .countdown-billboard {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: var(--theme-color);
+      text-shadow: 0 0 5px var(--theme-glow);
+      margin-top: 3px;
+    }
+
+    /* Core animations */
+    @keyframes pulse-ambient {
+      0% {
+        transform: scale(1);
+        opacity: 0.2;
+      }
+
+      100% {
+        transform: scale(1.1);
+        opacity: 0.4;
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes content-enter {
+      0% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .animate-content-enter {
+      animation: content-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+
+    .animate-float {
+      animation: float 3s infinite ease-in-out;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-4px);
+      }
+    }
+
+    @keyframes subtleZoom {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.15);
+      }
+    }
+
+    @keyframes panDownAnimation {
+      0% {
+        object-position: top center;
+      }
+
+      100% {
+        object-position: bottom center;
+      }
+    }
+
+    @keyframes pulse-glow-small {
+
+      0%,
+      100% {
+        box-shadow: 0 0 8px var(--theme-glow), 0 0 2px var(--theme-glow);
+      }
+
+      50% {
+        box-shadow: 0 0 20px var(--theme-color), 0 0 8px var(--theme-glow);
+      }
+    }
+
+    @keyframes pulse-glow-bar {
+
+      0%,
+      100% {
+        box-shadow: 0 0 8px var(--theme-glow);
+      }
+
+      50% {
+        box-shadow: 0 0 18px var(--theme-color), 0 0 6px var(--theme-glow);
+      }
+    }
+
+    /* Flame Animations */
+    @keyframes flame-rise {
+      0% {
+        transform: translateY(0) scale(1) translateX(-50%);
+        opacity: 0.9;
+      }
+
+      50% {
+        transform: translateY(-30px) scale(0.8) translateX(-50%);
+        opacity: 0.7;
+      }
+
+      100% {
+        transform: translateY(-60px) scale(0.4) translateX(-50%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes flame-flicker {
+
+      0%,
+      100% {
+        transform: scaleX(1) scaleY(1);
+      }
+
+      25% {
+        transform: scaleX(0.95) scaleY(1.05);
+      }
+
+      50% {
+        transform: scaleX(1.05) scaleY(0.95);
+      }
+
+      75% {
+        transform: scaleX(0.98) scaleY(1.02);
+      }
+    }
+
+    @keyframes glow-pulse {
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    @keyframes cinematicZoom {
+      0% {
+        transform: scale(0.6);
+        opacity: 0;
+        filter: blur(10px);
+      }
+
+      20% {
+        opacity: 1;
+        filter: blur(0px);
+      }
+
+      100% {
+        transform: scale(1.1);
+        opacity: 1;
+        filter: blur(0px);
+      }
+    }
+
+    .flame-container {
+      position: absolute;
+      width: 50px;
+      height: 80px;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .flame-particle {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      border-radius: 50% 50% 35% 35%;
+      background: radial-gradient(ellipse at bottom, rgba(255, 180, 50, 0.9) 0%, rgba(255, 80, 0, 0) 70%);
+      animation: flame-rise 1.2s infinite ease-out;
+      mix-blend-mode: screen;
+      filter: blur(4px);
+    }
+
+    .flame-glow {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #ff6a00 0%, transparent 70%);
+      animation: glow-pulse 2s infinite ease-in-out;
+      filter: blur(20px);
+    }
+
+    .flame-core {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 30px;
+      background: linear-gradient(to top, #fff 0%, #ffd700 100%);
+      border-radius: 50% 50% 20% 20%;
+      filter: blur(2px);
+      opacity: 0.8;
+      animation: flame-flicker 0.2s infinite ease-in-out;
+    }
+
+    #progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 6px;
+      background: var(--theme-color);
+      width: 0%;
+      z-index: 500;
+      box-shadow: 0 0 10px var(--theme-color);
+      transition: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="glow-bg" id="glow"></div>
+  <div id="viewport">
+    <div id="status" style="color: #666; font-family: 'JetBrains Mono'; font-size: 0.8rem;">Awaiting Data Sync...</div>
+  </div>
+  <div id="progress-bar"></div>
+
+  <script>
+    const bc = new BroadcastChannel('ct_matrix_sync');
+    let currentSlideId = null;
+
+    bc.onmessage = (e) => {
+      if (e.data.type === 'CURRENT_SLIDE_BROADCAST' && e.data.slide) {
+        renderSlide(e.data.slide, e.data.index, e.data.startTime, e.data.delay);
+      } else if (e.data.type === 'SLIDES_DUMP' && e.data.slides && e.data.currentIndex !== undefined) {
+        const slide = e.data.slides[e.data.currentIndex];
+        if (slide) renderSlide(slide, e.data.currentIndex, e.data.startTime, e.data.delay);
+      }
+    };
+
+    // Request data on load in case master is already running
+    setTimeout(() => {
+      bc.postMessage({ type: 'GET_SLIDES_DUMP' });
+    }, 500);
+
+    function parseMatrixDate(dateStr) {
+      if (!dateStr) return null;
+      if (dateStr instanceof Date) return dateStr;
+
+      const str = String(dateStr).trim();
+
+      // 1. ISO Format: YYYY-MM-DD
+      if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(str)) {
+        const [y, m, d] = str.split('-').map(Number);
+        return new Date(y, m - 1, d);
+      }
+
+      // 2. Slash format: DD/MM/YYYY (NZ/UK) — confirmed live CSV format
+      const parts = str.split('/').map(Number);
+      if (parts.length === 3) {
+        const [d, m, y] = parts;
+        if (m > 12) {
+          return new Date(y, d - 1, m); // Fallback: M/D/YYYY
+        }
+        return new Date(y, m - 1, d); // Default DD/MM/YYYY
+      }
+
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatDate(dateStr, timeStr) {
+      try {
+        const d = parseMatrixDate(dateStr);
+        if (!d) return dateStr;
+
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const evDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffDays = Math.round((evDay - today) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+          const hasTime = timeStr && timeStr.trim() !== '' && !/all\s*day/i.test(timeStr);
+          return hasTime ? 'Tonight' : 'Today';
+        }
+        if (diffDays === 1) return 'Tomorrow';
+
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+      } catch (err) {
+        return dateStr;
+      }
+    }
+
+    function getSmartTag(slide) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const eventDate = slide.date ? parseMatrixDate(slide.date) : null;
+      const typeLabel = (slide.subType || slide.type || 'Event').toUpperCase();
+
+      if (slide.type === 'MODULE') return typeLabel;
+
+      const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+      let dayName = '';
+      
+      if (eventDate) {
+        dayName = days[eventDate.getDay()];
+      } else if (slide.meta) {
+        const firstWord = String(slide.meta).split(' ')[0].toUpperCase();
+        if (days.includes(firstWord)) {
+          dayName = firstWord;
+        }
+      }
+
+      const dayPrefix = dayName ? `${dayName}: ` : '';
+
+      if (!eventDate) return (dayPrefix + typeLabel).toUpperCase();
+
+      const evDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+      const diffDays = Math.round((evDay - today) / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) return (dayPrefix + typeLabel).toUpperCase(); 
+      
+      if (diffDays === 0) {
+        const hasTime = slide.time && slide.time.trim() !== '' && !/all\s*day/i.test(slide.time);
+        const todayLabel = hasTime ? 'Tonight' : 'Today';
+        return `${todayLabel}: ${dayName}: ${typeLabel}`.toUpperCase();
+      }
+      if (diffDays === 1) return `Tomorrow: ${dayName}: ${typeLabel}`.toUpperCase();
+
+      const currentDay = today.getDay(); // 0=Sun, 1=Mon...
+      const daysToNextMonday = (currentDay === 0) ? 1 : (8 - currentDay);
+      const nextMonday = new Date(today);
+      nextMonday.setDate(today.getDate() + daysToNextMonday);
+      nextMonday.setHours(0, 0, 0, 0);
+
+      if (evDay < nextMonday) {
+        return `This Week: ${dayName}: ${typeLabel}`.toUpperCase();
+      } else if (diffDays <= 14) {
+        return `Next Week: ${dayName}: ${typeLabel}`.toUpperCase();
+      }
+
+      return `${dayName}: ${typeLabel}`.toUpperCase();
+    }
+
+    function getDefaultBackground(eventType, title) {
+      const t = (eventType || '').toLowerCase();
+      const name = (title || '').toLowerCase();
+
+      if (t.includes('rugby') || t.includes('nrl') || t.includes('warriors') || t.includes('crusaders') || t.includes('all blacks') ||
+        name.includes('warriors') || name.includes('crusaders') || name.includes('nrl') || name.includes('all blacks')) {
+        return '_backgrounds/stadium.png';
+      }
+
+      if (t.includes('karaoke') || t.includes('band') || t.includes('music') || t.includes('🟠') || t.includes('🟣')) {
+        return '_backgrounds/music.jpg';
+      }
+
+      if (t.includes('quiz') || name.includes('quiz') || t.includes('trivia') || name.includes('trivia')) {
+        return '_backgrounds/quiz.png';
+      }
+
+      return '';
+    }
+
+    function getHighlightColor(slide) {
+      if (slide.accentColor) return slide.accentColor;
+      const subType = (slide.subType || '').toLowerCase();
+      const title = (slide.title || '').toLowerCase();
+      if (title.includes('crusaders')) return '#ef4444';
+      if (title.includes('warriors')) return '#10b981';
+      if (title.includes('all blacks') || subType.includes('all blacks')) return '#ffffff';
+      const map = {
+        'super rugby': '#ef4444',
+        'rugby': '#ef4444',
+        'nrl': '#10b981',
+        'league': '#10b981',
+        'karaoke': '#8b5cf6',
+        'live music': '#f59e0b',
+        'band': '#f59e0b',
+        'food': '#1013b9',
+        'dining': '#1013b9',
+        'quiz': '#3b82f6',
+        'trivia': '#3b82f6',
+        'entertainment': '#06b6d4',
+        'event': '#ffffff'
+      };
+      return map[subType] || '#f59e0b';
+    }
+
+    function renderPremiumFooterRow(slide, color) {
+      const showPrice = !!slide.price;
+
+      const timeStr = slide.time || '';
+      const titleLower = (slide.title || '').toLowerCase();
+      const subtitleLower = (slide.billboardSubtitle || '').toLowerCase();
+      const timeRedundant = timeStr && (titleLower.includes(timeStr.toLowerCase()) || subtitleLower.includes(timeStr.toLowerCase()));
+
+      const dateStr = slide.date ? formatDate(slide.date, timeStr) : '';
+      const dayStr = slide.meta ? 'EVERY ' + String(slide.meta).split(' ')[0].toUpperCase() : '';
+      const locStr = slide.location ? '📍 ' + slide.location : '';
+
+      const subTypeLower = (slide.subType || slide.type || '').toLowerCase();
+      const isTargetEvent = ['band', 'bands', 'live music', 'super rugby', 'rugby', 'nrl', 'league'].some(t => subTypeLower.includes(t));
+      const showLoc = isTargetEvent && slide.location;
+
+      const showLeftMeta = !!(dateStr || dayStr);
+
+      // Billboard: No QR codes or footer text — too small at 400x200
+      return `
+        <div class="premium-footer-row">
+          ${showLeftMeta ? `<div class="premium-meta-item date-pill">🗓️ ${dateStr || dayStr}</div>` : ''}
+          ${showPrice ? `
+            <div class="price-badge">
+              <span class="price-text">${slide.price}</span>
+            </div>
+          ` : ''}
+          ${timeStr && !timeRedundant ? `<div class="premium-meta-item time-pill">⏰ ${timeStr}</div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderSlide(slide, index, startTime, delay) {
+      const renderKey = slide.id + '_' + index + '_' + startTime;
+      if (currentSlideId === renderKey && slide.type !== 'LIVE') return; // prevent duplicate renders
+      currentSlideId = renderKey;
+
+      const viewport = document.getElementById('viewport');
+
+      // Clear status text
+      const status = document.getElementById('status');
+      if (status) status.remove();
+
+      // Setup theme color - Default to GOLD if not supplied
+      const themeColor = slide.accentColor || (slide.type === 'PROMO' ? (slide.highlightColor || '#f59e0b') : getHighlightColor(slide)) || '#f59e0b';
+      document.documentElement.style.setProperty('--theme-color', themeColor);
+
+      // RGBA glow
+      const hex = themeColor.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16) || 245;
+      const g = parseInt(hex.substring(2, 4), 16) || 158;
+      const b = parseInt(hex.substring(4, 6), 16) || 11;
+      document.documentElement.style.setProperty('--theme-glow', `rgba(${r},${g},${b}, 0.6)`);
+
+      // Progress bar sync
+      const bar = document.getElementById('progress-bar');
+      if (bar) {
+        bar.style.transition = 'none';
+        if (slide.id === 'ct-fir') {
+          bar.style.display = 'none';
+        } else {
+          bar.style.display = '';
+          if (startTime && delay) {
+            const elapsed = Date.now() - startTime;
+            const remaining = delay - elapsed;
+
+            if (remaining > 0 && remaining <= delay) {
+              const startPercent = (elapsed / delay) * 100;
+              bar.style.width = startPercent + '%';
+
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  bar.style.transition = `width ${remaining}ms linear`;
+                  bar.style.width = '100%';
+                });
+              });
+            } else {
+              bar.style.width = '100%';
+            }
+          } else {
+            // Fallback if no timing info
+            bar.style.width = '0%';
+            const fallbackDelay = slide.duration ? slide.duration * 1000 : 30000;
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                bar.style.transition = `width ${fallbackDelay}ms linear`;
+                bar.style.width = '100%';
+              });
+            });
+          }
+        }
+      }
+
+      // Exit old slide
+      const oldSlide = document.querySelector('.slide.active');
+      if (oldSlide) {
+        oldSlide.classList.remove('active');
+        oldSlide.classList.add('exit');
+        setTimeout(() => oldSlide.remove(), 500);
+        setTimeout(() => oldSlide.remove(), 600);
+      }
+
+      // Format Meta (Time / Date)
+      let metaText = '';
+      const metaItems = [];
+      if (slide.time) metaItems.push(`<span>⏰ ${slide.time}</span>`);
+      if (slide.date) metaItems.push(`<span>🗓️ ${slide.date}</span>`);
+      if (slide.location) metaItems.push(`<span>📍 ${slide.location}</span>`);
+      metaText = metaItems.join(' • ');
+
+      // Determine Tag
+      const tagText = (slide.subType || slide.type || 'EVENT').toUpperCase();
+
+      // Construct New Slide
+      const newSlide = document.createElement('div');
+      newSlide.className = 'slide';
+
+      const isLogo = slide.isLogo || (!slide.title && !slide.subtitle && slide.bgImage && slide.bgImage.includes('LOGO'));
+
+      // Process Background (Hex support)
+      const rawBg = slide.bgImage || getDefaultBackground(slide.subType || slide.type, slide.title);
+      const isHex = /^#([A-Fa-f0-9]{3,8})$/.test((rawBg || '').trim());
+      const bgImg = isHex ? '' : rawBg;
+      const bgColor = isHex ? rawBg : '#000000';
+
+      const color = themeColor;
+      const smartTag = getSmartTag(slide);
+      const typeKey = (slide.subType || slide.type || 'Event').toLowerCase();
+
+      if (slide.type === 'MODULE') {
+        newSlide.innerHTML = `
+          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border-radius: 8px;">
+            <iframe src="${slide.url}" style="width: 1920px; height: 1080px; border: none; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.185185); transform-origin: center center; pointer-events: none; position: absolute; background: #000;" scrolling="no"></iframe>
+          </div>
+        `;
+      } else if (isLogo) {
+        newSlide.innerHTML = `
+          <div class="slide-bg" style="display:flex; justify-content:center; align-items:center; background-color: ${bgColor};">
+            <div class="logo-wrapper" style="position:relative; height: 120px; display: flex; justify-content: center;">
+              ${bgImg ? `<img src="${bgImg}" alt="Flame Lantern" style="height: 100%; width: auto; z-index: 2; position:relative; opacity: 1; filter: none; animation: none;" />` : ''}
+              <div class="flame-anchor" style="position: absolute; left: 50%; top: ${slide.flamePosition || '60%'};">
+                <div class="flame-container">
+                    <div class="flame-glow"></div>
+                    <div class="flame-core"></div>
+                    <div class="flame-particle" style="width: 30px; height: 50px; animation-delay: 0s"></div>
+                    <div class="flame-particle" style="width: 25px; height: 45px; animation-delay: 0.3s"></div>
+                    <div class="flame-particle" style="width: 28px; height: 48px; animation-delay: 0.6s"></div>
+                    <div class="flame-particle" style="width: 22px; height: 42px; animation-delay: 0.9s"></div>
+                </div>
+                <!-- Reflection -->
+                <div class="flame-container reflection" style="transform: scaleY(-0.6) translateY(-40px); opacity: 0.3; filter: blur(4px);">
+                    <div class="flame-glow" style="opacity:0.2;"></div>
+                    <div class="flame-core"></div>
+                    <div class="flame-particle" style="width: 30px; height: 50px; animation-delay: 0s"></div>
+                    <div class="flame-particle" style="width: 25px; height: 45px; animation-delay: 0.3s"></div>
+                    <div class="flame-particle" style="width: 28px; height: 48px; animation-delay: 0.6s"></div>
+                    <div class="flame-particle" style="width: 22px; height: 42px; animation-delay: 0.9s"></div>
+                </div>
+              </div>
+            </div>
+            <div class="slide-bg-overlay" style="background: radial-gradient(circle, transparent 20%, #000 100%); z-index: 1;"></div>
+          </div>
+          ${renderPremiumFooterRow(slide, themeColor)}
+        `;
+      } else if (slide.type === 'LIVE') {
+        const accent = slide.accent || '#06b6d4';
+        const liveSubtitleText = slide.billboardSubtitle || slide.detail || '';
+        newSlide.innerHTML = `
+            <div class="slide-bg" style="background: #000;">
+              <div style="position:absolute; inset:0; background: radial-gradient(circle at center, ${accent}22 0%, #000 70%);"></div>
+            </div>
+            <div class="live-card">
+              <div class="live-label animate-content-enter" style="animation-delay: 0.1s;">LIVE BROADCAST</div>
+              <div class="live-card-inner">
+                <div class="live-title animate-content-enter" style="animation-delay: 0.2s;">${slide.title || ''}</div>
+                <div class="live-subtitle animate-content-enter" style="animation-delay: 0.3s;">${liveSubtitleText}</div>
+              </div>
+            </div>
+            <div class="live-system-alert">
+              MATRIX LIVE ALERT SYSTEM v1.0
+            </div>
+        `;
+      } else if (slide.type === 'SOCIAL LINK') {
+        const icon = (slide.title || '').toLowerCase().includes('facebook') ? '📘' : ((slide.title || '').toLowerCase().includes('instagram') ? '📸' : '📱');
+        const handleText = slide.billboardSubtitle || slide.subtitle || '';
+        newSlide.innerHTML = `
+            <div class="slide-bg" style="background: #000;">
+              <div style="position:absolute; inset:0; background: radial-gradient(circle at center, var(--theme-color)22 0%, #000 70%);"></div>
+            </div>
+            <div class="social-card">
+              <div class="social-icon animate-content-enter" style="animation-delay: 0.1s;"><div class="animate-float" style="display:inline-block">${icon}</div></div>
+              <div class="social-card-inner">
+                <div class="social-title animate-content-enter" style="animation-delay: 0.2s;">${slide.title || ''}</div>
+                <div class="social-handle animate-content-enter" style="animation-delay: 0.3s;">${handleText}</div>
+              </div>
+            </div>
+        `;
+      } else if (slide.type === 'MENU') {
+        const menuDescText = slide.billboardSubtitle || slide.subtitle || '';
+        newSlide.innerHTML = `
+            <div class="slide-bg" style="background-color: ${bgColor};">
+              ${bgImg ? `<img src="${bgImg}" alt="" class="menu-panning-img">` : ''}
+              <div class="slide-bg-overlay" style="background: linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 40%);"></div>
+            </div>
+            <div class="menu-overlay-ui">
+              <div class="menu-sidebar">
+                <div class="menu-badge animate-content-enter" style="animation-delay: 0.1s;">MENU</div>
+                <div class="menu-sidebar-inner">
+                  <h1 class="menu-title animate-content-enter" style="animation-delay: 0.2s;">${slide.title || 'Today\'s Menu'}</h1>
+                  <div class="menu-accent animate-content-enter" style="animation-delay: 0.3s;"></div>
+                  ${menuDescText ? `<div class="menu-desc animate-content-enter" style="animation-delay: 0.4s;">${menuDescText}</div>` : ''}
+                </div>
+              </div>
+            </div>
+        `;
+      } else if (slide.type === 'SPECIAL EVENT') {
+        const specialDescText = slide.billboardSubtitle || slide.subtitle || '';
+        newSlide.innerHTML = `
+            <div class="slide-bg" style="background-color: ${bgColor};">
+              ${bgImg ? `<img src="${bgImg}" alt="">` : ''}
+              <div class="slide-bg-overlay" style="background: radial-gradient(circle at center, transparent 0%, #000 90%);"></div>
+            </div>
+            <div class="special-event-card">
+              <div class="special-badge animate-content-enter" style="animation-delay: 0.1s;">Special Event</div>
+              <div class="special-event-card-inner">
+                <h1 class="special-title animate-content-enter" style="animation-delay: 0.2s;">${slide.title || ''}</h1>
+                <div class="premium-accent-wrapper animate-content-enter" style="animation-delay: 0.3s;">
+                  <div class="accent-bar" style="background: ${themeColor};"></div>
+                </div>
+                ${specialDescText ? `<div class="special-desc animate-content-enter" style="animation-delay: 0.4s;">${specialDescText}</div>` : ''}
+              </div>
+            </div>
+            ${renderPremiumFooterRow(slide, themeColor)}
+        `;
+      } else if (slide.fgImage) {
+        newSlide.innerHTML = `
+          <div class="slide-bg" style="background: #000;">
+            <img src="${slide.fgImage}" alt="" style="width: 100%; height: 100%; object-fit: contain; animation: none;">
+          </div>
+          ${renderPremiumFooterRow(slide, themeColor)}
+        `;
+      } else {
+        // Countdown Logic
+        let countdownHTML = '';
+        if (slide.countdownFinish) {
+          countdownHTML = `<div class="countdown-billboard animate-content-enter" style="animation-delay: 0.5s;" id="cd-${slide.id}"></div>`;
+        }
+
+        const subtitleText = slide.billboardSubtitle || '';
+
+        newSlide.innerHTML = `
+          <div class="slide-bg" style="background-color: ${bgColor};">
+            ${bgImg ? `<img src="${bgImg}" alt="" loading="eager" />` : ''}
+            <div class="slide-bg-overlay" style="background: rgba(0,0,0,0.85);"></div>
+          </div>
+          <div class="premium-card">
+            <!-- 1. Event Type -->
+            <div class="premium-tag-wrapper animate-content-enter" style="animation-delay: 0.1s;">
+              <span class="day-tag" style="background-color: ${color}40; border-color: ${color};">${smartTag}</span>
+            </div>
+
+            <div class="premium-card-inner">
+              <!-- 2. Event Name -->
+              <div class="premium-title-wrapper animate-content-enter" style="animation-delay: 0.2s;">
+                <h1 class="premium-title">${slide.title || ''}</h1>
+              </div>
+
+              <!-- Accent Divider Bar -->
+              <div class="premium-accent-wrapper animate-content-enter" style="animation-delay: 0.3s;">
+                <div class="accent-bar" style="background: ${color};"></div>
+              </div>
+
+              <!-- 3. Details -->
+              ${subtitleText ? `
+              <div class="premium-desc-wrapper animate-content-enter" style="animation-delay: 0.4s;">
+                <div class="premium-desc">${String(subtitleText).replace(/\n/g, '<br>')}</div>
+              </div>` : ''}
+              
+              ${countdownHTML}
+            </div>
+          </div>
+          ${renderPremiumFooterRow(slide, color)}
+        `;
+      }
+
+      viewport.appendChild(newSlide);
+
+      // Prevent clipping by auto-shrinking text if it exceeds inner content bounds
+      const innerEl = newSlide.querySelector('.premium-card-inner, .special-event-card-inner, .live-card-inner, .social-card-inner, .menu-sidebar-inner');
+      if (innerEl) {
+        const titleEl = innerEl.querySelector('.premium-title, .special-title, .live-title, .social-title, .menu-title');
+        const descEl = innerEl.querySelector('.premium-desc, .special-desc, .live-subtitle, .social-handle, .menu-desc');
+        
+        let maxHeight = 125;
+        if (innerEl.classList.contains('live-card-inner')) maxHeight = 150;
+        else if (innerEl.classList.contains('social-card-inner')) maxHeight = 140;
+        else if (innerEl.classList.contains('menu-sidebar-inner')) maxHeight = 160;
+
+        let titleSize = titleEl ? parseFloat(window.getComputedStyle(titleEl).fontSize) : 0;
+        let descSize = descEl ? parseFloat(window.getComputedStyle(descEl).fontSize) : 0;
+        let loops = 0;
+        while (innerEl.scrollHeight > maxHeight && loops < 30) {
+          let shrunk = false;
+          if (titleEl && titleSize > 12) {
+            titleSize -= 0.5;
+            titleEl.style.fontSize = titleSize + 'px';
+            shrunk = true;
+          }
+          if (descEl && descSize > 8) {
+            descSize -= 0.25;
+            descEl.style.fontSize = descSize + 'px';
+            shrunk = true;
+          }
+          if (!shrunk) break;
+          loops++;
+        }
+      }
+
+      // Trigger enter animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          newSlide.classList.add('active');
+        });
+      });
+
+      // Countdown dynamic tick
+      if (slide.countdownFinish) {
+        const el = document.getElementById(`cd-${slide.id}`);
+        if (el) {
+          function updateCD() {
+            const target = new Date(slide.countdownFinish).getTime();
+            const diff = target - Date.now();
+            if (isNaN(target) || diff <= 0) {
+              el.innerText = "EVENT ACTIVE";
+              return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            el.innerText = `${days}d ${hours}h ${mins}m ${secs}s`;
+          }
+          updateCD();
+          const timer = setInterval(updateCD, 1000);
+          const observer = new MutationObserver(() => {
+            if (!document.getElementById(`cd-${slide.id}`)) {
+              clearInterval(timer);
+              observer.disconnect();
+            }
+          });
+          observer.observe(viewport, { childList: true });
+        }
+      }
+    }
+
+    // Sync Status Dot initialization
+    (function() {
+        function createSyncStatusDot() {
+            let dot = document.getElementById('sync-status-dot');
+            if (!dot) {
+                dot = document.createElement('div');
+                dot.id = 'sync-status-dot';
+                dot.style.cssText = `
+                    position: fixed; bottom: 25px; right: 25px;
+                    width: 12px; height: 12px; border-radius: 50%;
+                    background-color: #10b981; box-shadow: 0 0 10px #10b981;
+                    z-index: 10000; transition: all 0.5s ease;
+                    pointer-events: none; opacity: 0.7;
+                `;
+                document.body.appendChild(dot);
+            }
+        }
+
+        window.updateSyncStatus = function(status) {
+            createSyncStatusDot();
+            const dot = document.getElementById('sync-status-dot');
+            if (!dot) return;
+            if (status === 'online') {
+                dot.style.backgroundColor = '#10b981';
+                dot.style.boxShadow = '0 0 10px #10b981';
+            } else if (status === 'offline') {
+                dot.style.backgroundColor = '#ef4444';
+                dot.style.boxShadow = '0 0 10px #ef4444';
+            } else if (status === 'sync-error') {
+                dot.style.backgroundColor = '#f59e0b';
+                dot.style.boxShadow = '0 0 10px #f59e0b';
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.updateSyncStatus(navigator.onLine ? 'online' : 'offline'));
+        } else {
+            window.updateSyncStatus(navigator.onLine ? 'online' : 'offline');
+        }
+
+        window.addEventListener('online', () => window.updateSyncStatus('online'));
+        window.addEventListener('offline', () => window.updateSyncStatus('offline'));
+    })();
+  </script>
+  <script type="module" src="firebase-bridge.js"></script>
+</body>
+
+</html>

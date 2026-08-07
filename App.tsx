@@ -6,14 +6,15 @@ import {
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
   BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp,
-  Smartphone, Sliders
+  Smartphone, Sliders, Crown, Shield
 } from 'lucide-react';
-import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry } from './types';
+import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry, isMasterAdmin, isAdminOrAbove } from './types';
 import MediaView from './components/MediaView';
 import TimesheetsView from './components/TimesheetsView';
 import { db } from './services/database';
 import { startAutoSync } from './services/sheetSync';
 import { startCsvSync } from './services/csvSync';
+import { startHourlyPublicScan } from './services/publicSync';
 import { 
   addDays, getStartOfWeek, formatTime, 
   isSameDay, formatDate, generateId 
@@ -39,7 +40,7 @@ import BookingsView from './components/BookingsView';
 import EntertainmentView from './components/EntertainmentView';
 import FunctionsView from './components/FunctionsView';
 import TVScheduleView from './components/TVScheduleView';
-// import SettingsView from './components/SettingsView';
+import SettingsView from './components/SettingsView';
 import RecipesView from './components/RecipesView';
 import StockView from './components/StockView';
 import SuppliersView from './components/SuppliersView';
@@ -181,6 +182,32 @@ const App: React.FC = () => {
       });
     });
     return () => clearInterval(csvInterval);
+  }, []);
+
+  // Public Folder Hourly Auto-Scan (Runs every hour on the hour)
+  useEffect(() => {
+    startHourlyPublicScan();
+    const handleSyncComplete = async () => {
+      try {
+        const [staffData, filesData, financeData, punchesData] = await Promise.all([
+          db.getStaff(),
+          db.getFiles(),
+          db.getFinance(),
+          db.getTimePunches()
+        ]);
+        setTeamMembers(staffData);
+        setFiles(filesData);
+        setFinanceRecords(financeData);
+        setTimePunches(punchesData);
+      } catch (err) {
+        console.warn('[App] Error refreshing data after public sync:', err);
+      }
+    };
+
+    window.addEventListener('ctos:public-sync-completed', handleSyncComplete);
+    return () => {
+      window.removeEventListener('ctos:public-sync-completed', handleSyncComplete);
+    };
   }, []);
 
   // --- Initialization (async — loads from Firestore) ---
@@ -490,22 +517,46 @@ const App: React.FC = () => {
       showNotification("Staff member profile saved", 'success');
   };
 
-  const handleSaveRecipe = async (recipe: Recipe) => {
-      setRecipes([...recipes.filter(r => r.id !== recipe.id), recipe]);
-  };
-
-  const handleSaveEntertainment = async (event: EntertainmentEvent) => {
-      setEntertainmentEvents([...entertainmentEvents.filter(e => e.id !== event.id), event]);
-  };
-
-  const handleSaveSupplier = async (supplier: Supplier) => {
-      setSuppliers([...suppliers.filter(s => s.id !== supplier.id), supplier]);
-  };
-
   const handleDeleteStaff = async (id: string) => {
       await db.deleteStaff(id);
       setTeamMembers(await db.getStaff());
-      showNotification("Staff member removed", 'success');
+      showNotification("Staff member deleted", 'success');
+  };
+
+  const handleSaveRecipe = async (recipe: Recipe) => {
+      await db.saveRecipe(recipe);
+      setRecipes(await db.getRecipes());
+      showNotification("Recipe saved", 'success');
+  };
+
+  const handleDeleteRecipe = async (id: string) => {
+      await db.deleteRecipe(id);
+      setRecipes(await db.getRecipes());
+      showNotification("Recipe deleted", 'success');
+  };
+
+  const handleSaveEntertainment = async (event: EntertainmentEvent) => {
+      await db.saveEntertainment(event);
+      setEntertainmentEvents(await db.getEntertainment());
+      showNotification("Entertainment event saved", 'success');
+  };
+
+  const handleDeleteEntertainment = async (id: string) => {
+      await db.deleteEntertainment(id);
+      setEntertainmentEvents(await db.getEntertainment());
+      showNotification("Entertainment event removed", 'success');
+  };
+
+  const handleSaveSupplier = async (supplier: Supplier) => {
+      await db.saveSupplier(supplier);
+      setSuppliers(await db.getSuppliers());
+      showNotification("Supplier vendor saved", 'success');
+  };
+
+  const handleDeleteSupplier = async (id: string) => {
+      await db.deleteSupplier(id);
+      setSuppliers(await db.getSuppliers());
+      showNotification("Supplier vendor removed", 'success');
   };
 
   // Stock (async)
@@ -548,7 +599,13 @@ const App: React.FC = () => {
   const handleSaveTVSchedule = async (item: TVScheduleItem) => {
     await db.saveTVScheduleItem(item);
     setTVSchedule(await db.getTVSchedule());
-    showNotification("TV Listing Added", 'success');
+    showNotification("TV Listing saved", 'success');
+  };
+
+  const handleDeleteTVSchedule = async (id: string) => {
+    await db.deleteTVScheduleItem(id);
+    setTVSchedule(await db.getTVSchedule());
+    showNotification("TV Listing removed", 'success');
   };
 
   const handleSaveStocktake = async (session: StocktakeSession) => {
@@ -710,9 +767,25 @@ const App: React.FC = () => {
           </button>
           
           <div className="flex items-center space-x-3">
-             <img src={currentUser.avatar} alt={currentUser.name} className={`w-8 h-8 rounded-full border-2 ${appMode === "OFFICE" ? "border-indigo-500" : appMode === "FOH" ? "border-emerald-500" : "border-amber-500"}`} />
+             <div className="relative">
+                <img src={currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random`} alt={currentUser.name} className={`w-9 h-9 rounded-full border-2 ${isMasterAdmin(currentUser) ? "border-amber-500 shadow-md shadow-amber-500/20" : isAdminOrAbove(currentUser) ? "border-indigo-500" : "border-emerald-500"}`} />
+                {isMasterAdmin(currentUser) && (
+                  <span className="absolute -top-1 -right-1 bg-amber-500 text-slate-950 p-0.5 rounded-full ring-2 ring-slate-900 shadow-sm" title="Master Admin">
+                    <Crown className="w-3 h-3" />
+                  </span>
+                )}
+             </div>
              <div className="hidden md:block text-right">
-                 <div className="text-sm font-bold text-gray-900 dark:text-white">{currentUser.name}</div>
+                 <div className="text-sm font-bold text-gray-900 dark:text-white flex items-center justify-end space-x-1">
+                   <span>{currentUser.name}</span>
+                   {isMasterAdmin(currentUser) ? (
+                     <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-[10px] font-black rounded-md uppercase tracking-wider">Master</span>
+                   ) : isAdminOrAbove(currentUser) ? (
+                     <span className="px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-[10px] font-black rounded-md uppercase tracking-wider">Admin</span>
+                   ) : (
+                     <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold rounded-md uppercase tracking-wider">Staff</span>
+                   )}
+                 </div>
                  <div className="text-xs text-gray-500 dark:text-gray-400">{currentUser.role}</div>
                  <button onClick={handleLogout} className="text-xs text-red-500 hover:text-red-600 font-medium mt-0.5">Log Out</button>
              </div>
@@ -891,11 +964,14 @@ const App: React.FC = () => {
                     )}
                 </div>
                 
-                {currentUser?.id === "admin-nikko" && (
+                {isMasterAdmin(currentUser) && (
                     <>
-                    <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest mb-3 px-3 mt-6">Admin Tools</div>
-                    <button onClick={() => setCurrentModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-indigo-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                        <Settings className="w-5 h-5" /><span>Settings</span>
+                    <div className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest mb-3 px-3 mt-6 flex items-center space-x-1.5">
+                      <Crown className="w-3.5 h-3.5" />
+                      <span>Master Admin</span>
+                    </div>
+                    <button onClick={() => setCurrentModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <Settings className="w-5 h-5" /><span>System & Permissions</span>
                     </button>
                     </>
                 )}
@@ -1060,10 +1136,10 @@ const App: React.FC = () => {
              />
           )}
 
-          {currentModule === 'recipes' && <RecipesView recipes={recipes} onSave={handleSaveRecipe} />}
+          {currentModule === 'recipes' && <RecipesView recipes={recipes} onSave={handleSaveRecipe} onDelete={handleDeleteRecipe} />}
           {currentModule === 'incidents' && <IncidentLogView incidents={incidents} staff={teamMembers} currentUser={currentUser} onSave={handleSaveIncident} />}
           {currentModule === 'lostfound' && <LostAndFoundView items={lostFound} staff={teamMembers} currentUser={currentUser} onSave={handleSaveLostItem} />}
-          {currentModule === 'tvschedule' && <TVScheduleView schedule={tvSchedule} onSave={handleSaveTVSchedule} />}
+          {currentModule === 'tvschedule' && <TVScheduleView schedule={tvSchedule} onSave={handleSaveTVSchedule} onDelete={handleDeleteTVSchedule} />}
           {currentModule === 'gemini' && <GeminiNotebookView />}
           {currentModule === 'ctsc' && <CTSCAppView />}
           {currentModule === 'ctmatrix' && <CTMatrixControlView />}
@@ -1071,29 +1147,44 @@ const App: React.FC = () => {
           {currentModule === 'media' && <MediaView />}
           {currentModule === 'timesheets' && <TimesheetsView staff={teamMembers} shifts={shifts} onSave={handleSaveTimesheet} />}
 
-          {currentModule === 'entertainment' && <EntertainmentView events={entertainmentEvents} onSave={handleSaveEntertainment} />}
+          {currentModule === 'entertainment' && <EntertainmentView events={entertainmentEvents} onSave={handleSaveEntertainment} onDelete={handleDeleteEntertainment} />}
           {currentModule === 'functions' && <FunctionsView functions={functionBookings} onSaveFunction={handleSaveFunction} />}
           {currentModule === 'staff' && (
              <StaffDirectory 
                staff={teamMembers} 
+               currentUser={currentUser}
                onSaveStaff={handleSaveStaff} 
                onDeleteStaff={handleDeleteStaff} 
              />
           )}
-          {currentModule === 'suppliers' && <SuppliersView suppliers={suppliers} onSave={handleSaveSupplier} />}
-          {currentModule === 'maintenance' && <MaintenanceView tasks={maintenanceTasks} onUpdateStatus={async (id, s) => { 
-              const task = maintenanceTasks.find(t => t.id === id); 
-              if(task) { 
+          {currentModule === 'suppliers' && <SuppliersView suppliers={suppliers} onSave={handleSaveSupplier} onDelete={handleDeleteSupplier} />}
+          {currentModule === 'maintenance' && (
+            <MaintenanceView 
+              tasks={maintenanceTasks} 
+              onUpdateStatus={async (id, s) => { 
+                const task = maintenanceTasks.find(t => t.id === id); 
+                if(task) { 
                   task.status = s; 
                   await db.saveMaintenanceTask(task); 
                   setMaintenanceTasks(await db.getMaintenance()); 
-              }
-          }} />}
+                }
+              }} 
+              onSaveTask={async (newTask) => {
+                await db.saveMaintenanceTask(newTask);
+                setMaintenanceTasks(await db.getMaintenance());
+              }}
+              onDeleteTask={async (taskId) => {
+                await db.deleteMaintenanceTask(taskId);
+                setMaintenanceTasks(await db.getMaintenance());
+              }}
+            />
+          )}
           
           {currentModule === 'timeclock' && currentUser && <TimeclockView user={currentUser} staff={teamMembers} />}
           {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
           {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
+          {currentModule === 'settings' && <SettingsView onShowNotification={showNotification} />}
 
         </main>
       </div>

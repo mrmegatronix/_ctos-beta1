@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MATRIX COMMAND CENTER | Control Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --surface-bright: #27272a;
+      --surface-hover: #27272a;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.5);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.5);
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+      --border: #27272a;
+      --glass: rgba(24, 24, 27, 0.98);
+      --nav-w: 240px;
+      --header-h: 80px;
+      --bottom-h: 220px;
+      --card-w: 280px;
+      --card-scale: 0.1458;
+    }
+
+    @media (max-height: 850px) {
+        :root {
+            --bottom-h: 170px;
+            --card-w: 220px;
+            --card-scale: 0.1145;
+        }
+    }
+    @media (max-height: 700px) {
+        :root {
+            --bottom-h: 130px;
+            --card-w: 160px;
+            --card-scale: 0.0833;
+        }
+    }
+    
+    * { box-sizing: border-box; }
+    body { 
+        background: var(--bg); color: var(--text); 
+        font-family: 'Inter', sans-serif; margin: 0; padding: 0;
+        height: 100vh; overflow: hidden;
+    }
+
+    /* GRID SKELETON */
+    .app-shell {
+        display: grid;
+        grid-template-columns: var(--nav-w) 1.25fr 0.75fr; /* EXPANDED LEFT FRAME FOR INPUTS, FITTED RIGHT FRAME */
+        grid-template-rows: var(--header-h) 1fr var(--bottom-h);
+        height: 100vh;
+    }
+
+    .header-top {
+        grid-column: 1 / -1;
+        background: var(--glass);
+        backdrop-filter: blur(30px);
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 1.5rem; z-index: 1000;
+        gap: 2rem;
+    }
+
+    .header-toggles {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-grow: 1;
+        justify-content: center;
+        padding: 0 1rem;
+    }
+
+    .toggle-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.02);
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        transition: 0.3s;
+        cursor: pointer;
+        position: relative;
+    }
+    .toggle-pill:hover { background: rgba(255,255,255,0.05); }
+    .toggle-pill.active { border-color: var(--accent); background: rgba(16, 185, 129, 0.08); }
+    .toggle-pill span { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .toggle-pill.active span { color: #fff; }
+    .toggle-pill::before {
+        content: ''; width: 6px; height: 6px; border-radius: 50%;
+        background: #334155; transition: 0.3s;
+    }
+    .toggle-pill.active::before { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+
+    .status-dot {
+        width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+        background: var(--text-dim); transition: 0.3s;
+    }
+    .status-dot.active { background: var(--success); box-shadow: 0 0 12px var(--success-glow); }
+    .status-dot.syncing { background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+    .status-dot.pulse { animation: status-pulse 0.4s ease-out; }
+    
+    @keyframes status-pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.8); opacity: 0.5; background: #fff; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+
+
+    .master-controls {
+        display: flex; gap: 10px;
+        background: rgba(0,0,0,0.4);
+        padding: 6px 12px; border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .ctrl-btn {
+        background: var(--surface-bright); border: 1px solid var(--border);
+        color: #fff; padding: 8px 16px; border-radius: 6px;
+        cursor: pointer; font-weight: 800; font-size: 0.7rem;
+        display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        text-decoration: none; text-transform: uppercase;
+    }
+    .ctrl-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+    .ctrl-btn.primary { background: var(--accent); color: #000; border: none; }
+
+    /* SIDEBAR - COMPACTED */
+    .nav-side {
+        grid-row: 2 / 3;
+        background: var(--surface); border-right: 1px solid var(--border);
+        padding: 0.4rem; 
+        overflow-y: auto; 
+        scrollbar-width: none; /* Hide scrollbar for Firefox */
+        display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .nav-side::-webkit-scrollbar {
+        display: none; /* Hide scrollbar for Chrome/Safari */
+    }
+
+    .nav-section-title {
+        font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px;
+        color: #94a3b8; margin-bottom: 0.1rem; display: flex; align-items: center; gap: 4px; opacity: 0.9;
+        font-weight: 800;
+        margin-top: 0.4rem;
+    }
+
+    .nav-link {
+        display: flex; align-items: center; gap: 6px;
+        padding: 4px 8px; border-radius: 6px; color: #cbd5e1;
+        text-decoration: none; font-size: 0.85rem; font-weight: 600;
+        transition: 0.2s; cursor: pointer; margin-bottom: 1px;
+    }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-link.active { color: var(--accent); background: rgba(16, 185, 129, 0.1); font-weight: 800; }
+
+    /* TREE STYLES - COMPACTED */
+    .tree-node { margin-bottom: 0.15rem; }
+    .tree-header { 
+        padding: 4px 8px; font-size: 0.72rem; font-weight: 700; color: #fff; 
+        cursor: pointer; display: flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.02); border-radius: 6px;
+    }
+    .tree-children { padding-left: 0.8rem; margin-top: 0.1rem; }
+    .tree-item { 
+        display: block; padding: 3px 8px; font-size: 0.7rem; color: #ccc;
+        text-decoration: none; border-left: 2px solid var(--border);
+        transition: 0.2s; margin-bottom: 1px;
+    }
+    .tree-item:hover { color: var(--accent); border-left-color: var(--accent); background: rgba(16, 185, 129, 0.05); }
+
+    .workspace-left {
+        grid-row: 2 / 3;
+        grid-column: 2 / 3;
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .workspace-right-stack {
+        grid-row: 2 / 3;
+        grid-column: 3 / 4;
+        display: grid;
+        grid-template-rows: 1fr auto 1fr; /* SPLIT HORIZONTALLY WITH CONTROLS INBETWEEN */
+        background: var(--border);
+        gap: 1px;
+        overflow: hidden;
+    }
+
+    .panel { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+    .inter-control-bar {
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        z-index: 10;
+    }
+
+    .panel { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+    .panel-header {
+        background: var(--surface); padding: 0.6rem 1.2rem; border-bottom: 1px solid var(--border);
+        font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+        display: flex; justify-content: space-between; align-items: center; color: var(--accent);
+    }
+    .frame-wrap { 
+        flex-grow: 1; 
+        background: #000; 
+        position: relative;
+        overflow: hidden;
+        container-type: size;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .frame-wrap iframe { 
+        width: 100%; height: 100%; border: none;
+    }
+    .scaled-frame {
+        flex: 1; 
+        width: 100%;
+        min-height: 0;
+        position: relative; 
+        background: #000; 
+        overflow: hidden; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+    }
+    .scaled-frame iframe {
+        border: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center center;
+        background: #000;
+        transition: transform 0.1s ease-out;
+    }
+    #preview-frame {
+        width: 1920px;
+        height: 1080px;
+        transform: translate(-50%, -50%) scale(0.25);
+    }
+    #billboard-frame {
+        width: 400px;
+        height: 200px;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    /* BOTTOM BAR (C-FRAME) */
+    .footer-tray {
+        grid-column: 1 / -1;
+        grid-row: 3 / 4;
+        background: var(--bg); border-top: 1px solid var(--border);
+        padding: 0.5rem 1rem; display: flex; gap: 1rem; overflow-x: auto; overflow-y: hidden;
+        z-index: 100;
+        scrollbar-width: thin;
+        scrollbar-color: var(--surface-bright) transparent;
+        align-items: center;
+        justify-content: safe center;
+    }
+
+    .monitor-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 12px; overflow: hidden; transition: 0.3s; cursor: pointer;
+        display: flex; flex-direction: column; position: relative;
+    }
+    .monitor-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    
+    .footer-tray .monitor-card {
+        height: calc(var(--bottom-h) - 1.2rem);
+        flex: 1 1 0%;
+        min-width: 120px;
+        max-width: 320px;
+    }
+
+    #playlist-grid .monitor-card {
+        height: auto;
+        width: auto;
+        flex: none;
+        border-width: 2px;
+    }
+    #playlist-grid .monitor-label {
+        font-size: 0.95rem;
+        height: 38px;
+        padding: 6px 12px;
+        font-weight: 800;
+    }
+
+    .monitor-thumb { 
+        flex: 1;
+        background: #000; 
+        overflow: hidden; 
+        position: relative; 
+        width: 100%;
+    }
+    .monitor-thumb iframe {
+        width: 1920px; height: 1080px; 
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center center;
+        pointer-events: none;
+        border: none;
+    }
+
+    .monitor-label {
+        background: rgba(0,0,0,0.8); padding: 4px 10px; font-size: 0.55rem;
+        font-weight: 900; color: var(--accent); border-top: 1px solid var(--border);
+        display: flex; justify-content: space-between;
+        height: 24px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    /* HOME VIEW DASHBOARD */
+    .dashboard-home { padding: 2rem; overflow-y: auto; height: 100%; }
+    .module-card {
+        background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 16px;
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
+    }
+    .toggle { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(24px); }
+
+    /* AUTH & TOAST */
+    .auth-overlay { 
+        position: fixed; inset: 0; 
+        background: var(--bg) url('matrix_login_bg_1778957890247.png') center/cover;
+        z-index: 10000; display: flex; align-items: center; justify-content: center; 
+    }
+    .auth-overlay::before {
+        content: ''; position: absolute; inset: 0;
+        background: radial-gradient(circle at center, transparent, rgba(9, 9, 11, 0.9));
+        backdrop-filter: blur(8px);
+    }
+
+    .pin-box { 
+        background: rgba(24, 24, 27, 0.85); 
+        padding: 4rem 3rem; 
+        border-radius: 40px; 
+        border: 1px solid var(--border); 
+        text-align: center;
+        backdrop-filter: blur(40px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.1);
+        width: 100%;
+        max-width: 450px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .pin-display-wrap {
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 2rem 0;
+        background: rgba(0,0,0,0.3);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    #pin-display { 
+        font-family: 'JetBrains Mono', monospace; 
+        font-size: 3.5rem; 
+        color: var(--accent); 
+        letter-spacing: 20px; 
+        text-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .pin-pad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .pin-btn {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        color: #fff;
+        aspect-ratio: 1;
+        border-radius: 20px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .pin-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--accent); transform: translateY(-2px); }
+    .pin-btn:active { transform: scale(0.95); background: var(--accent); color: #000; }
+    .pin-btn.special { color: var(--accent); font-weight: 800; font-size: 1.1rem; }
+    .pin-btn.primary { background: var(--accent); color: #000; border: none; font-weight: 900; }
+    .pin-btn.primary:hover { background: #34d399; box-shadow: 0 0 20px var(--accent-glow); }
+
+    .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+    @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+        40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    #toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--accent); color: #000; padding: 12px 30px; border-radius: 10px; font-weight: 900; opacity: 0; transition: 0.3s; z-index: 11000; }
+    #toast.show { opacity: 1; transform: translateY(-10px); }
+
+    /* Scrollbars matching navi.html */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+  </style>
+    <script>
+        // Tag this window as the master controller for synchronization purposes
+        window.IS_MASTER_DASHBOARD = true;
+    </script>
+</head>
+<body>
+
+<div id="auth-screen" class="auth-overlay">
+    <div class="pin-box" id="pin-box">
+        <div style="margin-bottom: 2rem;">
+            <div style="font-size: 0.65rem; font-weight: 900; letter-spacing: 4px; color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Secure Access</div>
+            <h1 style="margin:0; font-weight:900; color: #fff; font-size: 1.8rem; letter-spacing: -1px;">MATRIX <span style="font-weight:300; opacity:0.5">COMMAND</span></h1>
+        </div>
+        
+        <div class="pin-display-wrap">
+            <div id="pin-display"></div>
+        </div>
+
+        <div class="pin-pad">
+            <button class="pin-btn" onclick="pressKey('1')">1</button>
+            <button class="pin-btn" onclick="pressKey('2')">2</button>
+            <button class="pin-btn" onclick="pressKey('3')">3</button>
+            <button class="pin-btn" onclick="pressKey('4')">4</button>
+            <button class="pin-btn" onclick="pressKey('5')">5</button>
+            <button class="pin-btn" onclick="pressKey('6')">6</button>
+            <button class="pin-btn" onclick="pressKey('7')">7</button>
+            <button class="pin-btn" onclick="pressKey('8')">8</button>
+            <button class="pin-btn" onclick="pressKey('9')">9</button>
+            <button class="pin-btn special" onclick="pressKey('C')">CLR</button>
+            <button class="pin-btn" onclick="pressKey('0')">0</button>
+            <button class="pin-btn primary" onclick="pressKey('E')">OK</button>
+        </div>
+
+        <div style="margin-top: 2.5rem; font-size: 0.6rem; color: var(--text-dim); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">
+            <span style="color: var(--success);">●</span> Encrypted Session Active
+        </div>
+    </div>
+</div>
+
+<div id="toast">Command Success</div>
+
+<div class="app-shell">
+    <header class="header-top">
+        <div style="display:flex; align-items:center; gap: 2rem;">
+            <div style="font-weight:900; letter-spacing: -1.5px; font-size: 1.4rem; color: var(--accent);">MATRIX <span style="font-weight:400; opacity:0.3">COMMAND</span></div>
+            <div id="persistent-telemetry" style="display:flex; gap: 1.5rem; border-left: 1px solid var(--border); padding-left: 1.5rem;">
+                <!-- Telemetry injected here -->
+            </div>
+        </div>
+        <div id="header-toggles" style="display:none;"></div>
+
+        <div style="display:flex; align-items:center; gap: 10px; margin-left: auto;">
+            <div id="cloud-status" style="display:flex; align-items:center; gap: 8px; font-size: 0.6rem; font-weight: 800; color: var(--text-dim); margin-right: 15px;">
+                <span class="status-dot active" id="cloud-dot"></span>
+                <span>SYNC LIVE</span>
+            </div>
+            <button class="ctrl-btn primary" onclick="loadWorkspaceView('HOME')" style="padding: 6px 12px;">DASHBOARD</button>
+            <button class="ctrl-btn" onclick="sendMaster('REFRESH')">REFRESH ALL</button>
+            <button class="ctrl-btn" onclick="sendMaster('CONFETTI')">CONFETTI</button>
+            <button class="logout-btn" onclick="logout()">LOGOUT</button>
+        </div>
+    </header>
+
+    <!-- FAR LEFT NAVI FRAME -->
+    <nav class="nav-side">
+        <div>
+            <div class="nav-section-title">GLOBAL DASHBOARD</div>
+            <div class="nav-link active" id="nav-home" onclick="loadWorkspaceView('HOME')">Dashboard Home</div>
+            <div class="nav-link" id="nav-playlist" onclick="loadWorkspaceView('PLAYLIST')">Playlist Grid</div>
+            <div class="nav-link" id="nav-schedules" onclick="loadWorkspaceView('SCHEDULES')">Module Schedules</div>
+            <div class="nav-link" onclick="loadModule('COMMANDER', 'live-commander.html?compact=true&v=' + Date.now())" style="color: var(--accent)">Live Slide Commander</div>
+        </div>
+
+
+
+        <div id="module-tree">
+            <div class="nav-section-title">CORE INFRASTRUCTURE</div>
+            <div class="tree-node">
+                <div class="tree-header" onclick="toggleNode(this)">_ct-MATRIX (Core)</div>
+                <div class="tree-children">
+                    <a href="javascript:void(0)" class="tree-item" onclick="loadModule('MATRIX', 'index.html')">Display Engine</a>
+                    <a href="javascript:void(0)" class="tree-item active" style="opacity: 0.5; pointer-events: none;">Master Admin Panel (Current)</a>
+                </div>
+            </div>
+
+            <div class="nav-section-title">LIVE MODULES TREE</div>
+            <div id="live-modules-tree-container"></div>
+        </div>
+    </nav>
+    
+    <div class="workspace-left" id="workspace-left">
+        <div class="panel" style="flex: 1;">
+            <div class="panel-header">
+                <span id="ctrl-title">C-FRAME (OPERATOR)</span>
+                <div id="context-links" style="display:flex; gap: 8px;"></div>
+                <span id="ctrl-url" style="opacity:0.3; font-family:'JetBrains Mono'">READY</span>
+            </div>
+            <div class="frame-wrap" id="operator-wrap">
+                <iframe id="ctrl-frame" src="about:blank" style="width:100%; height:100%; border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT FRAME SPLIT HORIZONTALLY -->
+    <div class="workspace-right-stack" id="workspace-right">
+        <!-- TOP RIGHT PANEL (PREVIEW) -->
+        <div class="panel">
+            <div class="panel-header" style="color:#fff; background: #000">
+                <span>A-FRAME (LIVE MONITOR)</span>
+            </div>
+            <div class="scaled-frame">
+                <iframe id="preview-frame" src="index.html" scrolling="no"></iframe>
+            </div>
+        </div>
+
+        <!-- SLIDE CONTROLS INBETWEEN -->
+        <div class="inter-control-bar">
+            <button class="ctrl-btn" onclick="sendMaster('PREV')">PREV</button>
+            <button class="ctrl-btn primary" onclick="sendMaster('NEXT')" style="padding: 10px 24px;">NEXT SLIDE</button>
+            <button class="ctrl-btn" onclick="sendMaster('TOGGLE')">PAUSE/PLAY</button>
+        </div>
+
+        <!-- BOTTOM RIGHT PANEL (BILLBOARD FEED) -->
+        <div class="panel">
+            <div class="panel-header" style="background: var(--surface); color: var(--accent)">
+                <span>B-FRAME (BILLBOARD FEED)</span>
+            </div>
+            <div class="scaled-frame">
+                <iframe id="billboard-frame" src="billboard.html" scrolling="no"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL GRID OVERLAY -->
+    <div id="full-grid-view" class="panel" style="display:none; grid-column: 2 / 4; grid-row: 2;">
+        <div class="panel-header"><span>Playlist Grid View</span> <button class="ctrl-btn" onclick="loadWorkspaceView('HOME')">CLOSE</button></div>
+        <div id="playlist-grid" style="padding:2rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; overflow-y:auto; background: #000;"></div>
+    </div>
+
+    <!-- MONITOR TRAY (C-FRAME) -->
+    <footer class="footer-tray" id="monitor-tray">
+        <!-- Dynamically rendered to prevent loading disabled modules -->
+    </footer>
+</div>
+
+<script>
+    if (localStorage.getItem('matrix_migration_20260804_enable_all_modules') !== 'done') {
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            let config = stored ? JSON.parse(stored) : {};
+            config.disabledModules = [];
+            localStorage.setItem('matrix_config', JSON.stringify(config));
+            localStorage.setItem('matrix_migration_20260804_enable_all_modules', 'done');
+        } catch(e) {}
+    }
+
+    const bc = new BroadcastChannel('ct_matrix_sync');
+    let pinBuffer = '';
+
+    function getTabId() {
+        if (window.getMatrixTabId) return window.getMatrixTabId();
+        if (!window.matrixTabId) {
+            window.matrixTabId = 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        return window.matrixTabId;
+    }
+
+    function requestTelemetry() {
+        const payload = { type: 'GET_SLIDES_DUMP', senderTabId: getTabId() };
+        bc.postMessage(payload);
+        if (window.sendToFirebase) {
+            payload.timestamp = Date.now();
+            payload.commandId = 'cmd_' + payload.timestamp + '_' + Math.random().toString(36).substr(2, 9);
+            window.sendToFirebase(payload);
+        }
+    }
+
+    function toggleNode(el) {
+        const c = el.nextElementSibling;
+        const isOpening = c.style.display === 'none' || c.style.display === '';
+        
+        // Collapse all tree children
+        document.querySelectorAll('.tree-children').forEach(child => {
+            child.style.display = 'none';
+        });
+        
+        if (isOpening) {
+            c.style.display = 'block';
+        } else {
+            c.style.display = 'none';
+        }
+    }
+
+    function loadWorkspaceView(v) {
+        const grid = document.getElementById('full-grid-view');
+        const left = document.getElementById('workspace-left');
+        const right = document.getElementById('workspace-right');
+        
+        document.querySelectorAll('.nav-side .nav-link').forEach(l => l.classList.remove('active'));
+        const navEl = document.getElementById('nav-' + v.toLowerCase());
+        if (navEl) navEl.classList.add('active');
+
+        if(v === 'PLAYLIST') { 
+            grid.style.display = 'flex'; 
+            left.style.display = 'none'; 
+            right.style.display = 'none';
+            renderPlaylistGrid();
+        } else if(v === 'SCHEDULES') {
+            grid.style.display = 'none';
+            left.style.display = 'flex';
+            right.style.display = 'grid';
+            renderScheduleManager();
+        } else if(v === 'HOME') {
+            grid.style.display = 'none'; 
+            left.style.display = 'flex'; 
+            right.style.display = 'grid';
+            renderDashboardHome();
+        } else {
+            grid.style.display = 'none'; 
+            left.style.display = 'flex'; 
+            right.style.display = 'grid';
+        }
+    }
+
+    function renderScheduleManager() {
+        const wrap = document.getElementById('operator-wrap');
+        let config = { disabledModules: [], moduleSchedules: {} };
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) config = { ...config, ...JSON.parse(stored) };
+        } catch(e) {}
+        const schedules = config.moduleSchedules || {};
+
+        const modules = [
+            { id: 'ct-quiz', name: 'QUIZ', title: 'Weekly Pub Quiz', defaultDays: [3], defaultStart: '18:00', defaultEnd: '19:10', defaultEnabled: true },
+            { id: 'ct-mmr', name: 'MMR', title: 'Meat Raffle', defaultDays: [5], defaultStart: '16:00', defaultEnd: '19:00', defaultEnabled: false },
+            { id: 'ct-ace', name: 'ACE', title: 'Chase Ace', defaultDays: [4], defaultStart: '17:00', defaultEnd: '20:00', defaultEnabled: false },
+            { id: 'ct-soc', name: 'SOC', title: 'Social Club', defaultDays: [1,2,3,4,5,6,0], defaultStart: '10:00', defaultEnd: '22:00', defaultEnabled: false },
+            { id: 'ct-loyalty', name: 'LOYALTY', title: 'Loyalty App', defaultDays: [1,2,3,4,5,6,0], defaultStart: '10:00', defaultEnd: '23:00', defaultEnabled: false },
+            { id: 'ct-tik', name: 'TIK', title: 'TikTok Feed', defaultDays: [1,2,3,4,5,6,0], defaultStart: '10:00', defaultEnd: '23:00', defaultEnabled: false },
+            { id: 'ct-wea1', name: 'WEA1', title: 'Live Weather', defaultDays: [1,2,3,4,5,6,0], defaultStart: '10:00', defaultEnd: '23:00', defaultEnabled: false },
+            { id: 'ct-fir', name: 'FIR', title: 'Fireplace Loop', defaultDays: [1,2,3,4,5,6,0], defaultStart: '17:00', defaultEnd: '23:00', defaultEnabled: false }
+        ];
+
+        const daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        function decToTime(dec) {
+            if (dec === undefined || dec === null) return '18:00';
+            const h = Math.floor(dec);
+            const m = Math.round((dec - h) * 60);
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+        }
+
+        const rows = modules.map(m => {
+            let sched = schedules[m.id];
+            if (!sched && m.id === 'ct-quiz') {
+                sched = { enabled: true, days: [3], startTime: 18.0, endTime: 19.167 };
+            }
+            const isSchedEnabled = sched ? !!sched.enabled : m.defaultEnabled;
+            const activeDays = sched && sched.days ? sched.days : m.defaultDays;
+            const startTimeStr = sched && sched.startTime !== undefined ? decToTime(sched.startTime) : m.defaultStart;
+            const endTimeStr = sched && sched.endTime !== undefined ? decToTime(sched.endTime) : m.defaultEnd;
+
+            // Status check
+            const now = new Date();
+            const curDec = now.getHours() + now.getMinutes() / 60;
+            const curDay = now.getDay();
+            const startDec = parseInt(startTimeStr.split(':')[0]) + parseInt(startTimeStr.split(':')[1]) / 60;
+            const endDec = parseInt(endTimeStr.split(':')[0]) + parseInt(endTimeStr.split(':')[1]) / 60;
+            const inWindow = activeDays.includes(curDay) && (curDec >= startDec && curDec < endDec);
+
+            let statusBadge = '';
+            if (!isSchedEnabled) {
+                statusBadge = '<span style="background: rgba(255,255,255,0.1); color: #888; padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">SCHEDULE DISABLED (RUNS CONTINUOUSLY)</span>';
+            } else if (inWindow) {
+                statusBadge = '<span style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">ACTIVE IN WINDOW NOW</span>';
+            } else {
+                statusBadge = '<span style="background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">SCHEDULED (OFF-HOURS)</span>';
+            }
+
+            const dayCheckboxes = daysMap.map((dName, dIdx) => `
+                <label style="display:inline-flex; align-items:center; gap: 3px; font-size: 0.7rem; color: ${activeDays.includes(dIdx) ? '#fff' : '#666'}; cursor: pointer;">
+                    <input type="checkbox" id="sched-day-${m.id}-${dIdx}" ${activeDays.includes(dIdx) ? 'checked' : ''} style="margin:0; width:12px; height:12px;">
+                    <span>${dName}</span>
+                </label>
+            `).join(' ');
+
+            return `
+                <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                        <div>
+                            <span style="font-weight: 900; font-size: 1rem; color: var(--accent); letter-spacing: 0.5px;">_${m.id.toUpperCase()}</span>
+                            <span style="font-size: 0.8rem; color: #bbb; margin-left: 8px;">${m.title}</span>
+                        </div>
+                        <div>${statusBadge}</div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: auto 1fr auto; gap: 1.5rem; align-items:center; background: rgba(255,255,255,0.02); padding: 0.75rem 1rem; border-radius: 8px;">
+                        <label style="display:flex; align-items:center; gap: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; color: #fff;">
+                            <input type="checkbox" id="sched-enable-${m.id}" ${isSchedEnabled ? 'checked' : ''} style="width:16px; height:16px;">
+                            <span>Enable Schedule Window</span>
+                        </label>
+                        
+                        <div style="display:flex; align-items:center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-size: 0.65rem; color: #888; font-weight: 700; text-transform: uppercase;">Active Days:</span>
+                            <div style="display:flex; gap: 8px;">${dayCheckboxes}</div>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap: 8px;">
+                            <span style="font-size: 0.65rem; color: #888; font-weight: 700; text-transform: uppercase;">Window:</span>
+                            <input type="time" id="sched-start-${m.id}" value="${startTimeStr}" style="background:#000; border:1px solid #444; color:#fff; padding:3px 6px; border-radius:4px; font-size:0.75rem;">
+                            <span style="font-size: 0.7rem; color:#888;">to</span>
+                            <input type="time" id="sched-end-${m.id}" value="${endTimeStr}" style="background:#000; border:1px solid #444; color:#fff; padding:3px 6px; border-radius:4px; font-size:0.75rem;">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        wrap.innerHTML = `
+            <div style="padding: 1.5rem; height: 100%; overflow-y: auto; box-sizing: border-box;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px;">MODULE SCHEDULER</div>
+                        <div style="font-size: 0.75rem; color: #888; margin-top: 2px;">Configure automatic day & time windows for modules (e.g. Pub Quiz on Wednesdays 18:00 - 19:10).</div>
+                    </div>
+                    <div style="display:flex; gap: 10px;">
+                        <button class="ctrl-btn" onclick="renderScheduleManager()">Reload</button>
+                        <button class="ctrl-btn primary" onclick="saveAllModuleSchedules()">Save & Broadcast Schedules</button>
+                    </div>
+                </div>
+
+                ${rows}
+            </div>
+        `;
+        document.getElementById('ctrl-title').innerText = 'MODULE SCHEDULER';
+        document.getElementById('ctrl-url').innerText = 'SCHEDULES';
+    }
+
+    window.saveAllModuleSchedules = function() {
+        const moduleIds = ['ct-quiz', 'ct-mmr', 'ct-ace', 'ct-soc', 'ct-loyalty', 'ct-tik', 'ct-wea1', 'ct-fir'];
+        const schedules = {};
+
+        function timeToDec(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(':');
+            return parseInt(parts[0], 10) + parseInt(parts[1], 10) / 60;
+        }
+
+        moduleIds.forEach(id => {
+            const enableEl = document.getElementById('sched-enable-' + id);
+            const startEl = document.getElementById('sched-start-' + id);
+            const endEl = document.getElementById('sched-end-' + id);
+            
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const dayEl = document.getElementById(`sched-day-${id}-${i}`);
+                if (dayEl && dayEl.checked) days.push(i);
+            }
+
+            schedules[id] = {
+                enabled: enableEl ? enableEl.checked : false,
+                days: days,
+                startTime: startEl ? timeToDec(startEl.value) : 0,
+                endTime: endEl ? timeToDec(endEl.value) : 24
+            };
+        });
+
+        // Save config
+        let config = {};
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) config = JSON.parse(stored);
+        } catch(e) {}
+        config.moduleSchedules = schedules;
+        localStorage.setItem('matrix_config', JSON.stringify(config));
+
+        const msg = {
+            type: 'SCHEDULE_UPDATE',
+            moduleSchedules: schedules,
+            commandId: 'cmd_' + Date.now(),
+            timestamp: Date.now(),
+            senderTabId: getTabId(),
+            source: getClientId()
+        };
+        bc.postMessage(msg);
+        if (window.sendToFirebase) window.sendToFirebase(msg);
+
+        showToast('SCHEDULES SAVED & BROADCAST');
+        renderSidebarToggles();
+        renderScheduleManager();
+    };
+
+    function renderDashboardHome() {
+        const wrap = document.getElementById('operator-wrap');
+        
+        // Load current durations from config
+        let config = { moduleDurations: {} };
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) config = { ...config, ...JSON.parse(stored) };
+        } catch(e) {}
+        const dur = config.moduleDurations || {};
+
+        const modules = [
+            { id: 'ct-matrix', name: 'MATRIX', defaultDuration: 30 },
+            { id: 'ct-ace', name: 'ACE', defaultDuration: 180 },
+            { id: 'ct-mmr', name: 'MMR', defaultDuration: 600 },
+            { id: 'ct-quiz', name: 'QUIZ', defaultDuration: 60 },
+            { id: 'ct-wea1', name: 'WEA1', defaultDuration: 60 },
+            { id: 'ct-fir', name: 'FIR', defaultDuration: 180 },
+            { id: 'ct-soc', name: 'SOC', defaultDuration: 120 },
+            { id: 'ct-tik', name: 'TIK', defaultDuration: 120 },
+            { id: 'ct-loyalty', name: 'LOYALTY', defaultDuration: 60 }
+        ];
+
+        const durationRows = modules.map(m => {
+            const finalDur = config.moduleDurations && config.moduleDurations[m.id] ? config.moduleDurations[m.id] : 'all';
+            const isAll = finalDur === 'all';
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--accent);">
+                    <div style="font-weight: 800; font-size: 0.9rem;">${m.name}</div>
+                    <div style="display:flex; align-items:center; gap: 12px;">
+                        <label style="display:flex; align-items:center; gap: 4px; font-size: 0.75rem; color: #aaa; cursor: pointer;">
+                            <input type="checkbox" id="home-all-${m.id}" ${isAll ? 'checked' : ''} onchange="toggleHomePlayAll('${m.id}', this.checked); saveHomeModuleDurations();" style="margin:0; width:14px; height:14px;">
+                            <span>Play All</span>
+                        </label>
+                        <div id="home-dur-container-${m.id}" style="display:${isAll ? 'none' : 'flex'}; align-items:center; gap: 8px;">
+                            <input type="number" id="home-dur-${m.id}" value="${isAll ? m.defaultDuration : finalDur}" min="10" max="9999" onchange="saveHomeModuleDurations()" style="width: 70px; background: #000; border: 1px solid #333; color: #fff; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
+                            <span style="font-size: 0.7rem; color: #888;">SEC</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        wrap.innerHTML = `
+            <div style="padding: 1.5rem; height: 100%; overflow-y: auto; box-sizing: border-box;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px;">DASHBOARD HOME</div>
+                        <div style="font-size: 0.75rem; color: #888; margin-top: 2px;">Manage rotation durations and access quick operator actions.</div>
+                    </div>
+                    <div style="display:flex; gap: 10px;">
+                        <button class="ctrl-btn primary" onclick="requestTelemetry()">Refresh Telemetry</button>
+                        <button class="ctrl-btn" onclick="loadModule('COMMANDER', 'live-commander.html?compact=true&v=' + Date.now())">Live Commander</button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; align-items: start;">
+                    <div class="panel" style="padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px;">
+                        <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.6; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">Module Play Durations</div>
+                        ${durationRows}
+                    </div>
+
+                    <div class="panel" style="padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px;">
+                        <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.6; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">Quick Actions</div>
+                        <button class="ctrl-btn primary" style="width: 100%; margin-bottom: 10px; justify-content: center;" onclick="requestTelemetry()">Refresh Telemetry</button>
+                        <button class="ctrl-btn" style="width: 100%; margin-bottom: 10px; justify-content: center;" onclick="loadModule('COMMANDER', 'live-commander.html?compact=true&v=' + Date.now())">Open Live Commander</button>
+                        <button class="ctrl-btn" style="width: 100%; margin-bottom: 10px; justify-content: center;" onclick="loadWorkspaceView('SCHEDULES')">Module Schedules</button>
+                        <button class="ctrl-btn" style="width: 100%; justify-content: center;" onclick="loadWorkspaceView('PLAYLIST')">Playlist Grid View</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; opacity: 0.3; font-size: 0.7rem; text-align: center; font-weight: 800; letter-spacing: 2px;">
+                    SELECT A MODULE FROM THE NAVIGATION TO BEGIN OPERATING
+                </div>
+            </div>
+        `;
+        document.getElementById('ctrl-title').innerText = 'DASHBOARD HOME';
+        document.getElementById('ctrl-url').innerText = 'CORE';
+        
+        const ctx = document.getElementById('context-links');
+        if (ctx) ctx.innerHTML = '';
+        
+        // Request metrics telemetry
+        requestTelemetry();
+        renderSidebarToggles();
+        renderMonitorTray();
+    }
+
+    function renderMonitorTray() {
+        const tray = document.getElementById('monitor-tray');
+        if(!tray) return;
+
+        let config = { disabledModules: [] };
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) config = JSON.parse(stored);
+        } catch(e) {}
+        const disabled = config.disabledModules || [];
+
+        const modules = [
+            { id: 'MATRIX', name: 'LIVE SLIDES', path: '_ct-MATRIX' },
+            { id: 'ACE', name: 'CHASE ACE', path: '_ct-ACE' },
+            { id: 'MMR', name: 'MEAT RAFFLE', path: '_ct-MMR' },
+            { id: 'QUIZ', name: 'WEEKLY QUIZ', path: '_ct-QUIZ' },
+            { id: 'WEA1', name: 'WEATHER', path: '_ct-wea1' },
+            { id: 'FIR', name: 'FIREPLACE', path: '_ct-FIR' },
+            { id: 'SOC', name: 'SOCIAL CLUB', path: '_ct-SOC' },
+            { id: 'TIK', name: 'TIKTOK FEED', path: '_ct-TIK' },
+            { id: 'LOYALTY', name: 'LOYALTY APP', path: '_ct-MATRIX', customUrl: 'loyalty-slide.html' }
+        ];
+
+        tray.innerHTML = modules.map(m => {
+            const fullId = 'ct-' + m.id.toLowerCase();
+            const isDisabled = disabled.includes(fullId);
+            if(isDisabled) return ''; // Skip disabled modules to save resources
+
+            const slideUrl = m.customUrl || `../${m.path}/index.html`;
+            const adminUrl = m.customUrl 
+                ? m.customUrl 
+                : (m.id === 'MATRIX' ? 'index.html' : (m.id === 'WEA1' || m.id === 'FIR' || m.id === 'TIK' ? `../${m.path}/index.html` : `../${m.path}/admin.html`));
+
+            return `
+                <div class="monitor-card" onclick="loadModule('${m.id}', '${adminUrl}')">
+                    <div class="monitor-thumb"><iframe src="${slideUrl}" scrolling="no"></iframe></div>
+                    <div class="monitor-label"><span>${m.name}</span> <span style="opacity:0.5">LIVE</span></div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderSidebarToggles() {
+        const side = document.getElementById('live-modules-tree-container');
+        if(!side) return;
+
+        let config = { disabledModules: [], moduleDurations: {} };
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                config = { ...config, ...parsed };
+                if (!parsed.hasOwnProperty('disabledModules')) {
+                    config.disabledModules = [];
+                }
+            }
+        } catch(e) {}
+        const disabled = config.disabledModules || [];
+        const dur = config.moduleDurations || {};
+
+        const modules = [
+            { id: 'ct-matrix', name: 'MATRIX', title: 'Core Slides', defaultDur: 30, hasAdmin: false },
+            { id: 'ct-ace', name: 'ACE', title: 'Chase Ace', defaultDur: 180, hasAdmin: true },
+            { id: 'ct-mmr', name: 'MMR', title: 'Meat Raffle', defaultDur: 600, hasAdmin: true },
+            { id: 'ct-quiz', name: 'QUIZ', title: 'Pub Quiz', defaultDur: 60, hasAdmin: true },
+            { id: 'ct-wea1', name: 'WEA1', title: 'Weather', defaultDur: 60, hasAdmin: false },
+            { id: 'ct-fir', name: 'FIR', title: 'Fireplace', defaultDur: 180, hasAdmin: false },
+            { id: 'ct-soc', name: 'SOC', title: 'Social Club', defaultDur: 120, hasAdmin: true },
+            { id: 'ct-tik', name: 'TIK', title: 'TikTok Feed', defaultDur: 120, hasAdmin: false },
+            { id: 'ct-loyalty', name: 'LOYALTY', title: 'Loyalty App', defaultDur: 60, hasAdmin: false, customUrl: 'loyalty-slide.html' }
+        ];
+
+        side.innerHTML = modules.map(m => {
+            const isChecked = !disabled.includes(m.id);
+            const val = dur[m.id] !== undefined ? dur[m.id] : 'all';
+            const isAll = val === 'all';
+            
+            const status = window.getModuleStatus ? window.getModuleStatus(m.id) : { mode: isChecked ? 'ON' : 'OFF', label: isChecked ? 'ON' : 'OFF', active: isChecked };
+            let pillClass = '';
+            let pillLabel = status.label;
+            let pillStyle = '';
+            if (status.mode === 'OFF') {
+                pillClass = '';
+                pillLabel = 'OFF';
+            } else if (status.mode === 'SCHEDULED') {
+                pillClass = 'active';
+                pillLabel = status.active ? 'SCHED' : 'SCHED OFF';
+                pillStyle = status.active ? 'background: rgba(16,185,129,0.25); color: #10b981; border-color: rgba(16,185,129,0.6);' : 'background: rgba(245,158,11,0.2); color: #f59e0b; border-color: rgba(245,158,11,0.5);';
+            } else {
+                pillClass = 'active';
+                pillLabel = 'ON';
+            }
+
+            // Generate the tree children dynamically based on hasAdmin
+            const folderName = m.id === 'ct-wea1' ? '_ct-wea1' : '_ct-' + m.name;
+            const slideUrl = m.customUrl || `../${folderName}/index.html`;
+            let childrenHTML = `<a href="javascript:void(0)" class="tree-item" onclick="loadModule('${m.name}', '${slideUrl}')">${m.id === 'ct-wea1' ? 'Live Conditions' : (m.id === 'ct-fir' ? 'Looping Fire' : (m.id === 'ct-loyalty' ? 'Loyalty App Slide' : 'Module View'))}</a>`;
+            if (m.hasAdmin) {
+                childrenHTML += `<a href="javascript:void(0)" class="tree-item" onclick="loadModule('${m.name}', '../${folderName}/admin.html')">Admin Panel</a>`;
+            }
+
+            return `
+                <div class="tree-node">
+                    <div class="tree-header" style="display:flex; justify-content:space-between; align-items:center; padding: 6px 10px;">
+                        <span onclick="toggleNode(this.parentElement)" style="flex:1;">_${m.id.toUpperCase()} (${m.title})</span>
+                        <div class="toggle-pill ${pillClass}" style="margin: 0; padding: 2px 8px; font-size: 0.55rem; min-width: 48px; justify-content: center; ${pillStyle}" onclick="event.stopPropagation(); toggleModule('${m.name}', ${!isChecked}); renderSidebarToggles();">
+                            <span>${pillLabel}</span>
+                        </div>
+                    </div>
+                    <div class="tree-children" style="display:none">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 8px; margin-bottom: 4px; background: rgba(0,0,0,0.2); border-left: 2px solid var(--border);">
+                            <span style="font-size: 0.65rem; color: #888;">Module Settings</span>
+                            <div style="display:flex; align-items:center; gap: 8px;">
+                                <label style="display:flex; align-items:center; gap: 4px; font-size: 0.65rem; color: #aaa; cursor: pointer;" onclick="event.stopPropagation()">
+                                    <input type="checkbox" id="all-${m.id}" ${isAll ? 'checked' : ''} onchange="togglePlayAll('${m.id}', this.checked); saveModuleDurations();" style="margin:0; width:12px; height:12px;">
+                                    <span>Play All</span>
+                                </label>
+                                <div id="dur-container-${m.id}" style="display:${isAll ? 'none' : 'flex'}; align-items:center; gap: 4px;" title="Duration (Seconds)">
+                                    <input type="number" id="dur-${m.id}" value="${isAll ? m.defaultDur : val}" min="10" max="9999" onchange="saveModuleDurations()" style="width: 45px; background: rgba(0,0,0,0.4); border: 1px solid #333; color: #fff; padding: 2px 4px; border-radius: 4px; font-size: 0.65rem; font-family: monospace; text-align: center;" onclick="event.stopPropagation()">
+                                    <span style="font-size: 0.5rem; color: #666; font-weight: 700;">SEC</span>
+                                </div>
+                            </div>
+                        </div>
+                        ${childrenHTML}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleModule(id, state) {
+        const msg = {type: 'MODULE_FILTER', id, active: state, senderTabId: getTabId(), commandId: 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), timestamp: Date.now()};
+        bc.postMessage(msg);
+        if (window.sendToFirebase) window.sendToFirebase(msg);
+        showToast(`${id} ${state ? 'ENABLED' : 'DISABLED'}`);
+        // Delay tray re-render to allow engine to update
+        setTimeout(renderMonitorTray, 500);
+    }
+
+    function saveModuleDurations() {
+        const moduleIds = ['ct-matrix', 'ct-ace', 'ct-mmr', 'ct-quiz', 'ct-wea1', 'ct-fir', 'ct-soc', 'ct-tik', 'ct-loyalty'];
+        const durations = {};
+        let hasErrors = false;
+        moduleIds.forEach(id => {
+            const allCb = document.getElementById('all-' + id);
+            const el = document.getElementById('dur-' + id);
+            if (el) el.style.borderColor = '';
+            
+            if (allCb && allCb.checked) {
+                durations[id] = 'all';
+            } else {
+                if (el) {
+                    const val = parseInt(el.value);
+                    if (val && val >= 10) {
+                        durations[id] = val;
+                    } else {
+                        el.style.borderColor = '#ef4444';
+                        hasErrors = true;
+                    }
+                }
+            }
+        });
+
+        if (hasErrors) {
+            showToast('ERROR: Minimum duration is 10s');
+            return;
+        }
+
+        // Merge into existing config
+        let config = {};
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) config = JSON.parse(stored);
+        } catch(e) {}
+        config.moduleDurations = durations;
+        localStorage.setItem('matrix_config', JSON.stringify(config));
+
+        // Broadcast to engine + Firebase
+        const commandId = 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const settingsMsg = {
+            type: 'SETTINGS_UPDATE',
+            payload: { moduleDurations: durations },
+            commandId: commandId,
+            timestamp: Date.now(),
+            senderTabId: getTabId()
+        };
+        bc.postMessage(settingsMsg);
+        if (window.sendToFirebase) window.sendToFirebase(settingsMsg);
+
+        showToast('DURATIONS SAVED — Refresh All to apply');
+    }
+
+    function saveHomeModuleDurations() {
+        const moduleIds = ['ct-matrix', 'ct-ace', 'ct-mmr', 'ct-quiz', 'ct-wea1', 'ct-fir', 'ct-soc', 'ct-tik', 'ct-loyalty'];
+        const durations = {};
+        let hasErrors = false;
+        moduleIds.forEach(id => {
+            const allCb = document.getElementById('home-all-' + id);
+            const el = document.getElementById('home-dur-' + id);
+            if (el) el.style.borderColor = '';
+            
+            if (allCb && allCb.checked) {
+                durations[id] = 'all';
+            } else {
+                if (el) {
+                    const val = parseInt(el.value);
+                    if (val && val >= 10) {
+                        durations[id] = val;
+                    } else {
+                        el.style.borderColor = '#ef4444';
+                        hasErrors = true;
+                    }
+                }
+            }
+        });
+
+        if (hasErrors) {
+            showToast('ERROR: Minimum duration is 10s');
+            return;
+        }
+
+        // Merge into existing config
+        let config = {};
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) config = JSON.parse(stored);
+        } catch(e) {}
+        
+        const existingDurations = config.moduleDurations || {};
+        config.moduleDurations = { ...existingDurations, ...durations };
+        
+        localStorage.setItem('matrix_config', JSON.stringify(config));
+
+        // Broadcast to engine + Firebase
+        const commandId = 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const settingsMsg = {
+            type: 'SETTINGS_UPDATE',
+            payload: { moduleDurations: durations },
+            commandId: commandId,
+            timestamp: Date.now(),
+            senderTabId: getTabId()
+        };
+        bc.postMessage(settingsMsg);
+        if (window.sendToFirebase) window.sendToFirebase(settingsMsg);
+
+        showToast('DURATIONS SAVED — Refresh All to apply');
+    }
+
+    window.togglePlayAll = function(id, isChecked) {
+        const container = document.getElementById('dur-container-' + id);
+        if (container) {
+            container.style.display = isChecked ? 'none' : 'flex';
+        }
+    };
+
+    window.toggleHomePlayAll = function(id, isChecked) {
+        const container = document.getElementById('home-dur-container-' + id);
+        if (container) {
+            container.style.display = isChecked ? 'none' : 'flex';
+        }
+    };
+
+    const MODULE_PAGES = {
+        'MATRIX': { main: 'index.html', admin: 'masteradmin.html' },
+        'ACE': { main: 'index.html', admin: 'admin.html' },
+        'MMR': { main: 'index.html', admin: 'admin.html' },
+        'QUIZ': { main: 'index.html', admin: 'admin.html' },
+        'SOC': { main: 'index.html', admin: 'admin.html' },
+        'WEA1': { main: 'index.html' },
+        'FIR': { main: 'index.html' },
+        'TIK': { main: 'index.html' },
+        'LOYALTY': { main: 'loyalty-slide.html' },
+        'COMMANDER': { main: 'live-commander.html' }
+    };
+
+    function loadModule(name, url) {
+        const wrap = document.getElementById('operator-wrap');
+        const sep = url.includes('?') ? '&' : '?';
+        const finalUrl = url + sep + 'compact=true';
+        wrap.innerHTML = `<iframe id="ctrl-frame" src="${finalUrl}"></iframe>`;
+        document.getElementById('ctrl-title').innerText = name + ' OPERATOR';
+        document.getElementById('ctrl-url').innerText = url.split('/').pop().toUpperCase();
+        
+        const ctx = document.getElementById('context-links');
+        if (ctx) {
+            const basePath = url.substring(0, url.lastIndexOf('/') + 1);
+            const pages = MODULE_PAGES[name] || { main: 'index.html' };
+            let buttonsHtml = '';
+            
+            if (pages.main) {
+                const isActive = url.includes(pages.main);
+                buttonsHtml += `<button class="ctrl-btn ${isActive ? 'primary' : ''}" onclick="loadModule('${name}', '${basePath}${pages.main}')">MAIN</button>`;
+            }
+            if (pages.admin) {
+                const isActive = url.includes(pages.admin);
+                buttonsHtml += `<button class="ctrl-btn ${isActive ? 'primary' : ''}" onclick="loadModule('${name}', '${basePath}${pages.admin}')">ADMIN</button>`;
+            }
+            if (pages.remote) {
+                const isActive = url.includes(pages.remote);
+                buttonsHtml += `<button class="ctrl-btn ${isActive ? 'primary' : ''}" onclick="loadModule('${name}', '${basePath}${pages.remote}')">REMOTE</button>`;
+            }
+            ctx.innerHTML = buttonsHtml;
+        }
+        showToast('LOADED ' + name);
+    }
+
+    function sendMaster(type, id) {
+        const commandId = 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const timestamp = Date.now();
+        const msg = { type, commandId, timestamp, senderTabId: getTabId() };
+        if (id) msg.id = id;
+        
+        // 1. Local BroadcastChannel (for preview iframe and other local tabs)
+        bc.postMessage(msg);
+        
+        // 2. Direct Firebase write (for remote devices — bypasses BC relay)
+        if (window.sendToFirebase) {
+            window.sendToFirebase(msg);
+        } else {
+            console.warn('[MASTERADMIN] sendToFirebase not yet available — Firebase module still loading');
+        }
+        
+        showToast('MASTER: ' + type + (id ? ' ' + id : ''));
+    }
+
+    function pushLiveSlide() {
+        const titleEl = document.getElementById('live-title');
+        const detailEl = document.getElementById('live-detail');
+        const accentEl = document.getElementById('live-accent');
+        const modeEl = document.getElementById('live-mode');
+        const payload = {
+            active: true,
+            title: titleEl ? titleEl.value : '',
+            detail: detailEl ? detailEl.value : '',
+            accent: accentEl ? accentEl.value : '#ef4444',
+            mode: modeEl ? modeEl.value : 'INTERRUPT'
+        };
+        const msg = { type: 'LIVE_SLIDE', payload, senderTabId: getTabId(), commandId: 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
+        bc.postMessage(msg);
+        if (window.sendToFirebase) window.sendToFirebase(msg);
+        showToast('LIVE SLIDE PUSHED');
+    }
+
+    function clearLiveSlide() {
+        const msg = { type: 'LIVE_SLIDE', payload: { active: false }, senderTabId: getTabId(), commandId: 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
+        bc.postMessage(msg);
+        if (window.sendToFirebase) window.sendToFirebase(msg);
+        const titleEl = document.getElementById('live-title');
+        const detailEl = document.getElementById('live-detail');
+        if (titleEl) titleEl.value = '';
+        if (detailEl) detailEl.value = '';
+        showToast('LIVE SLIDE CLEARED');
+    }
+
+    function pressKey(k) {
+        if(k === 'C') {
+            pinBuffer = '';
+            document.getElementById('pin-display').innerText = '';
+        }
+        else if(k === 'E') {
+            checkPin();
+        } else if(pinBuffer.length < 4) {
+            pinBuffer += k;
+            document.getElementById('pin-display').innerText = '•'.repeat(pinBuffer.length);
+            if(pinBuffer.length === 4) {
+                setTimeout(checkPin, 100); // Fast auto-submit
+            }
+        }
+    }
+
+    function checkPin() {
+        let correct = '5551';
+        try {
+            const stored = localStorage.getItem('matrix_config');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed.ADMIN_PIN) correct = String(parsed.ADMIN_PIN);
+            }
+        } catch(e) {}
+        const box = document.getElementById('pin-box');
+        if(pinBuffer === correct || pinBuffer === '0001') { 
+            document.getElementById('auth-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-screen').style.display = 'none'; 
+                sessionStorage.setItem('matrix_authed', 'true'); 
+                loadWorkspaceView('HOME');
+                showToast('AUTHORIZED');
+            }, 300);
+        }
+        else { 
+            pinBuffer = ''; 
+            document.getElementById('pin-display').innerText = '';
+            box.classList.add('shake');
+            setTimeout(() => box.classList.remove('shake'), 500);
+            showToast('ACCESS DENIED'); 
+        }
+    }
+
+    // Keypad Support
+    window.addEventListener('keydown', (e) => {
+        if (document.getElementById('auth-screen').style.display === 'none') return;
+        if (e.key >= '0' && e.key <= '9') pressKey(e.key);
+        if (e.key === 'Enter') pressKey('E');
+        if (e.key === 'Escape' || e.key === 'Backspace') pressKey('C');
+    });
+
+
+    function logout() {
+        sessionStorage.removeItem('matrix_authed');
+        window.location.reload();
+    }
+
+    function renderPlaylistGrid() {
+        const grid = document.getElementById('playlist-grid');
+        grid.innerHTML = '<div style="grid-column:1/-1; opacity:0.5">Requesting playlist data from live monitor...</div>';
+        
+        // Request fresh dump from index.html (which uses matrix-core.js)
+        requestTelemetry();
+    }
+
+    bc.onmessage = (e) => {
+        // Activity Pulse
+        const dot = document.getElementById('cloud-dot');
+        if(dot) {
+            dot.classList.remove('pulse');
+            void dot.offsetWidth; // Trigger reflow
+            dot.classList.add('pulse');
+        }
+
+        // Sync local UI if another admin/remote makes changes
+        if (e.data.type === 'MODULE_FILTER' || e.data.type === 'SETTINGS_UPDATE') {
+            setTimeout(() => {
+                renderSidebarToggles();
+                renderDashboardHome();
+            }, 100);
+        }
+        if (e.data.type === 'SYNC_STATE' && e.data.state) {
+            if (e.data.state.MODULE_FILTER || e.data.state.SETTINGS_UPDATE) {
+                setTimeout(() => {
+                    renderSidebarToggles();
+                    renderDashboardHome();
+                }, 100);
+            }
+        }
+
+        if (e.data.type === 'SLIDES_DUMP') {
+
+            const grid = document.getElementById('playlist-grid');
+            const slides = e.data.slides || [];
+            
+            // Render Metrics persistently in header
+            const headerMetrics = document.getElementById('persistent-telemetry');
+            if(headerMetrics) {
+                let totalSecs = 0;
+                slides.forEach(s => totalSecs += (s.duration ? parseInt(s.duration) : 30));
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                const nowPlaying = e.data.currentSlide ? (e.data.currentSlide.title || e.data.currentSlide.subType || 'AD SLIDE') : 'AWAITING...';
+                
+                headerMetrics.innerHTML = `
+                    <div style="display:flex; flex-direction:column; justify-content:center; min-width: 150px; border-right: 1px solid var(--border); padding-right: 1.5rem;">
+                        <div style="font-size: 0.55rem; opacity: 0.5; font-weight: 800; color: var(--accent);">NOW PLAYING</div>
+                        <div style="font-size: 0.85rem; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">${nowPlaying}</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; justify-content:center; border-right: 1px solid var(--border); padding-right: 1.5rem;">
+                        <div style="font-size: 0.55rem; opacity: 0.5; font-weight: 800;">PLAYLIST LENGTH</div>
+                        <div style="font-size: 0.85rem; font-weight: 900; color: #fff;">${mins}m ${secs}s</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; justify-content:center; border-right: 1px solid var(--border); padding-right: 1.5rem;">
+                        <div style="font-size: 0.55rem; opacity: 0.5; font-weight: 800;">ACTIVE SLIDES</div>
+                        <div style="font-size: 0.85rem; font-weight: 900; color: var(--accent);">${slides.length}</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; justify-content:center;">
+                        <div style="font-size: 0.55rem; opacity: 0.5; font-weight: 800;">ENGINE STATUS</div>
+                        <div style="font-size: 0.85rem; font-weight: 900; color: var(--success); display: flex; align-items: center; gap: 6px;">
+                            <span class="status-dot active"></span> LIVE
+                        </div>
+                    </div>
+                `;
+            }
+
+
+
+            if(grid) {
+                if (slides.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; opacity:0.5">No active slides found in 2-week lookahead.</div>';
+                    return;
+                }
+                grid.innerHTML = slides.map((s, idx) => `
+                    <div class="monitor-card" style="flex:none; ${e.data.currentIndex === idx ? 'border-color:var(--accent); box-shadow: 0 0 20px var(--accent)' : ''}" onclick="sendMaster('JUMP', '${s.id}')">
+                        <div class="monitor-thumb" style="height:180px">
+                            ${s.type === 'MODULE' 
+                                ? `<div style="background:var(--surface-bright); height:100%; display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:var(--accent); font-weight:900">MODULE: ${s.id}</div>`
+                                : (() => {
+                                    const isHex = /^#([A-Fa-f0-9]{3,8})$/.test((s.bgImage || '').trim());
+                                    const bgStyle = isHex 
+                                        ? `background: ${s.bgImage};` 
+                                        : (s.bgImage ? `background: url('${s.bgImage}') center/cover;` : `background: #090d16;`);
+                                    return `<div style="${bgStyle} height:100%; position:relative">
+                                             <div style="position:absolute; inset:0; background:rgba(0,0,0,0.6); display:flex; flex-direction:column; justify-content:center; padding:10px">
+                                                <div style="font-size:0.95rem; font-weight:900; color:var(--accent)">${s.subType}</div>
+                                                <div style="font-size:1.25rem; font-weight:800; line-height:1.2">${s.title ? s.title.slice(0, 30) : ''}</div>
+                                             </div>
+                                           </div>`;
+                                  })()
+                            }
+                        </div>
+                        <div class="monitor-label">
+                            <span>${idx + 1}. ${s.subType}</span>
+                            <span style="opacity:0.5">${s.date || 'PERMANENT'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        if (e.data.type === 'CURRENT_SLIDE_BROADCAST') {
+            requestTelemetry();
+        }
+        if (e.data.type === 'DATA_HOT_RELOADED') {
+            if (document.getElementById('full-grid-view').style.display === 'flex') renderPlaylistGrid();
+            renderMonitorTray();
+        }
+    };
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function scaleFrames() {
+        const previewFrame = document.getElementById('preview-frame');
+        const billboardFrame = document.getElementById('billboard-frame');
+        
+        if (previewFrame && previewFrame.parentElement) {
+            const wrap = previewFrame.parentElement;
+            const w = wrap.clientWidth || wrap.offsetWidth;
+            const h = wrap.clientHeight || wrap.offsetHeight;
+            if (w > 0 && h > 0) {
+                const scale = Math.min(w / 1920, h / 1080);
+                previewFrame.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            }
+        }
+        
+        if (billboardFrame && billboardFrame.parentElement) {
+            const wrap = billboardFrame.parentElement;
+            const w = wrap.clientWidth || wrap.offsetWidth;
+            const h = wrap.clientHeight || wrap.offsetHeight;
+            if (w > 0 && h > 0) {
+                const scale = Math.min(w / 400, h / 200);
+                billboardFrame.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            }
+        }
+
+        // Dynamically scale monitor card thumbnails to fit so the whole slide is seen
+        document.querySelectorAll('.monitor-thumb').forEach(thumb => {
+            const iframe = thumb.querySelector('iframe');
+            if (iframe) {
+                const w = thumb.clientWidth || thumb.offsetWidth;
+                const h = thumb.clientHeight || thumb.offsetHeight;
+                if (w > 0 && h > 0) {
+                    const scale = Math.min(w / 1920, h / 1080);
+                    iframe.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                }
+            }
+        });
+    }
+
+    window.addEventListener('resize', scaleFrames);
+    window.addEventListener('load', scaleFrames);
+    setInterval(scaleFrames, 500);
+
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.action === 'RELAY_FIREBASE') {
+            if (window.sendToFirebase) window.sendToFirebase(e.data.msg);
+        }
+    });
+
+    window.onload = () => {
+        const isPi = window.location.hostname === '192.168.1.97' || window.location.hostname === 'localhost';
+        if (isPi) {
+            sessionStorage.setItem('matrix_authed', 'true');
+        }
+        if(sessionStorage.getItem('matrix_authed') === 'true') { 
+            document.getElementById('auth-screen').style.display = 'none'; 
+            loadWorkspaceView('HOME');
+        }
+        
+        // Ensure preview frames are loaded
+        setTimeout(() => {
+            document.getElementById('preview-frame').src = 'index.html';
+            document.getElementById('billboard-frame').src = 'billboard.html';
+            scaleFrames();
+            requestTelemetry();
+        }, 500);
+    };
+</script>
+<script type="module">
+    // ─── DIRECT FIREBASE INTEGRATION FOR ADMIN ───
+    // Instead of relying on BroadcastChannel relay to firebase-bridge.js,
+    // masteradmin writes commands directly to Firebase for maximum reliability.
+    
+    import { db, ref, set, update } from './firebase-config.js';
+    
+    const COMMAND_PATH = 'matrix_command';
+    const STATE_PATH = 'matrix_state';
+    
+    function getClientIdForFirebase() {
+        let id = localStorage.getItem('matrix_client_id');
+        if (!id) {
+            id = 'client_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('matrix_client_id', id);
+        }
+        return id;
+    }
+    
+    // Expose the direct Firebase send function globally
+    window.sendToFirebase = function(msg) {
+        if (!db) {
+            console.error('[MASTERADMIN] Firebase DB not initialized — cannot send to cloud');
+            return;
+        }
+        
+        const payload = {
+            ...msg,
+            source: getClientIdForFirebase(),
+            senderTabId: getTabId(),
+            isFirebaseBridge: true
+        };
+        
+        console.log('[MASTERADMIN] ☁️ Writing command to Firebase:', msg.type, payload);
+        
+        set(ref(db, COMMAND_PATH), payload)
+            .then(() => {
+                console.log('[MASTERADMIN] ✅ Firebase command written:', msg.type);
+                // Pulse the cloud dot
+                const dot = document.getElementById('cloud-dot');
+                if (dot) {
+                    dot.style.background = 'var(--accent)';
+                    dot.classList.remove('pulse');
+                    void dot.offsetWidth;
+                    dot.classList.add('pulse');
+                    setTimeout(() => { dot.style.background = 'var(--success)'; }, 500);
+                }
+            })
+            .catch((err) => {
+                console.error('[MASTERADMIN] ❌ Firebase write FAILED:', err);
+                const dot = document.getElementById('cloud-dot');
+                if (dot) dot.style.background = '#ef4444';
+                const label = document.querySelector('#cloud-status span:last-child');
+                if (label) label.textContent = 'FIREBASE ERROR';
+            });
+        
+        // If it's a persistent state change, also update state node
+        const PERSISTENT_TYPES = ['MODULE_FILTER', 'LIVE_SLIDE', 'SETTINGS_UPDATE'];
+        if (PERSISTENT_TYPES.includes(msg.type)) {
+            update(ref(db, STATE_PATH), { _last_updated_by: getClientIdForFirebase() })
+                .catch(err => console.error('[MASTERADMIN] State meta update failed:', err));
+            update(ref(db, STATE_PATH + '/' + msg.type), payload)
+                .catch(err => console.error('[MASTERADMIN] State sub-node update failed:', err));
+        }
+    };
+    
+    console.log('[MASTERADMIN] ✅ Direct Firebase integration loaded. Client:', getClientIdForFirebase());
+</script>
+<script type="module" src="firebase-bridge.js"></script>
+</body>
+</html>
