@@ -139,22 +139,13 @@ export const StockInfoModal: React.FC<StockInfoModalProps> = ({ item, suppliers,
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Quantity</label>
                 <input 
                   type="number" 
                   value={formData.quantity}
                   onChange={(e) => handleChange('quantity', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg outline-none text-slate-200"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Unit</label>
-                <input 
-                  type="text" 
-                  value={formData.unit}
-                  onChange={(e) => handleChange('unit', e.target.value)}
                   className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg outline-none text-slate-200"
                 />
               </div>
@@ -166,6 +157,34 @@ export const StockInfoModal: React.FC<StockInfoModalProps> = ({ item, suppliers,
                   onChange={(e) => handleChange('minLevel', parseInt(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg outline-none text-slate-200"
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Unit</label>
+                <input 
+                  type="text" 
+                  value={formData.unit}
+                  onChange={(e) => handleChange('unit', e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg outline-none text-slate-200"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Bottle/Item Size (ml)</label>
+                <select
+                  value={formData.volumeMl || ''}
+                  onChange={(e) => handleChange('volumeMl', e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg outline-none text-slate-200"
+                >
+                  <option value="">Not Applicable</option>
+                  <option value="50000">50,000ml (50L Keg)</option>
+                  <option value="1000">1000ml (1L)</option>
+                  <option value="750">750ml</option>
+                  <option value="700">700ml</option>
+                  <option value="500">500ml</option>
+                  <option value="330">330ml</option>
+                </select>
               </div>
             </div>
 
