@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { StockItem, Supplier } from '../types';
-import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2, Printer, CheckSquare, FileText, ClipboardList } from 'lucide-react';
+import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2, Printer, Edit3 } from 'lucide-react';
 import { StockInfoModal } from './StockInfoModal';
+import { FileText, ClipboardList } from 'lucide-react';
 
 interface StockViewProps {
   onSaveItem: (item: StockItem) => void;
@@ -17,6 +17,19 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
   const [editingItem, setEditingItem] = useState<StockItem | null>(null);
   const [printFormat, setPrintFormat] = useState<'inventory' | 'stocktake' | 'reorder'>('inventory');
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [isInlineEditMode, setIsInlineEditMode] = useState(false);
+  const [localEdits, setLocalEdits] = useState<Record<string, StockItem>>({});
+
+  const handleLocalEdit = (item: StockItem, field: keyof StockItem, value: any) => {
+    const current = localEdits[item.id] || item;
+    setLocalEdits(prev => ({ ...prev, [item.id]: { ...current, [field]: value } }));
+  };
+
+  const handleBlur = (item: StockItem) => {
+    if (localEdits[item.id]) {
+      onSaveItem(localEdits[item.id]);
+    }
+  };
 
   const handleAdd = () => {
     setEditingItem({
@@ -158,26 +171,34 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
           </div>
           <div className="flex items-center space-x-3">
             <button 
+              onClick={() => setIsInlineEditMode(!isInlineEditMode)} 
+              className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg transition-colors font-medium text-sm shadow-sm ${isInlineEditMode ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200'}`}
+              title="Toggle Quick Edit"
+            >
+               <Edit3 className="w-4 h-4" />
+               <span>{isInlineEditMode ? 'Exit Quick Edit' : 'Quick Edit'}</span>
+            </button>
+            <button 
               onClick={() => setShowPrintModal(true)} 
               className="flex items-center space-x-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg transition-colors font-medium text-sm shadow-sm"
               title="Print Stock Sheets"
             >
                <Printer className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-               <span>Print Stock List</span>
+               <span>Print</span>
             </button>
             <button 
               onClick={handleAdd} 
               className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-lg font-medium text-sm"
             >
                <Plus className="w-4 h-4" />
-               <span>Add Stock Item</span>
+               <span>Add Item</span>
             </button>
           </div>
         </div>
 
         {/* Stock Items Table */}
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-lg print:border-gray-300 print:shadow-none print:rounded-none">
-          <table className="w-full text-left border-collapse print:text-xs">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-lg print:border-gray-300 print:shadow-none print:rounded-none overflow-x-auto">
+          <table className="w-full text-left border-collapse print:text-xs min-w-[900px]">
             <thead>
               <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 text-xs uppercase text-slate-500 dark:text-slate-400 print:bg-gray-100 print:text-gray-900 print:border-b-2 print:border-gray-400">
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Item Name</th>
@@ -207,25 +228,139 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                     </td>
                  </tr>
               )}
-              {printableItems.map(item => {
+              {printableItems.map(rawItem => {
+                const item = isInlineEditMode && localEdits[rawItem.id] ? localEdits[rawItem.id] : rawItem;
                 const orderAmount = Math.max(0, item.minLevel - item.quantity);
                 const costPerServe = item.price > 0 && item.cost > 0 ? ((item.cost / item.price) * 100).toFixed(1) + '%' : '$' + (item.cost || 0).toFixed(2);
                 const isLow = item.quantity <= item.minLevel;
+                
                 return (
                   <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors print:hover:bg-transparent ${item.isDemo ? 'demo-highlight' : ''} ${isLow ? 'bg-red-50/30 dark:bg-red-950/20' : ''}`}>
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">
-                      {item.name}
+                      {isInlineEditMode ? (
+                        <input 
+                          type="text" 
+                          className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          value={item.name} 
+                          onChange={(e) => handleLocalEdit(item, 'name', e.target.value)} 
+                          onBlur={() => handleBlur(item)} 
+                        />
+                      ) : (
+                        item.name
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-500 dark:text-slate-400 print:text-gray-700 print:py-1.5 print:px-2">
                       {item.category}
                     </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{item.unit || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{item.supplierId || 'Unknown'}</td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">${(item.cost || 0).toFixed(2)}</td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">${(item.price || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
+                      {isInlineEditMode ? (
+                        <div className="flex flex-col space-y-1">
+                          <input 
+                            type="text" 
+                            placeholder="Unit (e.g. pcs)"
+                            className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                            value={item.unit || ''} 
+                            onChange={(e) => handleLocalEdit(item, 'unit', e.target.value)} 
+                            onBlur={() => handleBlur(item)} 
+                          />
+                          <select
+                            className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                            value={item.volumeMl || ''}
+                            onChange={(e) => {
+                              handleLocalEdit(item, 'volumeMl', e.target.value ? parseInt(e.target.value) : undefined);
+                              // We can't rely on onBlur for selects easily, so save on change.
+                              const updated = { ...item, volumeMl: e.target.value ? parseInt(e.target.value) : undefined };
+                              onSaveItem(updated);
+                            }}
+                          >
+                            <option value="">No Size</option>
+                            <option value="50000">50,000ml (50L)</option>
+                            <option value="1000">1000ml</option>
+                            <option value="750">750ml</option>
+                            <option value="700">700ml</option>
+                            <option value="500">500ml</option>
+                            <option value="330">330ml</option>
+                          </select>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col">
+                          <span>{item.unit || '-'}</span>
+                          {item.volumeMl && <span className="text-xs text-slate-400">{item.volumeMl}ml</span>}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
+                      {isInlineEditMode ? (
+                        <select
+                          className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                          value={item.supplierId || ''}
+                          onChange={(e) => {
+                            handleLocalEdit(item, 'supplierId', e.target.value);
+                            onSaveItem({ ...item, supplierId: e.target.value });
+                          }}
+                        >
+                          <option value="">None</option>
+                          {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        </select>
+                      ) : (
+                        item.supplierId || 'Unknown'
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
+                      {isInlineEditMode ? (
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          className="w-20 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          value={item.cost || 0} 
+                          onChange={(e) => handleLocalEdit(item, 'cost', parseFloat(e.target.value))} 
+                          onBlur={() => handleBlur(item)} 
+                        />
+                      ) : (
+                        `$${(item.cost || 0).toFixed(2)}`
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
+                      {isInlineEditMode ? (
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          className="w-20 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          value={item.price || 0} 
+                          onChange={(e) => handleLocalEdit(item, 'price', parseFloat(e.target.value))} 
+                          onBlur={() => handleBlur(item)} 
+                        />
+                      ) : (
+                        `$${(item.price || 0).toFixed(2)}`
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{costPerServe}</td>
-                    <td className="px-4 py-3 font-bold text-center text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">{item.quantity}</td>
-                    <td className="px-4 py-3 text-center text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{item.minLevel}</td>
+                    <td className="px-4 py-3 font-bold text-center text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">
+                      {isInlineEditMode ? (
+                        <input 
+                          type="number" 
+                          className="w-16 mx-auto bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-center" 
+                          value={item.quantity} 
+                          onChange={(e) => handleLocalEdit(item, 'quantity', parseInt(e.target.value) || 0)} 
+                          onBlur={() => handleBlur(item)} 
+                        />
+                      ) : (
+                        item.quantity
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
+                      {isInlineEditMode ? (
+                        <input 
+                          type="number" 
+                          className="w-16 mx-auto bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-center" 
+                          value={item.minLevel} 
+                          onChange={(e) => handleLocalEdit(item, 'minLevel', parseInt(e.target.value) || 0)} 
+                          onBlur={() => handleBlur(item)} 
+                        />
+                      ) : (
+                        item.minLevel
+                      )}
+                    </td>
                     <td className="px-4 py-3 font-bold text-center text-blue-600 dark:text-blue-400 print:text-gray-900 print:py-1.5 print:px-2">
                       {orderAmount > 0 ? orderAmount : '-'}
                     </td>
@@ -251,14 +386,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                           <ArrowUp className="w-4 h-4" />
                       </button>
                       <button 
-                          onClick={() => setTransferItem(item)}
+                          onClick={() => setTransferItem(rawItem)}
                           className="p-1 rounded hover:bg-indigo-100 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 ml-2"
                           title="Transfer to other site"
                       >
                           <ArrowRightLeft className="w-4 h-4" />
                       </button>
                       <button 
-                          onClick={() => setEditingItem(item)}
+                          onClick={() => setEditingItem(rawItem)}
                           className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 ml-2"
                           title="Edit Item Info"
                       >
