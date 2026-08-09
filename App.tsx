@@ -402,8 +402,16 @@ const App: React.FC = () => {
       setAppMode(mode);
       setIsSidebarOpen(true);
       
-      if (mode === 'FOH') setCurrentModule('browser');
-      else setCurrentModule('dashboard');
+      const params = new URLSearchParams(window.location.search);
+      const urlModule = params.get('module') as AppModule | null;
+      
+      if (urlModule) {
+          setCurrentModule(urlModule);
+      } else if (mode === 'FOH') {
+          setCurrentModule('browser');
+      } else {
+          setCurrentModule('dashboard');
+      }
 
       showNotification(`Welcome, ${member.name}`, 'success');
   };
