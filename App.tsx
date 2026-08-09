@@ -166,6 +166,28 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Temporarily disable dark mode during print to ensure printer-friendly output
+  useEffect(() => {
+    let wasDark = false;
+    const handleBeforePrint = () => {
+      wasDark = document.documentElement.classList.contains('dark');
+      if (wasDark) {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+    const handleAfterPrint = () => {
+      if (wasDark) {
+        document.documentElement.classList.add('dark');
+      }
+    };
+    window.addEventListener('beforeprint', handleBeforePrint);
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', handleBeforePrint);
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, []);
+
   // Google Sheets Auto-Sync (Runs every 15 minutes)
   useEffect(() => {
     const syncInterval = startAutoSync(15);
