@@ -61,6 +61,7 @@ import CalendarView from './components/CalendarView';
 import CategoryHubView, { CategoryHubLink } from './components/CategoryHubView';
 import EODSalesView from './components/EODSalesView';
 import MenuView from './components/MenuView';
+import MasterDataView from './components/MasterDataView';
 import { parseNaturalLanguageCommand } from './services/geminiService';
 import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents } from './services/googleService';
 
@@ -1006,6 +1007,9 @@ const App: React.FC = () => {
                     <button onClick={() => setCurrentModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                         <Settings className="w-5 h-5" /><span>System & Permissions</span>
                     </button>
+                    <button onClick={() => setCurrentModule("masterdata")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "masterdata" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <Database className="w-5 h-5" /><span>Master Data Editor</span>
+                    </button>
                     <button onClick={() => setIsPublicUploadOpen(true)} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 transition-all mt-1">
                         <UploadCloud className="w-4 h-4 text-amber-500" />
                         <span>Upload to Public Folder</span>
@@ -1087,6 +1091,25 @@ const App: React.FC = () => {
                bookings={bookings}
                tvSchedule={tvSchedule}
                onNavigate={setCurrentModule}
+             />
+          )}
+
+          {currentModule === 'masterdata' && (
+             <MasterDataView 
+               stock={stockItems}
+               staff={teamMembers}
+               onSaveStock={async (updatedStock) => {
+                 for (const item of updatedStock) {
+                   await db.saveStock(item);
+                 }
+                 setStockItems(await db.getStock());
+               }}
+               onSaveStaff={async (updatedStaff) => {
+                 for (const member of updatedStaff) {
+                   await db.saveStaff(member);
+                 }
+                 setTeamMembers(await db.getStaff());
+               }}
              />
           )}
 

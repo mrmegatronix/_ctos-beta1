@@ -5,7 +5,7 @@ export enum ViewMode {
   MONTH = 'Month'
 }
 
-export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting' | 'gemini' | 'ctsc' | 'ctmatrix' | 'contacts' | 'email' | 'menus' | 'eodsales' | 'category-hub' | 'pos';
+export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting' | 'gemini' | 'ctsc' | 'ctmatrix' | 'contacts' | 'email' | 'menus' | 'eodsales' | 'category-hub' | 'pos' | 'masterdata';
 
 export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
