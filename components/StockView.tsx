@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { StockItem, Supplier } from '../types';
-import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2, Printer, Edit3 } from 'lucide-react';
+import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2, Printer, Edit3, Scan } from 'lucide-react';
 import { StockInfoModal } from './StockInfoModal';
 import { FileText, ClipboardList } from 'lucide-react';
+import { BarcodeScanner } from './BarcodeScanner';
 
 interface StockViewProps {
   onSaveItem: (item: StockItem) => void;
@@ -19,6 +20,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [isInlineEditMode, setIsInlineEditMode] = useState(false);
   const [localEdits, setLocalEdits] = useState<Record<string, StockItem>>({});
+  const [showScanner, setShowScanner] = useState(false);
 
   const handleLocalEdit = (item: StockItem, field: keyof StockItem, value: any) => {
     const current = localEdits[item.id] || item;
@@ -31,7 +33,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = (barcode?: string) => {
     setEditingItem({
       id: `stk-${Date.now()}`,
       name: '',
@@ -42,8 +44,21 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
       price: 0,
       cost: 0,
       productType: 'Beverage',
-      allergens: []
+      allergens: [],
+      barcode: barcode
     });
+  };
+
+  const handleScanBarcode = (barcode: string) => {
+    setShowScanner(false);
+    const existing = items.find(i => i.barcode === barcode);
+    if (existing) {
+      setEditingItem(existing);
+    } else {
+      if (confirm(`Barcode ${barcode} not found. Create new item?`)) {
+        handleAdd(barcode);
+      }
+    }
   };
 
   let displayItems = items;
@@ -91,7 +106,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
       <div className="hidden print:block px-6 pt-4 pb-2 mb-4 border-b-2 border-gray-800">
         <div className="flex justify-between items-start">
           <div>
-            <div className="text-2xl font-black tracking-wider uppercase text-gray-900">COASTERS TAVERN</div>
+            <div className="text-2xl font-black tracking-wider uppercase text-gray-900">CTOS</div>
             <div className="text-base font-bold text-gray-700 mt-0.5">
               {printFormat === 'stocktake' 
                 ? '📋 STOCKTAKE PHYSICAL COUNT SHEET' 
@@ -122,7 +137,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
 
       {/* Top Stats (Hidden during print) */}
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 print:hidden">
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-slate-700 shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex items-center space-x-4">
            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
              <Package className="w-6 h-6" />
            </div>
@@ -132,7 +147,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
            </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-slate-700 shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex items-center space-x-4">
            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400">
              <AlertTriangle className="w-6 h-6" />
            </div>
@@ -142,7 +157,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
            </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-slate-700 shadow-lg flex items-center space-x-4">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex items-center space-x-4">
            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 dark:text-emerald-400">
              <TrendingDown className="w-6 h-6" />
            </div>
@@ -171,6 +186,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
           </div>
           <div className="flex items-center space-x-3">
             <button 
+              onClick={() => setShowScanner(true)}
+              className="flex items-center space-x-2 px-3.5 py-2 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 rounded-lg transition-colors font-medium text-sm shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-800/50"
+              title="Scan Barcode to Add/Edit"
+            >
+              <Scan className="w-4 h-4" />
+              <span>Scan Item</span>
+            </button>
+            <button 
               onClick={() => setIsInlineEditMode(!isInlineEditMode)} 
               className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg transition-colors font-medium text-sm shadow-sm ${isInlineEditMode ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200'}`}
               title="Toggle Quick Edit"
@@ -187,7 +210,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                <span>Print</span>
             </button>
             <button 
-              onClick={handleAdd} 
+              onClick={() => handleAdd()} 
               className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-lg font-medium text-sm"
             >
                <Plus className="w-4 h-4" />
@@ -197,17 +220,16 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
         </div>
 
         {/* Stock Items Table */}
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-lg print:border-gray-300 print:shadow-none print:rounded-none overflow-x-auto">
+        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl overflow-hidden print:border-gray-300 print:shadow-none print:rounded-none overflow-x-auto">
           <table className="w-full text-left border-collapse print:text-xs min-w-[900px]">
             <thead>
               <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 text-xs uppercase text-slate-500 dark:text-slate-400 print:bg-gray-100 print:text-gray-900 print:border-b-2 print:border-gray-400">
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Item Name</th>
-                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Category</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Location/Barcode</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Size / Unit</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Supplier</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Cost</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Sell</th>
-                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Cost %</th>
                 <th className="px-4 py-3 font-semibold text-center print:py-1.5 print:px-2">Stock</th>
                 <th className="px-4 py-3 font-semibold text-center print:py-1.5 print:px-2">Par</th>
                 <th className="px-4 py-3 font-semibold text-center text-blue-600 dark:text-blue-400 print:text-gray-900 print:py-1.5 print:px-2">Order</th>
@@ -223,7 +245,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
             <tbody className="divide-y divide-gray-100 dark:divide-slate-700 print:divide-gray-300">
               {printableItems.length === 0 && (
                  <tr>
-                    <td colSpan={11} className="px-6 py-8 text-center text-slate-400 print:text-gray-600">
+                    <td colSpan={10} className="px-6 py-8 text-center text-slate-400 print:text-gray-600">
                        No products found for the selected category. Add items to continue.
                     </td>
                  </tr>
@@ -231,7 +253,6 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
               {printableItems.map(rawItem => {
                 const item = isInlineEditMode && localEdits[rawItem.id] ? localEdits[rawItem.id] : rawItem;
                 const orderAmount = Math.max(0, item.minLevel - item.quantity);
-                const costPerServe = item.price > 0 && item.cost > 0 ? ((item.cost / item.price) * 100).toFixed(1) + '%' : '$' + (item.cost || 0).toFixed(2);
                 const isLow = item.quantity <= item.minLevel;
                 
                 return (
@@ -248,9 +269,12 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       ) : (
                         item.name
                       )}
+                      {!isInlineEditMode && <div className="text-xs text-slate-500 font-normal">{item.category}</div>}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 print:text-gray-700 print:py-1.5 print:px-2">
-                      {item.category}
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs print:text-gray-700 print:py-1.5 print:px-2">
+                      {item.location && <div className="mb-0.5">Loc: {item.location}</div>}
+                      {item.barcode && <div>BC: {item.barcode}</div>}
+                      {!item.location && !item.barcode && '-'}
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
                       {isInlineEditMode ? (
@@ -268,7 +292,6 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                             value={item.volumeMl || ''}
                             onChange={(e) => {
                               handleLocalEdit(item, 'volumeMl', e.target.value ? parseInt(e.target.value) : undefined);
-                              // We can't rely on onBlur for selects easily, so save on change.
                               const updated = { ...item, volumeMl: e.target.value ? parseInt(e.target.value) : undefined };
                               onSaveItem(updated);
                             }}
@@ -303,7 +326,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                           {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
                       ) : (
-                        item.supplierId || 'Unknown'
+                        suppliers.find(s => s.id === item.supplierId)?.name || 'Unknown'
                       )}
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
@@ -334,7 +357,6 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                         `$${(item.price || 0).toFixed(2)}`
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">{costPerServe}</td>
                     <td className="px-4 py-3 font-bold text-center text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">
                       {isInlineEditMode ? (
                         <input 
@@ -554,6 +576,13 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
             onSaveItem(item);
             setEditingItem(null);
           }}
+        />
+      )}
+
+      {showScanner && (
+        <BarcodeScanner 
+          onScan={handleScanBarcode}
+          onClose={() => setShowScanner(false)}
         />
       )}
     </div>

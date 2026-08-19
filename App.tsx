@@ -49,6 +49,7 @@ import MaintenanceView from './components/MaintenanceView';
 import IncidentLogView from './components/IncidentLogView';
 import LostAndFoundView from './components/LostAndFoundView';
 import CTSCAppView from './components/CTSCAppView';
+import POSView from './components/POSView';
 import GeminiNotebookView from './components/GeminiNotebookView';
 import CTMatrixControlView from './components/CTMatrixControlView';
 import BrowserView from './components/BrowserView';
@@ -840,7 +841,7 @@ const App: React.FC = () => {
                 <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Service Hub</span>
                 </button>
-                <button onClick={() => setCurrentModule("browser")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "browser" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => setCurrentModule("pos")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "pos" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Monitor className="w-5 h-5" /><span>POS System</span>
                 </button>
                 <button onClick={() => setCurrentModule("bookings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "bookings" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
@@ -892,7 +893,7 @@ const App: React.FC = () => {
                     </button>
                     {openAccordion === "finance" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
-                            {[{ id: "browser", label: "POS Terminal" }, { id: "finance", label: "Cashup & Recon" }, { id: "eodsales", label: "EOD Sales Entry" }, { id: "budgeting", label: "Budgeting" }].map(link => (
+                            {[{ id: "pos", label: "POS Terminal" }, { id: "finance", label: "Cashup & Recon" }, { id: "eodsales", label: "EOD Sales Entry" }, { id: "budgeting", label: "Budgeting" }].map(link => (
                                 <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
@@ -1156,7 +1157,7 @@ const App: React.FC = () => {
           )}
           
           {currentModule === 'browser' && <BrowserView />}
-          
+          {currentModule === 'pos' && <POSView />}
           {currentModule === 'weather' && <WeatherView />}
           
           {currentModule === 'documents' && (

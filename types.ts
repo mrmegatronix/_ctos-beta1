@@ -5,7 +5,7 @@ export enum ViewMode {
   MONTH = 'Month'
 }
 
-export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting' | 'gemini' | 'ctsc' | 'ctmatrix' | 'contacts' | 'email' | 'menus' | 'eodsales' | 'category-hub';
+export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stock' | 'staff' | 'suppliers' | 'maintenance' | 'socials' | 'entertainment' | 'functions' | 'finance' | 'browser' | 'documents' | 'settings' | 'recipes' | 'incidents' | 'lostfound' | 'tvschedule' | 'media' | 'timesheets' | 'stocktake' | 'ordering' | 'timeclock' | 'budgeting' | 'gemini' | 'ctsc' | 'ctmatrix' | 'contacts' | 'email' | 'menus' | 'eodsales' | 'category-hub' | 'pos';
 
 export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
@@ -103,6 +103,9 @@ export interface StockItem {
   description?: string;
   cost?: number;
   productType?: string;
+  barcode?: string;
+  expiryDate?: Date;
+  location?: string;
 }
 
 export interface Supplier {
@@ -357,6 +360,20 @@ export interface StockItem {
   description?: string;
   cost?: number;
   productType?: string;
+  isDemo?: boolean;
+  barcode?: string;
+  expiryDate?: Date;
+  location?: string;
+}
+
+export interface StockMovement {
+  id: string;
+  stockId: string;
+  date: Date;
+  quantityChanged: number; // positive for addition, negative for consumption
+  type: 'consume' | 'purchase' | 'inventory-correction' | 'transfer';
+  staffId: string;
+  notes?: string;
   isDemo?: boolean;
 }
 
