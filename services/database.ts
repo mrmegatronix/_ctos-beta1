@@ -336,15 +336,52 @@ class DatabaseService {
     await this.removeDoc(COLLECTIONS.LEAVE, id);
   }
 
+  private getBackendUrl(): string {
+    const host = window.location.hostname;
+    // Assume backend runs on port 5000 of the same host
+    return `http://${host}:5000/api`;
+  }
+
   async getStock(): Promise<StockItem[]> {
+    try {
+      const res = await fetch(`${this.getBackendUrl()}/stock`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          return json.data;
+        }
+      }
+    } catch (e) {
+      console.warn('[CTOS DB] Local backend unreachable for getStock, falling back to Firebase', e);
+    }
+
     const items = await this.loadCollection<StockItem>(COLLECTIONS.STOCK);
     return items.length > 0 ? items : INITIAL_STOCK;
   }
   async saveStock(item: StockItem): Promise<void> {
     await this.upsert(COLLECTIONS.STOCK, item);
+    // Sync entirely to backend as a background task
+    this.syncStockToBackend();
+  }
+  
+  private async syncStockToBackend() {
+    try {
+      const stock = await this.getStock(); // this might get from firebase if backend is down, but we want to push the latest
+      const fbStock = await this.loadCollection<StockItem>(COLLECTIONS.STOCK);
+      if (fbStock.length > 0) {
+        await fetch(`${this.getBackendUrl()}/stock/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stockItems: fbStock })
+        });
+      }
+    } catch (e) {
+      console.warn('[CTOS DB] Local backend unreachable for syncStockToBackend', e);
+    }
   }
   async deleteStock(id: string): Promise<void> {
     await this.removeDoc(COLLECTIONS.STOCK, id);
+    this.syncStockToBackend();
   }
   async updateStock(id: string, qty: number): Promise<void> {
     const stock = await this.getStock();
