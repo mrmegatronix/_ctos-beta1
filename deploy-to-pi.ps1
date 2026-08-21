@@ -44,6 +44,7 @@ function Deploy-Target {
     Invoke-Scp -r "$LOCAL_DIR/dist" "${HostStr}:${Dir}/"
 
     Write-Host "[3/4] Copying deployment files..." -ForegroundColor Yellow
+    Invoke-Scp -r "$LOCAL_DIR/backend" "${HostStr}:${Dir}/"
     Invoke-Scp "$LOCAL_DIR/deploy-pi.sh" "${HostStr}:${Dir}/"
     Invoke-Scp "$LOCAL_DIR/ctos.service" "${HostStr}:${Dir}/"
     Invoke-Scp "$LOCAL_DIR/package.json" "${HostStr}:${Dir}/"

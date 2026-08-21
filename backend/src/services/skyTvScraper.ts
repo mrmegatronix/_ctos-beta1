@@ -70,7 +70,7 @@ export async function syncSkyTvSchedule() {
         // Delete existing TV schedule
         const batch = db.batch();
         const existingSnapshot = await db.collection('tvSchedule').get();
-        existingSnapshot.docs.forEach(doc => {
+        existingSnapshot.docs.forEach((doc: any) => {
             batch.delete(doc.ref);
         });
         

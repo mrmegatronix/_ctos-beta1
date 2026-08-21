@@ -112,3 +112,44 @@ body,
     border-color: #cbd5e1 !important;
   }
 }
+
+/* Print Styles for Templates */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  .print\:bg-white {
+    background-color: white !important;
+  }
+  
+  .fixed.inset-0.z-\[100\] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    visibility: visible;
+    background: transparent !important;
+  }
+  
+  .fixed.inset-0.z-\[100\] * {
+    visibility: visible;
+  }
+  
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+  
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+  }
+}

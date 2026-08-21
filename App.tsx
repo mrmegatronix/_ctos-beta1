@@ -1186,6 +1186,8 @@ const App: React.FC = () => {
           {currentModule === 'documents' && (
              <DocumentsView 
                files={files} 
+               stock={stock}
+               suppliers={suppliers}
                onSaveFile={handleSaveFile} 
                onDeleteFile={handleDeleteFile} 
              />

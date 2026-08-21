@@ -1,26 +1,53 @@
 import React, { useState } from 'react';
-import { FileItem } from '../types';
+import { FileItem, StockItem, Supplier } from '../types';
 import { Folder, FileText, FileSpreadsheet, Image, File as FileIconLucide, ChevronRight, Home, ArrowUp, Download, MoreVertical, Plus } from 'lucide-react';
 import { formatDate } from '../utils';
 import DropzoneArea from './DropzoneArea';
+import TemplateViewerModal from './TemplateViewerModal';
+import StocktakeSheet from './templates/StocktakeSheet';
+import FunctionRunSheet from './templates/FunctionRunSheet';
+import OnboardingChecklist from './templates/OnboardingChecklist';
+import IncidentReportForm from './templates/IncidentReportForm';
+import LostAndFoundLog from './templates/LostAndFoundLog';
+import OrderingSheet from './templates/OrderingSheet';
+import FOHShiftRunsheet from './templates/FOHShiftRunsheet';
 
 interface DocumentsViewProps {
   files: FileItem[];
+  stock?: StockItem[];
+  suppliers?: Supplier[];
   onSaveFile?: (file: FileItem) => void;
   onDeleteFile?: (id: string) => void;
 }
 
-const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDeleteFile }) => {
+const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppliers = [], onSaveFile, onDeleteFile }) => {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
+  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
 
   const getContents = (parentId: string | null) => {
+    if (parentId === 'templates-folder') {
+      return [
+        { id: 'tpl-stocktake', name: 'Stocktake Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-function', name: 'Function Run Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-onboarding', name: 'Onboarding Checklist', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-incident', name: 'Incident Report', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-lostfound', name: 'Lost & Found Log', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-ordering', name: 'Ordering Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-fohshift', name: 'FOH Shift Runsheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+      ] as FileItem[];
+    }
     return files.filter(f => f.parentId === parentId);
   };
 
   const getBreadcrumbs = () => {
     const crumbs = [{ id: null, name: 'Documents' }];
     if (!currentFolderId) return crumbs;
+
+    if (currentFolderId === 'templates-folder') {
+      crumbs.push({ id: 'templates-folder', name: 'Printable Templates' });
+      return crumbs;
+    }
 
     const folder = files.find(f => f.id === currentFolderId);
     if (folder) {
@@ -36,6 +63,10 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
 
   const handleUpLevel = () => {
     if (!currentFolderId) return;
+    if (currentFolderId === 'templates-folder') {
+      setCurrentFolderId(null);
+      return;
+    }
     const current = files.find(f => f.id === currentFolderId);
     setCurrentFolderId(current?.parentId || null);
   };
@@ -85,10 +116,18 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
     }
   };
 
-  const currentItems = getContents(currentFolderId);
+  let currentItems = getContents(currentFolderId);
+
+  // Inject Templates folder at root
+  if (currentFolderId === null) {
+    currentItems = [
+      { id: 'templates-folder', name: 'Printable Templates', type: 'folder', parentId: null, lastModified: new Date() } as FileItem,
+      ...currentItems
+    ];
+  }
 
   return (
-    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
+    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm relative">
        <div className="flex items-center justify-between mb-6 shrink-0">
            <h2 className="text-2xl font-bold text-slate-50 ">Filing Cabinet</h2>
            <div className="flex space-x-2">
@@ -144,7 +183,13 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
                    {currentItems.map(item => (
                        <div 
                          key={item.id}
-                         onDoubleClick={() => item.type === 'folder' && handleFolderClick(item.id)}
+                         onDoubleClick={() => {
+                           if (item.type === 'folder') {
+                             handleFolderClick(item.id);
+                           } else if (item.id.startsWith('tpl-')) {
+                             setActiveTemplate(item.id);
+                           }
+                         }}
                          className="group relative bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-100  rounded-xl p-4 flex flex-col items-center text-center hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer"
                        >
                            <div className="mb-3 transition-transform group-hover:scale-105">
@@ -167,6 +212,18 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, onSaveFile, onDele
                </div>
            )}
        </div>
+       
+       {activeTemplate && (
+         <TemplateViewerModal title={currentItems.find(i => i.id === activeTemplate)?.name || 'Template'} onClose={() => setActiveTemplate(null)}>
+           {activeTemplate === 'tpl-stocktake' && <StocktakeSheet stock={stock} />}
+           {activeTemplate === 'tpl-function' && <FunctionRunSheet />}
+           {activeTemplate === 'tpl-onboarding' && <OnboardingChecklist />}
+           {activeTemplate === 'tpl-incident' && <IncidentReportForm />}
+           {activeTemplate === 'tpl-lostfound' && <LostAndFoundLog />}
+           {activeTemplate === 'tpl-ordering' && <OrderingSheet stock={stock} suppliers={suppliers} />}
+           {activeTemplate === 'tpl-fohshift' && <FOHShiftRunsheet />}
+         </TemplateViewerModal>
+       )}
     </div>
   );
 };
