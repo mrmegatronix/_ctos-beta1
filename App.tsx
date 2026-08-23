@@ -1234,7 +1234,7 @@ const App: React.FC = () => {
           {currentModule === 'documents' && (
              <DocumentsView 
                files={files} 
-               stock={stock}
+               stock={stockItems}
                suppliers={suppliers}
                onSaveFile={handleSaveFile} 
                onDeleteFile={handleDeleteFile} 
