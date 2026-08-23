@@ -92,12 +92,14 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
   const unclaimedCount = items.filter(i => i.status === 'unclaimed').length;
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-full flex-col p-6 space-y-6 bg-slate-950 text-white overflow-y-auto relative custom-scrollbar">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <div className="flex items-center space-x-3">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               <Umbrella className="w-7 h-7 mr-3 text-indigo-600 dark:text-indigo-400" />
               Lost & Found Management
             </h2>
@@ -107,7 +109,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Secure custody log for patron belongings, property return tracking, and retention records.
           </p>
         </div>
@@ -123,10 +125,10 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-2 w-full md:w-auto">
           <Filter className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Status:</span>
+          <span className="text-xs font-bold uppercase text-slate-400">Status:</span>
           <div className="flex flex-wrap gap-1.5">
             {[
               { id: 'all', label: 'All Items' },
@@ -140,7 +142,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                 className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ${
                   filterStatus === tab.id
                     ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                 }`}
               >
                 {tab.label}
@@ -156,33 +158,33 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
             placeholder="Search items, locations, claimants..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-slate-100"
           />
         </div>
       </div>
 
       {/* Add Item Modal / Box */}
       {isFormOpen && (
-        <div className="bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/40 rounded-2xl p-6 mb-8 shadow-xl animate-in slide-in-from-top-4">
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-indigo-200 dark:border-indigo-900/40 rounded-2xl p-6 mb-8 shadow-xl animate-in slide-in-from-top-4">
           <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-700">
             <h3 className="font-bold text-lg text-indigo-700 dark:text-indigo-300 flex items-center">
               <Umbrella className="w-5 h-5 mr-2" />
               Log Found Belonging
             </h3>
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-medium text-slate-400">
               Found by: <strong>{currentUser.name}</strong>
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                 Item Description & Characteristics
               </label>
               <input
                 type="text"
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-800 dark:text-slate-100"
+                className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-100"
                 placeholder="e.g. Black leather wallet, floral Ray-Ban sunglasses, Apple AirPods Pro..."
                 value={newItem.itemDescription || ''}
                 onChange={e => setNewItem({ ...newItem, itemDescription: e.target.value })}
@@ -190,13 +192,13 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
             </div>
 
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                 Location Found
               </label>
               <input
                 type="text"
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-800 dark:text-slate-100"
+                className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-100"
                 placeholder="e.g. Table 14 booth, Main Bar stool, Restroom vanity..."
                 value={newItem.locationFound || ''}
                 onChange={e => setNewItem({ ...newItem, locationFound: e.target.value })}
@@ -204,25 +206,25 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
             </div>
 
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                 Date & Time Found
               </label>
               <input
                 type="datetime-local"
                 required
                 defaultValue={new Date().toISOString().slice(0, 16)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-800 dark:text-slate-100"
+                className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-100"
                 onChange={e => setNewItem({ ...newItem, dateFound: new Date(e.target.value) })}
               />
             </div>
 
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                 Initial Patron Details / Notes (Optional)
               </label>
               <input
                 type="text"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-800 dark:text-slate-100"
+                className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-100"
                 placeholder="e.g. Inquired by customer on phone earlier..."
                 value={newItem.contactDetails || ''}
                 onChange={e => setNewItem({ ...newItem, contactDetails: e.target.value })}
@@ -233,7 +235,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
               <button
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 transition-colors rounded-xl transition-colors"
               >
                 Cancel
               </button>
@@ -251,9 +253,9 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
       {/* Return Item Modal */}
       {returningItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in zoom-in-95">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-700">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-slate-50 flex items-center">
+              <h3 className="font-bold text-lg text-white flex items-center">
                 <UserCheck className="w-5 h-5 mr-2 text-green-600" />
                 Record Item Return
               </h3>
@@ -265,13 +267,13 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
               </button>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+            <p className="text-xs text-slate-400 mb-4">
               Item: <strong className="text-slate-800 dark:text-slate-200">{returningItem.itemDescription}</strong>
             </p>
 
             <form onSubmit={handleReturnSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                   Claimant / Customer Full Name
                 </label>
                 <input
@@ -280,12 +282,12 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                   placeholder="e.g. Jane Doe"
                   value={claimantName}
                   onChange={e => setClaimantName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-sm text-slate-800 dark:text-slate-100"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-sm text-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                   Contact Phone / Email
                 </label>
                 <input
@@ -294,7 +296,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                   placeholder="e.g. +64 21 000 0000"
                   value={claimantContact}
                   onChange={e => setClaimantContact(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-sm text-slate-800 dark:text-slate-100"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-sm text-slate-100"
                 />
               </div>
 
@@ -302,7 +304,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                 <button
                   type="button"
                   onClick={() => setReturningItem(null)}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 transition-colors rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
@@ -319,10 +321,10 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
       )}
 
       {/* Items Table */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900/60 text-xs uppercase font-bold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+            <thead className="bg-slate-950 text-white/60 text-xs uppercase font-bold text-slate-400 border-b border-white/10">
               <tr>
                 <th className="px-6 py-3.5">Date Found</th>
                 <th className="px-6 py-3.5">Item Description</th>
@@ -337,7 +339,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                 const itemDate = item.dateFound instanceof Date ? item.dateFound : new Date(item.dateFound);
                 return (
                   <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4 text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <td className="px-6 py-4 text-xs font-medium text-slate-400 whitespace-nowrap">
                       {formatDate(itemDate)}
                     </td>
                     <td className="px-6 py-4 font-semibold text-sm text-slate-900 dark:text-slate-100">
@@ -348,13 +350,13 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-600 dark:text-slate-300">
+                    <td className="px-6 py-4 text-xs text-slate-300">
                       <span className="flex items-center">
                         <MapPin className="w-3.5 h-3.5 mr-1 text-slate-400" />
                         {item.locationFound}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <td className="px-6 py-4 text-xs text-slate-400 whitespace-nowrap">
                       {getStaffName(item.foundByStaffId)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -384,7 +386,7 @@ const LostAndFoundView: React.FC<LostAndFoundViewProps> = ({ items, staff, curre
                             </button>
                             <button
                               onClick={() => handleStatusUpdate(item, 'disposed')}
-                              className="text-xs font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 px-2.5 py-1 rounded-lg transition-colors"
+                              className="text-xs font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-white/10 transition-colors px-2.5 py-1 rounded-lg transition-colors"
                             >
                               Dispose
                             </button>

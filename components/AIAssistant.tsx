@@ -29,7 +29,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isProcessing }) =>
     <div className={`fixed bottom-6 right-6 z-40 flex flex-col items-end transition-all duration-300 ${isOpen ? 'w-96' : 'w-auto'}`}>
       
       {isOpen && (
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl shadow-2xl border border-indigo-100 dark:border-indigo-900/30 overflow-hidden w-full mb-4 animate-in slide-in-from-bottom-5 duration-200">
+        <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  rounded-2xl shadow-2xl border border-indigo-100 dark:border-indigo-900/30 overflow-hidden w-full mb-4 animate-in slide-in-from-bottom-5 duration-200">
           <div className="bg-indigo-600 dark:bg-indigo-700 px-4 py-3 flex justify-between items-center">
             <div className="flex items-center space-x-2 text-white">
               <Sparkles className="w-5 h-5" />
@@ -40,7 +40,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isProcessing }) =>
             </button>
           </div>
           
-          <div className="p-4 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  min-h-[100px] max-h-[300px] overflow-y-auto text-slate-200 ">
+          <div className="p-4 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  min-h-[100px] max-h-[300px] overflow-y-auto text-slate-200 ">
              {!lastResponse && !isProcessing && (
                  <p className="text-sm text-slate-400 ">
                     Ask me to schedule meetings, move events, or summarize the team's availability. <br/><br/>
@@ -60,14 +60,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isProcessing }) =>
              )}
           </div>
 
-          <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200 dark:border-slate-700  bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
+          <form onSubmit={handleSubmit} className="p-3 border-t border-white/10  bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm ">
             <div className="relative">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your request..."
-                className="w-full pl-4 pr-12 py-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-xl focus:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:focus:bg-slate-900 text-slate-50  focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all"
+                className="w-full pl-4 pr-12 py-3 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  border border-white/10  rounded-xl focus:bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm dark:focus:bg-slate-900 text-slate-50  focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all"
               />
               <button 
                 type="submit" 

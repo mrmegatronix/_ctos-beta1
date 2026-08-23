@@ -57,9 +57,9 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md overflow-hidden relative">
+      <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl w-full max-w-md overflow-hidden relative">
         <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-800">
-          <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-100 font-bold">
+          <div className="flex items-center space-x-2 text-slate-100 font-bold">
             <Camera className="w-5 h-5" />
             <span>Scan Barcode</span>
           </div>
@@ -79,7 +79,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onClose 
             </div>
           )}
         </div>
-        <div className="p-4 bg-slate-50 dark:bg-slate-800 text-center text-sm text-slate-500 dark:text-slate-400">
+        <div className="p-4 bg-slate-50 dark:bg-slate-800 text-center text-sm text-slate-400">
           Position the barcode inside the frame to scan.
         </div>
       </div>

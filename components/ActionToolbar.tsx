@@ -18,11 +18,11 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
   };
 
   const baseBtnClass = isFohMode 
-    ? "flex flex-col items-center justify-center p-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-lg border border-gray-200 dark:border-slate-700 transition-all text-slate-300" 
+    ? "flex flex-col items-center justify-center p-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-lg border border-white/10 transition-all text-slate-300" 
     : "p-2 rounded-lg text-slate-300 transition-colors";
 
   const getBtnClass = (isDisabled: boolean) => 
-    `${baseBtnClass} ${isDisabled ? 'opacity-50 cursor-not-allowed' : (isFohMode ? 'active:scale-95' : 'hover:bg-gray-100 dark:hover:bg-slate-800')}`;
+    `${baseBtnClass} ${isDisabled ? 'opacity-50 cursor-not-allowed' : (isFohMode ? 'active:scale-95' : 'hover:bg-white/10 transition-colors')}`;
 
   const iconClass = isFohMode ? "w-6 h-6 mb-1" : "w-4 h-4";
   const labelClass = isFohMode ? "text-xs font-bold" : "hidden";
@@ -39,8 +39,8 @@ const ActionToolbar: React.FC<ActionToolbarProps> = ({ onEdit, onPrint, onShare,
   }
 
   return (
-    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
-      {title && <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{title}</h2>}
+    <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5 dark:border-gray-800">
+      {title && <h2 className="text-2xl font-bold text-white">{title}</h2>}
       <div className="flex items-center space-x-2">
          {onSync && (
              <button onClick={onSync} className={`${getBtnClass(false)} text-indigo-600 dark:text-indigo-400`} title="Sync with Google">

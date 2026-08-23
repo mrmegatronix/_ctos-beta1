@@ -198,12 +198,14 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-full flex-col p-6 space-y-6 bg-slate-950 text-white overflow-y-auto relative custom-scrollbar">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <div className="flex items-center space-x-3">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               <Settings className="w-7 h-7 mr-3 text-indigo-600 dark:text-indigo-400" />
               Venue & CTOS Master Settings
             </h2>
@@ -212,7 +214,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
               <span>Core Online</span>
             </span>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Configure venue operating profiles, POS API bridge, security access rules, and system database backups.
           </p>
         </div>
@@ -234,7 +236,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-slate-700 mb-8 space-x-2">
+      <div className="flex border-b border-white/10 mb-8 space-x-2">
         <button
           onClick={() => setActiveTab('general')}
           className={`pb-3 px-4 text-xs font-black uppercase tracking-wider flex items-center space-x-2 transition-colors border-b-2 ${
@@ -287,70 +289,70 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
       {/* Tab Content: Venue Profile */}
       {activeTab === 'general' && (
         <div className="max-w-4xl space-y-6">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-4 flex items-center">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-base font-bold text-white mb-4 flex items-center">
               <Building className="w-5 h-5 mr-2 text-indigo-600" />
               Venue Identity & Legal Profile
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Trading Name
                 </label>
                 <input
                   type="text"
                   value={venueName}
                   onChange={e => setVenueName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   GST / Tax Number
                 </label>
                 <input
                   type="text"
                   value={taxNumber}
                   onChange={e => setTaxNumber(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Physical Venue Address
                 </label>
                 <input
                   type="text"
                   value={venueAddress}
                   onChange={e => setVenueAddress(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Front Desk Contact Phone
                 </label>
                 <input
                   type="text"
                   value={venuePhone}
                   onChange={e => setVenuePhone(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Published Trading Hours
                 </label>
                 <input
                   type="text"
                   value={operatingHours}
                   onChange={e => setOperatingHours(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -361,27 +363,27 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
       {/* Tab Content: Integrations */}
       {activeTab === 'integrations' && (
         <div className="max-w-4xl space-y-6">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-4 flex items-center">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-base font-bold text-white mb-4 flex items-center">
               <Server className="w-5 h-5 mr-2 text-indigo-600" />
               Tevalis POS Cloud Bridge
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Tevalis Site ID
                 </label>
                 <input
                   type="text"
                   value={tevalisSiteId}
                   onChange={e => setTevalisSiteId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   API Key / Secret Token
                 </label>
                 <div className="relative">
@@ -389,7 +391,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                     type={showPin ? 'text' : 'password'}
                     value={tevalisApiKey}
                     onChange={e => setTevalisApiKey(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
                   />
                   <button
                     type="button"
@@ -403,33 +405,33 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-4 flex items-center">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-base font-bold text-white mb-4 flex items-center">
               <Radio className="w-5 h-5 mr-2 text-indigo-600" />
               NowBookIt & Reservations Hub
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   NowBookIt Venue ID
                 </label>
                 <input
                   type="text"
                   value={nowBookItVenueId}
                   onChange={e => setNowBookItVenueId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Auto-Sync Interval (Minutes)
                 </label>
                 <select
                   value={autoSyncInterval}
                   onChange={e => setAutoSyncInterval(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="1">1 Minute (Live)</option>
                   <option value="5">5 Minutes (Recommended)</option>
@@ -442,9 +444,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
 
 
           {/* Ecosystem & Hub Links */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center">
+              <h3 className="text-base font-bold text-white flex items-center">
                 <Compass className="w-5 h-5 mr-2 text-cyan-500" />
                 Connected CT Ecosystem & Hubs
               </h3>
@@ -521,15 +523,15 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
       {/* Tab Content: Security & Kiosk */}
       {activeTab === 'security' && (
         <div className="max-w-4xl space-y-6">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-4 flex items-center">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-base font-bold text-white mb-4 flex items-center">
               <Lock className="w-5 h-5 mr-2 text-indigo-600" />
               Terminal & Manager Overrides
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Manager Master Override PIN
                 </label>
                 <input
@@ -537,18 +539,18 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                   maxLength={6}
                   value={managerOverridePin}
                   onChange={e => setManagerOverridePin(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 font-mono tracking-widest"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 font-mono tracking-widest"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Terminal Auto-Lock Timeout
                 </label>
                 <select
                   value={kioskTimeout}
                   onChange={e => setKioskTimeout(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="5">5 Minutes</option>
                   <option value="15">15 Minutes</option>
@@ -574,12 +576,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
           </div>
 
           {/* Role Hierarchy Matrix */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-2 flex items-center">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-base font-bold text-white mb-2 flex items-center">
               <Shield className="w-5 h-5 mr-2 text-indigo-600" />
               Role-Based Access Hierarchy (RBAC)
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
+            <p className="text-xs text-slate-400 mb-5">
               System privilege tiers governing permissions across CTOS and ct-clock terminals.
             </p>
 
@@ -593,7 +595,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                     <h4 className="text-sm font-black text-amber-600 dark:text-amber-400">Master Admin (The Creator)</h4>
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-full">Permanent Root</span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  <p className="text-xs text-slate-300 mt-1">
                     Unrestricted root access to all modules, system configuration, database backup & wipe, API secrets, and appointment/revocation of Duty Manager admin rights.
                   </p>
                 </div>
@@ -608,7 +610,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                     <h4 className="text-sm font-black text-indigo-600 dark:text-indigo-400">Admin (Duty Managers)</h4>
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 rounded-full">Operations Admin</span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  <p className="text-xs text-slate-300 mt-1">
                     Management of Front of House and Back of House, roster publishing and editing, data importing, viewing financials (Cashup, EOD Sales, Budgets) and confidential staff records.
                   </p>
                 </div>
@@ -621,9 +623,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-black text-slate-700 dark:text-slate-300">Standard Users (FOH & BOH Staff)</h4>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-slate-500/20 text-slate-600 dark:text-slate-300 rounded-full">Operational Staff</span>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-slate-500/20 text-slate-300 rounded-full">Operational Staff</span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  <p className="text-xs text-slate-300 mt-1">
                     Daily workflow access: Timeclock clock-in/out, personal roster, POS service, recipes, menus, maintenance log, incident report submission, TV guide, and weather.
                   </p>
                 </div>
@@ -637,17 +639,17 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
       {activeTab === 'data' && (
         <div className="max-w-4xl space-y-6">
           {/* Public Folder Auto-Scanner & Importer */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/60 rounded-2xl text-indigo-600 dark:text-indigo-400">
                   <FolderSync className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center">
+                  <h3 className="text-base font-bold text-white flex items-center">
                     Public Folder Auto-Scanner & Importer
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-400">
                     Continuously scans <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 rounded font-mono text-[11px]">/public</code> every hour on the hour for menus, rosters, cash rec sheets, and ct-clock staff logs.
                   </p>
                 </div>
@@ -660,7 +662,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
+              <div className="p-4 bg-slate-950 text-white/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
                 <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block mb-1">Schedule</span>
                 <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-200 font-semibold text-xs">
                   <Clock className="w-4 h-4 text-indigo-500" />
@@ -668,7 +670,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
+              <div className="p-4 bg-slate-950 text-white/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
                 <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block mb-1">Last Scan</span>
                 <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                   {syncMeta.lastRun ? new Date(syncMeta.lastRun).toLocaleTimeString() : 'Never'}
@@ -680,7 +682,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
+              <div className="p-4 bg-slate-950 text-white/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
                 <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block mb-1">Next Auto-Scan</span>
                 <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
                   {syncMeta.nextRun ? new Date(syncMeta.nextRun).toLocaleTimeString() : 'Top of next hour'}
@@ -693,7 +695,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                 <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block mb-2">
                   Recent Scan Summary
                 </span>
-                <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1 max-h-32 overflow-y-auto">
+                <ul className="text-xs text-slate-300 space-y-1 max-h-32 overflow-y-auto">
                   {syncMeta.lastResult.details.map((detail, idx) => (
                     <li key={idx} className="flex items-center space-x-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
@@ -744,7 +746,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                       Master Admin
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 max-w-xl">
+                  <p className="text-xs text-slate-300 mt-1 max-w-xl">
                     Directly write spreadsheets, PDFs, images, and slides into the live <code className="font-mono text-amber-600 dark:text-amber-300">/public/dropbox</code>, <code className="font-mono text-amber-600 dark:text-amber-300">/public/ct-matrix</code>, or <code className="font-mono text-amber-600 dark:text-amber-300">/public/ct-clock</code> directories with automated database ingestion.
                   </p>
                 </div>
@@ -760,12 +762,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-2 flex items-center">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-base font-bold text-white mb-2 flex items-center">
               <Database className="w-5 h-5 mr-2 text-indigo-600" />
               Venue Database Snapshot
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            <p className="text-xs text-slate-400 mb-6">
               Export an encrypted full JSON snapshot of all modules (Staff, Stock, Recipes, Incidents, Entertainment,
               Lost & Found, Finances, Maintenance).
             </p>

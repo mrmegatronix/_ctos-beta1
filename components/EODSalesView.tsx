@@ -51,22 +51,22 @@ const EODSalesView: React.FC<EODSalesViewProps> = ({ stockItems, onSalesSubmitte
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm">
+    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">End of Day Sales Entry</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-2">Enter items sold today to automatically decrement stock quantities.</p>
+        <h2 className="text-2xl font-bold text-white">End of Day Sales Entry</h2>
+        <p className="text-slate-400 mt-2">Enter items sold today to automatically decrement stock quantities.</p>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-lg p-6 max-w-4xl">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-6 max-w-4xl">
         
-        <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-gray-200 dark:border-slate-700">
+        <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-white/10">
             <div className="flex-1">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Sales Date</label>
                 <div className="relative">
                     <CalendarIcon className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" />
                     <input 
                         type="date"
-                        className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm outline-none text-slate-900 dark:text-slate-50 w-full md:w-64"
+                        className="pl-10 pr-4 py-2 bg-slate-950 text-white border border-white/10 rounded-lg text-sm outline-none text-white w-full md:w-64"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                     />
@@ -79,7 +79,7 @@ const EODSalesView: React.FC<EODSalesViewProps> = ({ stockItems, onSalesSubmitte
         </div>
 
         <div className="space-y-4 mb-6">
-            <div className="flex text-sm font-semibold text-slate-500 dark:text-slate-400 px-2 uppercase tracking-wider">
+            <div className="flex text-sm font-semibold text-slate-400 px-2 uppercase tracking-wider">
                 <div className="flex-[3]">Product</div>
                 <div className="flex-1">Quantity Sold</div>
                 <div className="w-10"></div>
@@ -89,7 +89,7 @@ const EODSalesView: React.FC<EODSalesViewProps> = ({ stockItems, onSalesSubmitte
                 <div key={idx} className="flex space-x-4 items-center">
                     <div className="flex-[3]">
                         <select 
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm outline-none text-slate-900 dark:text-slate-50"
+                            className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-lg text-sm outline-none text-white"
                             value={line.stockId}
                             onChange={(e) => handleLineChange(idx, 'stockId', e.target.value)}
                         >
@@ -106,7 +106,7 @@ const EODSalesView: React.FC<EODSalesViewProps> = ({ stockItems, onSalesSubmitte
                             type="number"
                             min="1"
                             placeholder="Qty"
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm outline-none text-slate-900 dark:text-slate-50"
+                            className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-lg text-sm outline-none text-white"
                             value={line.quantity || ''}
                             onChange={(e) => handleLineChange(idx, 'quantity', parseInt(e.target.value) || 0)}
                         />
@@ -124,7 +124,7 @@ const EODSalesView: React.FC<EODSalesViewProps> = ({ stockItems, onSalesSubmitte
             ))}
         </div>
 
-        <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-slate-700">
+        <div className="flex justify-between items-center pt-4 border-t border-white/10">
             <button 
                 onClick={handleAddLine}
                 className="flex items-center px-4 py-2 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors text-sm font-medium"

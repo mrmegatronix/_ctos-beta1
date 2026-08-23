@@ -58,14 +58,14 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-900">
+    <div className="flex flex-col h-full bg-slate-900/60 backdrop-blur-xl">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/10 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex-shrink-0">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg">
             <Database className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">Master Data Editor</h2>
+            <h2 className="text-xl font-bold text-white leading-tight">Master Data Editor</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">Direct database access via spreadsheet interface</p>
           </div>
         </div>
@@ -114,11 +114,11 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
       </div>
 
       <div className="flex-1 overflow-auto bg-gray-50 dark:bg-[#0B0F19] p-4">
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-white/10 overflow-hidden">
+        <div className="bg-slate-900/60 backdrop-blur-xl rounded-lg shadow-sm border border-gray-200 dark:border-white/10 overflow-hidden">
           {activeTab === 'stock' ? (
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-100 dark:bg-slate-900/50 text-gray-600 dark:text-gray-400">
+                <thead className="bg-gray-100 dark:bg-slate-900/50 text-slate-400">
                   <tr>
                     <th className="px-4 py-3 font-semibold border-b dark:border-white/5 border-r dark:border-white/5 w-64">Name</th>
                     <th className="px-4 py-3 font-semibold border-b dark:border-white/5 border-r dark:border-white/5 w-40">Category</th>
@@ -137,7 +137,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={item.name}
                           onChange={(e) => handleStockChange(index, 'name', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -145,7 +145,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={item.category}
                           onChange={(e) => handleStockChange(index, 'category', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -153,7 +153,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="number"
                           value={item.quantity}
                           onChange={(e) => handleStockChange(index, 'quantity', parseInt(e.target.value) || 0)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -161,7 +161,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="number"
                           value={item.minLevel}
                           onChange={(e) => handleStockChange(index, 'minLevel', parseInt(e.target.value) || 0)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -170,7 +170,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           step="0.01"
                           value={item.price}
                           onChange={(e) => handleStockChange(index, 'price', parseFloat(e.target.value) || 0)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -178,7 +178,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={item.barcode || ''}
                           onChange={(e) => handleStockChange(index, 'barcode', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                           placeholder="Scan..."
                         />
                       </td>
@@ -187,7 +187,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={item.location || ''}
                           onChange={(e) => handleStockChange(index, 'location', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                           placeholder="Storage Area..."
                         />
                       </td>
@@ -199,7 +199,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
           ) : (
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-100 dark:bg-slate-900/50 text-gray-600 dark:text-gray-400">
+                <thead className="bg-gray-100 dark:bg-slate-900/50 text-slate-400">
                   <tr>
                     <th className="px-4 py-3 font-semibold border-b dark:border-white/5 border-r dark:border-white/5 w-64">Name</th>
                     <th className="px-4 py-3 font-semibold border-b dark:border-white/5 border-r dark:border-white/5 w-48">Role</th>
@@ -216,7 +216,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={member.name}
                           onChange={(e) => handleStaffChange(index, 'name', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -224,7 +224,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={member.role}
                           onChange={(e) => handleStaffChange(index, 'role', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -232,7 +232,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={member.pinCode}
                           onChange={(e) => handleStaffChange(index, 'pinCode', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white font-mono"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white font-mono"
                         />
                       </td>
                       <td className="p-0 border-r dark:border-white/5">
@@ -240,7 +240,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={member.email || ''}
                           onChange={(e) => handleStaffChange(index, 'email', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                       <td className="p-0">
@@ -248,7 +248,7 @@ const MasterDataView: React.FC<MasterDataViewProps> = ({ stock, staff, onSaveSto
                           type="text"
                           value={member.phone || ''}
                           onChange={(e) => handleStaffChange(index, 'phone', e.target.value)}
-                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none text-white"
                         />
                       </td>
                     </tr>

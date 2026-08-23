@@ -61,7 +61,7 @@ const RosterView: React.FC<RosterViewProps> = ({
   const isManager = currentUser.role === 'Admin' || currentUser.role === 'Duty Manager';
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm print:bg-white print:border-none print:shadow-none">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm print:bg-white print:border-none print:shadow-none">
       
       {/* Printable Header */}
       <div className="hidden print:block p-4 border-b-2 border-slate-900 mb-2">
@@ -80,7 +80,7 @@ const RosterView: React.FC<RosterViewProps> = ({
       </div>
 
       {/* Controls */}
-      <div className="px-6 py-2 flex justify-between items-center bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border-b border-gray-200 dark:border-slate-700 print:hidden">
+      <div className="px-6 py-2 flex justify-between items-center bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm border-b border-white/10 print:hidden">
           <div className="text-sm text-slate-400">
               Week of {weekDays[0]?.toDateString()}
           </div>
@@ -104,12 +104,12 @@ const RosterView: React.FC<RosterViewProps> = ({
       </div>
 
       <div className="flex-1 overflow-auto custom-scrollbar p-6 print:p-2 print:overflow-visible">
-        <div className="min-w-[1000px] print:min-w-full border rounded-xl border-gray-200 dark:border-slate-700 print:border-slate-400 overflow-hidden">
+        <div className="min-w-[1000px] print:min-w-full border rounded-xl border-white/10 print:border-slate-400 overflow-hidden">
           {/* Header Row */}
-          <div className="grid grid-cols-8 bg-white dark:bg-slate-800 print:bg-slate-100 border-b border-gray-200 dark:border-slate-700 print:border-slate-400">
-            <div className="p-4 print:p-2 font-semibold text-slate-200 print:text-slate-900 border-r border-gray-200 dark:border-slate-700 print:border-slate-400">Staff Member</div>
+          <div className="grid grid-cols-8 bg-slate-900/60 backdrop-blur-xl print:bg-slate-100 border-b border-white/10 print:border-slate-400">
+            <div className="p-4 print:p-2 font-semibold text-slate-200 print:text-slate-900 border-r border-white/10 print:border-slate-400">Staff Member</div>
             {weekDays.map((day, i) => (
-              <div key={i} className="p-4 print:p-2 text-center border-r border-gray-200 dark:border-slate-700 print:border-slate-400 last:border-none">
+              <div key={i} className="p-4 print:p-2 text-center border-r border-white/10 print:border-slate-400 last:border-none">
                 <div className="text-xs uppercase text-slate-400 print:text-slate-600 mb-1">
                    {new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(day)}
                 </div>
@@ -122,8 +122,8 @@ const RosterView: React.FC<RosterViewProps> = ({
 
           {/* Staff Rows */}
           {teamMembers.map((member) => (
-            <div key={member.id} className="grid grid-cols-8 border-b border-gray-100 print:border-slate-300 bg-white dark:bg-slate-800 print:bg-white border-gray-200 dark:border-slate-700 shadow-sm hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-800/50 transition-colors print:break-inside-avoid">
-              <div className="p-4 print:p-2 flex items-center space-x-3 border-r border-gray-100 print:border-slate-300">
+            <div key={member.id} className="grid grid-cols-8 border-b border-white/5 print:border-slate-300 bg-slate-900/60 backdrop-blur-xl print:bg-white border-white/10 shadow-sm hover:bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm dark:hover:bg-slate-800/50 transition-colors print:break-inside-avoid">
+              <div className="p-4 print:p-2 flex items-center space-x-3 border-r border-white/5 print:border-slate-300">
                 <img src={member.avatar} className="w-8 h-8 rounded-full print:w-6 print:h-6" alt="" />
                 <div>
                     <div className="font-medium text-sm text-slate-50 print:text-slate-900">{member.name}</div>
@@ -138,7 +138,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                 return (
                   <div 
                     key={i} 
-                    className={`p-2 print:p-1.5 border-r border-gray-100 print:border-slate-300 last:border-none min-h-[80px] print:min-h-[60px] relative group ${onLeave ? 'bg-orange-50/50 dark:bg-orange-900/10 print:bg-amber-50' : ''}`}
+                    className={`p-2 print:p-1.5 border-r border-white/5 print:border-slate-300 last:border-none min-h-[80px] print:min-h-[60px] relative group ${onLeave ? 'bg-orange-50/50 dark:bg-orange-900/10 print:bg-amber-50' : ''}`}
                     onClick={() => isManager && !onLeave && openShiftModal(day, member.id)}
                   >
                      {isManager && !onLeave && (
@@ -184,7 +184,7 @@ const RosterView: React.FC<RosterViewProps> = ({
       {/* Leave Request Modal */}
       {showLeaveModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+              <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
                   <h3 className="text-lg font-bold text-slate-50  mb-4">Request Leave</h3>
                   <form onSubmit={submitLeave} className="space-y-4">
                       <div>
@@ -192,7 +192,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                           <input 
                             type="date" 
                             required 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-slate-50 "
+                            className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  border border-white/10  rounded-lg text-slate-50 "
                             value={leaveStart}
                             onChange={e => setLeaveStart(e.target.value)}
                           />
@@ -202,7 +202,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                           <input 
                             type="date" 
                             required 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-slate-50 "
+                            className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  border border-white/10  rounded-lg text-slate-50 "
                             value={leaveEnd}
                             onChange={e => setLeaveEnd(e.target.value)}
                           />
@@ -210,7 +210,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                       <div>
                           <label className="block text-sm font-medium text-slate-200  mb-1">Reason</label>
                           <textarea 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-slate-50 "
+                            className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  border border-white/10  rounded-lg text-slate-50 "
                             placeholder="e.g. Family Holiday"
                             value={leaveReason}
                             onChange={e => setLeaveReason(e.target.value)}
@@ -228,7 +228,7 @@ const RosterView: React.FC<RosterViewProps> = ({
       {/* Add Shift Modal */}
       {showShiftModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+              <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
                   <h3 className="text-lg font-bold text-slate-50 mb-4">Add Shift</h3>
                   <form onSubmit={submitShift} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -237,7 +237,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                               <input 
                                 type="time" 
                                 required 
-                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border border-gray-200 dark:border-slate-700 rounded-lg text-slate-50"
+                                className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm border border-white/10 rounded-lg text-slate-50"
                                 value={shiftStart}
                                 onChange={e => setShiftStart(e.target.value)}
                               />
@@ -247,7 +247,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                               <input 
                                 type="time" 
                                 required 
-                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border border-gray-200 dark:border-slate-700 rounded-lg text-slate-50"
+                                className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm border border-white/10 rounded-lg text-slate-50"
                                 value={shiftEnd}
                                 onChange={e => setShiftEnd(e.target.value)}
                               />
@@ -256,7 +256,7 @@ const RosterView: React.FC<RosterViewProps> = ({
                       <div>
                           <label className="block text-sm font-medium text-slate-200 mb-1">Role / Area</label>
                           <select 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm border border-gray-200 dark:border-slate-700 rounded-lg text-slate-50 bg-slate-800"
+                            className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm border border-white/10 rounded-lg text-slate-50 bg-slate-800"
                             value={shiftRole}
                             onChange={e => setShiftRole(e.target.value)}
                           >

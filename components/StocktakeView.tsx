@@ -86,13 +86,13 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
 
   return (
     <>
-      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="p-4 md:p-6 border-b border-gray-200 dark:border-slate-700 flex flex-col md:flex-row md:justify-between md:items-center bg-white dark:bg-slate-800 shadow-sm space-y-4 md:space-y-0">
+      <div className="flex-1 flex flex-col h-full bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm overflow-hidden">
+        <div className="p-4 md:p-6 border-b border-white/10 flex flex-col md:flex-row md:justify-between md:items-center bg-slate-900/60 backdrop-blur-xl shadow-sm space-y-4 md:space-y-0">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               <ClipboardList className="w-6 h-6 mr-2 text-indigo-500" /> Stocktake
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Perform physical inventory counts and record variances.</p>
+            <p className="text-sm text-slate-400">Perform physical inventory counts and record variances.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button 
@@ -115,7 +115,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
             ) : (
               <>
                 <button onClick={handleSaveProgress} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors font-medium">Save Progress</button>
-                <button onClick={() => setIsActive(false)} className="px-4 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors font-medium">Cancel</button>
+                <button onClick={() => setIsActive(false)} className="px-4 py-2.5 text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors font-medium">Cancel</button>
                 <button onClick={handleCommit} className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg shadow-lg font-medium transition-colors">
                   <Save className="w-4 h-4" /> <span className="hidden md:inline">Commit & Update Stock</span><span className="md:hidden">Commit</span>
                 </button>
@@ -133,7 +133,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                 placeholder="Filter items by name, category, or barcode..." 
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full pl-10 pr-4 py-2.5 border border-white/10 rounded-lg bg-slate-900/60 backdrop-blur-xl shadow-sm text-white focus:ring-2 focus:ring-indigo-500 outline-none"
               />
             </div>
             <button 
@@ -145,9 +145,9 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
             </button>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-lg overflow-x-auto">
+          <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden shadow-lg overflow-x-auto">
             <table className="w-full text-left min-w-[700px]">
-              <thead className="bg-gray-50 dark:bg-slate-800 text-xs uppercase text-slate-500 dark:text-slate-400 border-b border-gray-200 dark:border-slate-700">
+              <thead className="bg-gray-50 dark:bg-slate-800 text-xs uppercase text-slate-400 border-b border-white/10">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Item Name</th>
                   <th className="px-6 py-4 font-semibold">Location</th>
@@ -164,17 +164,17 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                   return (
                     <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
                       <td className="px-6 py-4">
-                        <div className="font-medium text-slate-900 dark:text-slate-50">{item.name}</div>
+                        <div className="font-medium text-white">{item.name}</div>
                         <div className="text-xs text-slate-500 mt-1">{item.category} {item.barcode && ` • ${item.barcode}`}</div>
                       </td>
-                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                      <td className="px-6 py-4 text-slate-300">
                         {item.location ? (
                           <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs">{item.location}</span>
                         ) : (
                           <span className="text-slate-400 text-xs">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">
+                      <td className="px-6 py-4 text-center text-slate-400">
                         {item.quantity} {item.unit}
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -184,7 +184,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                           value={actual}
                           onChange={(e) => handleCountChange(item.id, e.target.value)}
                           placeholder={item.quantity.toString()}
-                          className="w-24 text-center px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50"
+                          className="w-24 text-center px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-md bg-slate-900/60 backdrop-blur-xl text-white focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50"
                         />
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -214,7 +214,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
 
         {isQrModalOpen && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-xl relative animate-in zoom-in-95 duration-200 text-center">
+            <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl w-full max-w-sm p-6 shadow-xl relative animate-in zoom-in-95 duration-200 text-center">
               <button 
                 onClick={() => setIsQrModalOpen(false)}
                 className="absolute top-4 right-4 text-gray-400 hover:text-slate-900 dark:hover:text-slate-100"

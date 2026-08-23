@@ -67,43 +67,46 @@ const POSView: React.FC = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="flex h-screen bg-slate-950 text-white overflow-hidden relative">
+      {/* Background Glow */}
+      <div className="absolute top-0 left-0 w-full h-full bg-indigo-900/10 blur-[120px] pointer-events-none"></div>
+
       {/* Left Pane - Order */}
-      <div className="w-1/3 flex flex-col bg-gray-800 border-r border-gray-700">
-        <div className="p-4 bg-gray-900 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-blue-400 flex items-center">
-            <ShoppingCart className="mr-2 h-5 w-5" /> Current Order
+      <div className="w-1/3 flex flex-col bg-slate-900/60 backdrop-blur-xl border-r border-white/10 relative z-10 shadow-2xl">
+        <div className="p-6 bg-white/5 border-b border-white/10 backdrop-blur-md">
+          <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-indigo-400 flex items-center">
+            <ShoppingCart className="mr-3 h-6 w-6 text-emerald-400" /> Current Order
           </h2>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
           {orderLines.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500">
-              <ShoppingCart className="h-12 w-12 mb-2 opacity-20" />
-              <p>No items in order</p>
+            <div className="flex flex-col items-center justify-center h-full text-slate-500">
+              <ShoppingCart className="h-16 w-16 mb-4 opacity-20" />
+              <p className="font-medium tracking-wide">No items in order</p>
             </div>
           ) : (
             orderLines.map(line => (
-              <div key={line.id} className="flex justify-between items-center bg-gray-700 p-3 rounded-lg">
+              <div key={line.id} className="flex justify-between items-center bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-all border border-white/5 hover:border-white/20">
                 <div className="flex-1">
-                  <h3 className="font-semibold truncate">{line.item.name}</h3>
-                  <p className="text-sm text-gray-400">${line.item.price.toFixed(2)} each</p>
+                  <h3 className="font-semibold text-slate-100 truncate">{line.item.name}</h3>
+                  <p className="text-sm text-emerald-400/80">${line.item.price.toFixed(2)} <span className="text-slate-500 text-xs ml-1">each</span></p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center bg-gray-900 rounded-lg">
-                    <button onClick={() => updateQuantity(line.id, -1)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-600 rounded-l-lg transition-colors">
+                  <div className="flex items-center bg-slate-950/50 rounded-lg p-1 border border-white/5">
+                    <button onClick={() => updateQuantity(line.id, -1)} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-all active:scale-95">
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="px-3 font-mono">{line.quantity}</span>
-                    <button onClick={() => updateQuantity(line.id, 1)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-600 rounded-r-lg transition-colors">
+                    <span className="w-8 text-center font-mono font-medium">{line.quantity}</span>
+                    <button onClick={() => updateQuantity(line.id, 1)} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-all active:scale-95">
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="w-20 text-right font-mono font-bold">
+                  <div className="w-20 text-right font-mono font-bold text-slate-100 tracking-wider">
                     ${(line.item.price * line.quantity).toFixed(2)}
                   </div>
-                  <button onClick={() => removeLine(line.id)} className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-colors">
-                    <Trash2 className="h-4 w-4" />
+                  <button onClick={() => removeLine(line.id)} className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition-all active:scale-95">
+                    <Trash2 className="h-5 w-5" />
                   </button>
                 </div>
               </div>
@@ -111,73 +114,73 @@ const POSView: React.FC = () => {
           )}
         </div>
 
-        <div className="p-4 bg-gray-900 border-t border-gray-700 space-y-3">
-          <div className="flex justify-between text-gray-400">
+        <div className="p-6 bg-slate-900/80 backdrop-blur-xl border-t border-white/10 space-y-4">
+          <div className="flex justify-between text-slate-400 font-medium tracking-wide">
             <span>Subtotal</span>
-            <span className="font-mono">${subtotal.toFixed(2)}</span>
+            <span className="font-mono text-slate-200">${subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-slate-400 font-medium tracking-wide">
             <span>Tax (15%)</span>
-            <span className="font-mono">${tax.toFixed(2)}</span>
+            <span className="font-mono text-slate-200">${tax.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-2xl font-bold text-white pt-2 border-t border-gray-700">
+          <div className="flex justify-between text-3xl font-bold text-white pt-4 border-t border-white/10">
             <span>Total</span>
-            <span className="font-mono text-green-400">${total.toFixed(2)}</span>
+            <span className="font-mono text-emerald-400">${total.toFixed(2)}</span>
           </div>
           
-          <div className="grid grid-cols-4 gap-2 pt-4">
-            <button onClick={clearOrder} className="col-span-1 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-bold flex flex-col items-center justify-center transition-colors">
-              <Ban className="h-5 w-5 mb-1" />
-              Void
+          <div className="grid grid-cols-4 gap-3 pt-6">
+            <button onClick={clearOrder} className="col-span-1 py-4 bg-slate-800 hover:bg-rose-600 border border-white/10 hover:border-transparent rounded-xl font-bold flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-95 group">
+              <Ban className="h-6 w-6 mb-2 text-rose-400 group-hover:text-white transition-colors" />
+              <span className="text-sm tracking-wider">VOID</span>
             </button>
-            <button className="col-span-1 py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-bold flex flex-col items-center justify-center transition-colors">
-              <Tag className="h-5 w-5 mb-1" />
-              Disc
+            <button className="col-span-1 py-4 bg-slate-800 hover:bg-amber-500 border border-white/10 hover:border-transparent rounded-xl font-bold flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-95 group">
+              <Tag className="h-6 w-6 mb-2 text-amber-400 group-hover:text-white transition-colors" />
+              <span className="text-sm tracking-wider">DISC</span>
             </button>
-            <button className="col-span-1 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold flex flex-col items-center justify-center transition-colors">
-              <Send className="h-5 w-5 mb-1" />
-              Send
+            <button className="col-span-1 py-4 bg-slate-800 hover:bg-indigo-500 border border-white/10 hover:border-transparent rounded-xl font-bold flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-95 group">
+              <Send className="h-6 w-6 mb-2 text-indigo-400 group-hover:text-white transition-colors" />
+              <span className="text-sm tracking-wider">SEND</span>
             </button>
-            <button className="col-span-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-bold flex flex-col items-center justify-center transition-colors">
-              <CreditCard className="h-5 w-5 mb-1" />
-              Pay
+            <button className="col-span-1 py-4 bg-gradient-to-br from-emerald-500 to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 shadow-lg shadow-emerald-500/20 border border-emerald-400/30 rounded-xl font-bold flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-95">
+              <CreditCard className="h-6 w-6 mb-2 text-white" />
+              <span className="text-sm tracking-wider text-white">PAY</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Right Pane - Items & Categories */}
-      <div className="w-2/3 flex flex-col">
+      <div className="w-2/3 flex flex-col relative z-10">
         {/* Top Bar - Search & Info */}
-        <div className="p-4 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
+        <div className="p-6 bg-white/5 backdrop-blur-md border-b border-white/10 flex justify-between items-center">
           <div className="relative w-1/2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
             <input
               type="text"
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner placeholder-slate-500"
             />
           </div>
-          <div className="flex space-x-2">
-            <button onClick={() => setSelectedCategory(null)} className={`px-4 py-2 rounded-lg font-semibold transition-colors ${!selectedCategory ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
+          <div className="flex space-x-3">
+            <button onClick={() => setSelectedCategory(null)} className={`px-6 py-3 rounded-xl font-bold tracking-wide transition-all ${!selectedCategory ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-800/50 border border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
               All Items
             </button>
           </div>
         </div>
 
         {/* Categories Bar */}
-        <div className="p-4 bg-gray-800 border-b border-gray-700 overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <div className="flex space-x-2">
+        <div className="p-4 bg-slate-900/40 backdrop-blur-sm border-b border-white/5 overflow-x-auto whitespace-nowrap custom-scrollbar">
+          <div className="flex space-x-3 px-2">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-3 rounded-lg font-bold min-w-[120px] shadow-sm transition-transform active:scale-95 ${
+                className={`px-5 py-3 rounded-xl font-bold tracking-wide min-w-[130px] transition-all hover:scale-[1.02] active:scale-95 ${
                   selectedCategory === cat 
-                    ? 'bg-blue-500 text-white shadow-blue-500/50' 
-                    : 'bg-gray-700 text-gray-200 hover:bg-gray-600 border border-gray-600'
+                    ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30 border border-indigo-400/50' 
+                    : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 hover:text-white'
                 }`}
               >
                 {cat}
@@ -187,26 +190,28 @@ const POSView: React.FC = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="flex-1 p-4 overflow-y-auto bg-gray-900">
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => addToOrder(item)}
-                className="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-blue-500 rounded-xl p-3 h-28 flex flex-col justify-between items-start text-left transition-all active:scale-95 shadow-sm hover:shadow-blue-500/20"
+                className="group bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-indigo-400/50 rounded-2xl p-4 h-32 flex flex-col justify-between items-start text-left transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 active:scale-95"
               >
-                <span className="font-bold text-sm line-clamp-2 leading-tight">{item.name}</span>
+                <span className="font-bold text-sm text-slate-100 line-clamp-2 leading-snug group-hover:text-indigo-300 transition-colors">{item.name}</span>
                 <div className="w-full flex justify-between items-end mt-2">
-                  <span className="text-xs text-gray-400 truncate max-w-[60%]">{item.category}</span>
-                  <span className="font-mono font-bold text-green-400">${item.price.toFixed(2)}</span>
+                  <span className="text-xs font-medium text-slate-500 truncate max-w-[50%] uppercase tracking-wider">{item.category}</span>
+                  <span className="font-mono font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md border border-emerald-400/20">${item.price.toFixed(2)}</span>
                 </div>
               </button>
             ))}
           </div>
           {filteredItems.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
-              <Search className="h-16 w-16 opacity-20" />
-              <p className="text-xl">No items found</p>
+            <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+              <div className="p-6 bg-white/5 rounded-full border border-white/10">
+                  <Search className="h-12 w-12 text-slate-600" />
+              </div>
+              <p className="text-xl font-medium tracking-wide">No items found</p>
             </div>
           )}
         </div>

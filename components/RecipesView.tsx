@@ -139,12 +139,14 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-full flex-col p-6 space-y-6 bg-slate-950 text-white overflow-y-auto relative custom-scrollbar">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <div className="flex items-center space-x-3">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               <ChefHat className="w-7 h-7 mr-3 text-indigo-600 dark:text-indigo-400" />
               Standard Recipe & Beverage Specs
             </h2>
@@ -152,7 +154,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
               {recipes.length} Verified Specs
             </span>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Standard operating procedures, cocktail builds, allergen matrices, and kitchen prep specs.
           </p>
         </div>
@@ -185,7 +187,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
                   active
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    : 'bg-slate-900/60 backdrop-blur-xl border border-white/10 text-slate-300 hover:bg-white/10 transition-colors'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -200,7 +202,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
           <input
             type="text"
             placeholder="Search recipes, ingredients, allergens..."
-            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 shadow-sm"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-slate-100 shadow-sm"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
@@ -213,7 +215,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
           <div
             key={recipe.id}
             onClick={() => setSelectedRecipe(recipe)}
-            className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl cursor-pointer transition-all duration-200 flex flex-col justify-between"
+            className="group bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl cursor-pointer transition-all duration-200 flex flex-col justify-between"
           >
             <div>
               <div className="h-44 bg-slate-100 dark:bg-slate-900 relative overflow-hidden">
@@ -231,7 +233,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">{recipe.category}</span>
                   </div>
                 )}
-                <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 p-2 rounded-xl shadow-md text-slate-700 dark:text-slate-200 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
+                <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 p-2 rounded-xl shadow-md text-slate-700 dark:text-slate-200 backdrop-blur-sm border border-white/10">
                   {getIcon(recipe.category)}
                 </div>
                 <div className="absolute bottom-2 left-2">
@@ -242,7 +244,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
               </div>
 
               <div className="p-5">
-                <h3 className="font-bold text-base text-slate-900 dark:text-slate-50 mb-2 group-hover:text-indigo-600 transition-colors">
+                <h3 className="font-bold text-base text-white mb-2 group-hover:text-indigo-600 transition-colors">
                   {recipe.name}
                 </h3>
 
@@ -262,14 +264,14 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                   ))}
                 </div>
 
-                <div className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                <div className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                   {recipe.ingredients.slice(0, 3).join(', ')}
                   {recipe.ingredients.length > 3 ? ` + ${recipe.ingredients.length - 3} more` : ''}
                 </div>
               </div>
             </div>
 
-            <div className="px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500">
+            <div className="px-5 py-3 bg-slate-950 text-white/60 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500">
               <span>{recipe.ingredients.length} Ingredients</span>
               <span className="font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline">View Spec &rarr;</span>
             </div>
@@ -277,10 +279,10 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
         ))}
 
         {filtered.length === 0 && (
-          <div className="col-span-full p-12 text-center bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+          <div className="col-span-full p-12 text-center bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-dashed border-white/10">
             <ChefHat className="w-12 h-12 mx-auto text-slate-400 mb-3 opacity-60" />
             <h4 className="font-bold text-slate-800 dark:text-slate-200">No Recipes Matching Criteria</h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Create a new recipe specification to populate this category.</p>
+            <p className="text-xs text-slate-400 mt-1">Create a new recipe specification to populate this category.</p>
           </div>
         )}
       </div>
@@ -288,7 +290,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
       {/* Recipe Detail Modal */}
       {selectedRecipe && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
             <div className="relative h-56 flex-shrink-0 bg-slate-200 dark:bg-slate-900">
               {selectedRecipe.image ? (
                 <img src={selectedRecipe.image} className="w-full h-full object-cover" alt={selectedRecipe.name} />
@@ -353,7 +355,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                   <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider mb-3">
                     Standard Preparation Method
                   </h4>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-950 text-white/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                     {selectedRecipe.method}
                   </p>
 
@@ -367,7 +369,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                         {selectedRecipe.allergens.map(a => (
                           <span
                             key={a}
-                            className="px-2 py-0.5 bg-white dark:bg-slate-800 rounded-md border border-red-200 dark:border-red-800 text-xs font-bold text-red-700 dark:text-red-300 shadow-sm"
+                            className="px-2 py-0.5 bg-slate-900/60 backdrop-blur-xl rounded-md border border-red-200 dark:border-red-800 text-xs font-bold text-red-700 dark:text-red-300 shadow-sm"
                           >
                             {a}
                           </span>
@@ -379,7 +381,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <div className="p-4 bg-slate-950 text-white/80 border-t border-white/10 flex justify-between items-center">
               {onDelete && (
                 <button
                   onClick={() => {
@@ -409,9 +411,9 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
       {/* Create / Edit Recipe Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-slate-50 flex items-center">
+              <h3 className="font-bold text-lg text-white flex items-center">
                 <ChefHat className="w-5 h-5 mr-2 text-indigo-600" />
                 {editingRecipe ? 'Edit Recipe Specification' : 'Add New Recipe Specification'}
               </h3>
@@ -423,7 +425,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
             <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Recipe / Spec Name *
                   </label>
                   <input
@@ -432,18 +434,18 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                     placeholder="e.g. Espresso Martini, Crispy Pork Belly..."
                     value={formData.name || ''}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Category *
                   </label>
                   <select
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value as any })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="Cocktail">Cocktail</option>
                     <option value="Food">Food / Dish</option>
@@ -453,7 +455,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Glassware / Plate / Vessel
                   </label>
                   <input
@@ -461,12 +463,12 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                     placeholder="e.g. Coupe Glass, 10-inch Coupe Plate, Highball..."
                     value={formData.glassware || ''}
                     onChange={e => setFormData({ ...formData, glassware: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Garnish / Presentation
                   </label>
                   <input
@@ -474,14 +476,14 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                     placeholder="e.g. 3 Coffee beans, Dehydrated Orange Wheel..."
                     value={formData.garnish || ''}
                     onChange={e => setFormData({ ...formData, garnish: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
               {/* Ingredients Builder */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Ingredients Build List
                 </label>
                 <div className="flex gap-2 mb-2">
@@ -496,22 +498,22 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                         handleAddIngredient();
                       }
                     }}
-                    className="flex-1 px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 px-3.5 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-sm text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
                     onClick={handleAddIngredient}
-                    className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-xl text-xs font-bold"
+                    className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-100 rounded-xl text-xs font-bold"
                   >
                     Add Line
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-slate-950 text-white rounded-xl border border-white/10">
                   {(formData.ingredients || []).map((ing, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 shadow-sm"
+                      className="inline-flex items-center px-2.5 py-1 bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 shadow-sm"
                     >
                       {ing}
                       <button
@@ -531,7 +533,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
 
               {/* Method */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Method & Instructions *
                 </label>
                 <textarea
@@ -540,13 +542,13 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                   placeholder="Step-by-step prep or build instructions..."
                   value={formData.method || ''}
                   onChange={e => setFormData({ ...formData, method: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               {/* Allergens Selector */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-2">
                   Allergen Warnings
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -560,7 +562,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                         className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors flex items-center space-x-1 ${
                           isSelected
                             ? 'bg-red-600 text-white border-red-600 shadow-sm'
-                            : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                            : 'bg-slate-950 text-white text-slate-300 border-white/10 hover:bg-slate-100'
                         }`}
                       >
                         {isSelected && <Check className="w-3 h-3 mr-0.5" />}
@@ -573,7 +575,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
 
               {/* Image URL */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Image URL (Optional)
                 </label>
                 <div className="relative">
@@ -583,7 +585,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                     placeholder="https://images.unsplash.com/..."
                     value={formData.image || ''}
                     onChange={e => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-sm text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -592,7 +594,7 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 transition-colors rounded-xl transition-colors"
                 >
                   Cancel
                 </button>

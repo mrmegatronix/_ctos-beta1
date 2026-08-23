@@ -71,11 +71,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between mb-8">
              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Office Dashboard</h1>
+                <h1 className="text-3xl font-bold text-white">Office Dashboard</h1>
                 <p className="text-gray-500 dark:text-gray-400">Welcome back, {user.name}.</p>
              </div>
              <div className="flex flex-col items-end gap-3">
-                <div className="text-sm font-medium text-gray-500 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
+                <div className="text-sm font-medium text-gray-500 bg-slate-900/60 backdrop-blur-xl px-4 py-2 rounded-lg border border-white/10 shadow-sm">
                     {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
                 <div className="w-64">
@@ -86,33 +86,33 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                 <div className="flex items-center space-x-3 mb-2">
                    <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg"><Utensils className="w-5 h-5"/></div>
                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Bookings</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{todaysBookings.length}</div>
+                <div className="text-2xl font-bold text-white">{todaysBookings.length}</div>
              </div>
-             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                 <div className="flex items-center space-x-3 mb-2">
                    <div className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 rounded-lg"><AlertTriangle className="w-5 h-5"/></div>
                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Low Stock Alerts</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{lowStock.length}</div>
+                <div className="text-2xl font-bold text-white">{lowStock.length}</div>
              </div>
-             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                 <div className="flex items-center space-x-3 mb-2">
                    <div className="p-2 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-lg"><ClipboardList className="w-5 h-5"/></div>
                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Tasks</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{pendingTasks.length}</div>
+                <div className="text-2xl font-bold text-white">{pendingTasks.length}</div>
              </div>
-             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                 <div className="flex items-center space-x-3 mb-2">
                    <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg"><CalendarIcon className="w-5 h-5"/></div>
                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Events Today</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{todaysEvents.length}</div>
+                <div className="text-2xl font-bold text-white">{todaysEvents.length}</div>
              </div>
           </div>
 
@@ -120,24 +120,24 @@ const DashboardView: React.FC<DashboardViewProps> = ({
              {/* Main Content Area */}
              <div className="lg:col-span-2 space-y-6">
                  {/* Google Workspace & Tools Links */}
-                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                     <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                         <h3 className="font-semibold text-gray-900 dark:text-white">Workspace & Applications</h3>
+                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm overflow-hidden">
+                     <div className="px-6 py-4 border-b border-white/10">
+                         <h3 className="font-semibold text-white">Workspace & Applications</h3>
                      </div>
                      <div className="p-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <button onClick={() => onNavigate('calendar')} className="flex flex-col items-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                        <button onClick={() => onNavigate('calendar')} className="flex flex-col items-center p-4 border border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                             <Calendar className="w-8 h-8 text-blue-500 mb-2" />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Calendar</span>
                         </button>
-                        <button onClick={() => onNavigate('email')} className="flex flex-col items-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                        <button onClick={() => onNavigate('email')} className="flex flex-col items-center p-4 border border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                             <Mail className="w-8 h-8 text-red-500 mb-2" />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</span>
                         </button>
-                        <button onClick={() => onNavigate('contacts')} className="flex flex-col items-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                        <button onClick={() => onNavigate('contacts')} className="flex flex-col items-center p-4 border border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                             <Contact className="w-8 h-8 text-indigo-500 mb-2" />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Contacts</span>
                         </button>
-                        <button onClick={() => onNavigate('finance')} className="flex flex-col items-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                        <button onClick={() => onNavigate('finance')} className="flex flex-col items-center p-4 border border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                             <DollarSign className="w-8 h-8 text-emerald-500 mb-2" />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Finance</span>
                         </button>
@@ -145,9 +145,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                  </div>
 
                  {/* System Alerts */}
-                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                     <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                         <h3 className="font-semibold text-gray-900 dark:text-white">Action Required</h3>
+                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm overflow-hidden">
+                     <div className="px-6 py-4 border-b border-white/10">
+                         <h3 className="font-semibold text-white">Action Required</h3>
                      </div>
                      <div className="divide-y divide-gray-100 dark:divide-slate-700">
                          {lowStock.length > 0 && (
@@ -155,7 +155,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                <div className="flex items-center space-x-3">
                                   <AlertTriangle className="w-5 h-5 text-red-500" />
                                   <div>
-                                     <p className="font-medium text-gray-900 dark:text-white">{lowStock.length} Items Low on Stock</p>
+                                     <p className="font-medium text-white">{lowStock.length} Items Low on Stock</p>
                                      <p className="text-sm text-gray-500">Requires purchasing or transfer</p>
                                   </div>
                                </div>
@@ -167,7 +167,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                <div className="flex items-center space-x-3">
                                   <ClipboardList className="w-5 h-5 text-amber-500" />
                                   <div>
-                                     <p className="font-medium text-gray-900 dark:text-white">{pendingTasks.length} Pending Maintenance Tasks</p>
+                                     <p className="font-medium text-white">{pendingTasks.length} Pending Maintenance Tasks</p>
                                      <p className="text-sm text-gray-500">Includes {pendingTasks.filter(t => t.priority === 'high').length} high priority tasks</p>
                                   </div>
                                </div>
@@ -185,14 +185,14 @@ const DashboardView: React.FC<DashboardViewProps> = ({
              <div className="space-y-6">
                 <WeatherWidget />
                 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Today's Schedule</h3>
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm p-6">
+                    <h3 className="font-semibold text-white mb-4">Today's Schedule</h3>
                     <div className="space-y-4">
                         {todaysEvents.map(event => (
                             <div key={event.id} className="flex space-x-3">
                                 <div className="text-xs font-bold text-gray-500 pt-1 w-12">{formatTime(event.start)}</div>
                                 <div className="flex-1 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg border-l-2 border-indigo-500">
-                                    <p className="font-medium text-sm text-gray-900 dark:text-white">{event.title}</p>
+                                    <p className="font-medium text-sm text-white">{event.title}</p>
                                 </div>
                             </div>
                         ))}
@@ -200,7 +200,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                             <div key={band.id} className="flex space-x-3">
                                 <div className="text-xs font-bold text-gray-500 pt-1 w-12">{formatTime(band.date)}</div>
                                 <div className="flex-1 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg border-l-2 border-purple-500">
-                                    <p className="font-medium text-sm text-gray-900 dark:text-white">{band.title}</p>
+                                    <p className="font-medium text-sm text-white">{band.title}</p>
                                     <p className="text-xs text-purple-600 dark:text-purple-400">Live Music</p>
                                 </div>
                             </div>

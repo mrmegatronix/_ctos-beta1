@@ -11,7 +11,8 @@ import IncidentReportForm from './templates/IncidentReportForm';
 import LostAndFoundLog from './templates/LostAndFoundLog';
 import OrderingSheet from './templates/OrderingSheet';
 import FOHShiftRunsheet from './templates/FOHShiftRunsheet';
-
+import LowStockSheet from './templates/LowStockSheet';
+import PurchaseOrderSheet from './templates/PurchaseOrderSheet';
 interface DocumentsViewProps {
   files: FileItem[];
   stock?: StockItem[];
@@ -35,6 +36,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
         { id: 'tpl-lostfound', name: 'Lost & Found Log', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
         { id: 'tpl-ordering', name: 'Ordering Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
         { id: 'tpl-fohshift', name: 'FOH Shift Runsheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-lowstock', name: 'Low Stock Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-purchaseorder', name: 'Purchase Order Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
       ] as FileItem[];
     }
     return files.filter(f => f.parentId === parentId);
@@ -127,7 +130,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
   }
 
   return (
-    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm relative">
+    <div className="flex-1 p-6 overflow-hidden flex flex-col bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm relative">
        <div className="flex items-center justify-between mb-6 shrink-0">
            <h2 className="text-2xl font-bold text-slate-50 ">Filing Cabinet</h2>
            <div className="flex space-x-2">
@@ -141,7 +144,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
        </div>
 
        {/* Breadcrumbs & Navigation */}
-       <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-3 rounded-xl border border-gray-200 dark:border-slate-700  flex items-center space-x-2 mb-6">
+       <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  p-3 rounded-xl border border-white/10  flex items-center space-x-2 mb-6">
            <button onClick={() => setCurrentFolderId(null)} className="p-1 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-md">
                <Home className="w-4 h-4 text-slate-300 " />
            </button>
@@ -162,7 +165,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
        </div>
 
        {showUpload && (
-           <div className="mb-6 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  p-6 rounded-xl border border-gray-200 dark:border-slate-700  max-w-2xl">
+           <div className="mb-6 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  p-6 rounded-xl border border-white/10  max-w-2xl">
                <div className="flex justify-between items-center mb-4">
                    <h3 className="font-bold text-slate-50 ">Upload Documents</h3>
                    <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-slate-300 dark:hover:text-gray-200">Cancel</button>
@@ -190,10 +193,10 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
                              setActiveTemplate(item.id);
                            }
                          }}
-                         className={`group relative bg-white dark:bg-slate-800 shadow-sm rounded-xl p-4 flex flex-col items-center text-center transition-all cursor-pointer ${
+                         className={`group relative bg-slate-900/60 backdrop-blur-xl shadow-sm rounded-xl p-4 flex flex-col items-center text-center transition-all cursor-pointer ${
                            item.id === 'templates-folder' 
                              ? 'border-2 border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-600' 
-                             : 'border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:border-indigo-300 dark:hover:border-indigo-700'
+                             : 'border border-white/10 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:border-indigo-300 dark:hover:border-indigo-700'
                          }`}
                        >
                            <div className={`mb-3 transition-transform group-hover:scale-105 ${item.id === 'templates-folder' ? 'animate-pulse group-hover:animate-none' : ''}`}>
@@ -226,6 +229,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
            {activeTemplate === 'tpl-lostfound' && <LostAndFoundLog />}
            {activeTemplate === 'tpl-ordering' && <OrderingSheet stock={stock} suppliers={suppliers} />}
            {activeTemplate === 'tpl-fohshift' && <FOHShiftRunsheet />}
+           {activeTemplate === 'tpl-lowstock' && <LowStockSheet stock={stock} />}
+           {activeTemplate === 'tpl-purchaseorder' && <PurchaseOrderSheet stock={stock} suppliers={suppliers} />}
          </TemplateViewerModal>
        )}
     </div>

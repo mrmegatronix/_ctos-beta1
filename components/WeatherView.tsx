@@ -165,22 +165,22 @@ const WeatherView: React.FC = () => {
   const advice = getOutdoorSeatingAdvice();
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full bg-slate-950 text-white overflow-y-auto custom-scrollbar">
       <div className="p-8 pb-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               <Sun className="w-7 h-7 mr-3 text-amber-500" />
               Meteorological & Venue Weather Intelligence
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-sm text-slate-400 mt-1">
               Live atmospheric monitoring for patio management, beverage sales forecasting, and outdoor seating viability.
             </p>
           </div>
 
           {/* Location & Refresh Button */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl shadow-sm">
+            <div className="flex items-center space-x-1.5 bg-slate-900/60 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-xl shadow-sm">
               <MapPin className="w-4 h-4 text-indigo-600" />
               <select
                 value={selectedLoc.name}
@@ -188,7 +188,7 @@ const WeatherView: React.FC = () => {
                   const loc = LOCATIONS.find(l => l.name === e.target.value);
                   if (loc) setSelectedLoc(loc);
                 }}
-                className="bg-transparent text-xs font-bold text-slate-800 dark:text-slate-100 outline-none cursor-pointer"
+                className="bg-transparent text-xs font-bold text-slate-100 outline-none cursor-pointer"
               >
                 {LOCATIONS.map(l => (
                   <option key={l.name} value={l.name}>
@@ -201,7 +201,7 @@ const WeatherView: React.FC = () => {
             <button
               onClick={() => fetchLiveWeather(selectedLoc)}
               disabled={loading}
-              className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all shadow-sm"
+              className="p-2.5 bg-slate-900/60 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-colors text-slate-700 dark:text-slate-200 rounded-xl transition-all shadow-sm"
               title="Refresh Live Data"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-indigo-600' : ''}`} />
@@ -257,7 +257,7 @@ const WeatherView: React.FC = () => {
           </div>
 
           {/* Outdoor Seating Advisor */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center">
@@ -269,12 +269,12 @@ const WeatherView: React.FC = () => {
                 </span>
               </div>
 
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
                 {advice.desc}
               </p>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900/80 rounded-2xl p-3 border border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+            <div className="bg-slate-950 text-white/80 rounded-2xl p-3 border border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
               <span className="flex items-center">
                 <Thermometer className="w-3.5 h-3.5 mr-1.5 text-indigo-500" />
                 Optimal Drink Temp
@@ -286,14 +286,14 @@ const WeatherView: React.FC = () => {
           </div>
 
           {/* Wind & Compass Telemetry */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
             <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-4 flex items-center">
               <Wind className="w-4 h-4 mr-2 text-sky-500" />
               Wind Direction & Gusts
             </h3>
 
             <div className="flex items-center justify-center my-2">
-              <div className="relative w-28 h-28 rounded-full border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center">
+              <div className="relative w-28 h-28 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center">
                 <span className="absolute top-1 text-[9px] font-black text-slate-400">N</span>
                 <span className="absolute bottom-1 text-[9px] font-black text-slate-400">S</span>
                 <span className="absolute left-1 text-[9px] font-black text-slate-400">W</span>
@@ -314,8 +314,8 @@ const WeatherView: React.FC = () => {
         </div>
 
         {/* 7-Day Venue Outlook Forecast */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-6 flex items-center">
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm">
+          <h3 className="text-base font-bold text-white mb-6 flex items-center">
             <Sun className="w-5 h-5 mr-2 text-amber-500" />
             7-Day Trading & Event Outlook
           </h3>
@@ -324,7 +324,7 @@ const WeatherView: React.FC = () => {
             {daily.map((day, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/80 rounded-2xl p-4 text-center hover:border-indigo-500/50 transition-all flex flex-col justify-between"
+                className="bg-slate-950 text-white/60 border border-slate-100 dark:border-slate-700/80 rounded-2xl p-4 text-center hover:border-indigo-500/50 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="text-xs font-black text-slate-900 dark:text-slate-100">{day.date}</div>

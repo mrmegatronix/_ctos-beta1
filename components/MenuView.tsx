@@ -82,21 +82,21 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-slate-950 text-white overflow-hidden">
       
       {/* Top Bar for Menu Selection */}
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-8 py-4 flex items-center justify-between">
+      <div className="bg-slate-900/60 backdrop-blur-xl border-b border-white/10 px-8 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4 overflow-x-auto">
               {menus.map(menu => (
                   <button 
                       key={menu.id}
                       onClick={() => setActiveMenuId(menu.id)}
-                      className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${activeMenuId === menu.id ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                      className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${activeMenuId === menu.id ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-white/10 transition-colors'}`}
                   >
                       {menu.title}
                   </button>
               ))}
-              <button onClick={handleAddMenu} className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0">
+              <button onClick={handleAddMenu} className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white/5 rounded-lg shrink-0">
                   <Plus className="w-5 h-5" />
               </button>
           </div>
@@ -123,7 +123,7 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                           <div className="flex items-center space-x-3">
                               <input 
                                   type="text"
-                                  className="text-3xl font-bold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded px-3 py-1 outline-none text-slate-900 dark:text-slate-50"
+                                  className="text-3xl font-bold bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-3 py-1 outline-none text-white"
                                   value={menuTitleInput}
                                   onChange={e => setMenuTitleInput(e.target.value)}
                                   autoFocus
@@ -132,7 +132,7 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                           </div>
                       ) : (
                           <div className="flex items-center space-x-3 group">
-                              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50">{activeMenu.title}</h2>
+                              <h2 className="text-3xl font-bold text-white">{activeMenu.title}</h2>
                               <button 
                                   onClick={() => { setMenuTitleInput(activeMenu.title); setIsEditingMenuTitle(true); }}
                                   className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-indigo-600 transition-opacity"
@@ -147,9 +147,9 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                       </button>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl shadow-sm overflow-hidden">
                       <table className="w-full text-left">
-                          <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs uppercase text-slate-500 dark:text-slate-400">
+                          <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-white/10 text-xs uppercase text-slate-400">
                               <tr>
                                   <th className="px-6 py-4">Item Name</th>
                                   <th className="px-6 py-4">Category</th>
@@ -162,14 +162,14 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                               {activeMenu.items.map(item => (
                                   <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                                       <td className="px-6 py-4">
-                                          <div className="font-bold text-slate-900 dark:text-slate-50 flex items-center">
+                                          <div className="font-bold text-white flex items-center">
                                               {item.name}
                                               {!item.isAvailable && <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-[10px] rounded uppercase">86'd</span>}
                                           </div>
-                                          <div className="text-sm text-slate-500 dark:text-slate-400 truncate max-w-xs">{item.description}</div>
+                                          <div className="text-sm text-slate-400 truncate max-w-xs">{item.description}</div>
                                       </td>
                                       <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{item.category}</td>
-                                      <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-50">${item.price.toFixed(2)}</td>
+                                      <td className="px-6 py-4 font-semibold text-white">${item.price.toFixed(2)}</td>
                                       <td className="px-6 py-4">
                                           {item.allergens.length > 0 ? (
                                               <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm" title={getAllergenNames(item.allergens)}>
@@ -210,9 +210,9 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
       {/* Edit Item Modal */}
       {editingItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-200">
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50">{editingItem.id.startsWith('menu') ? 'Edit Item' : 'New Menu Item'}</h3>
+              <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-200">
+                  <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                      <h3 className="text-xl font-bold text-white">{editingItem.id.startsWith('menu') ? 'Edit Item' : 'New Menu Item'}</h3>
                   </div>
                   <div className="p-6 space-y-6">
                       <div className="grid grid-cols-2 gap-6">
@@ -220,7 +220,7 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Item Name</label>
                               <input 
                                   type="text" 
-                                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-50"
+                                  className="w-full px-4 py-2 bg-slate-950 text-white border border-white/10 rounded-lg outline-none text-white"
                                   value={editingItem.name}
                                   onChange={e => setEditingItem({...editingItem, name: e.target.value})}
                               />
@@ -230,7 +230,7 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Price ($)</label>
                                   <input 
                                       type="number" 
-                                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-50"
+                                      className="w-full px-4 py-2 bg-slate-950 text-white border border-white/10 rounded-lg outline-none text-white"
                                       value={editingItem.price || ''}
                                       onChange={e => setEditingItem({...editingItem, price: parseFloat(e.target.value) || 0})}
                                   />
@@ -238,7 +238,7 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                               <div>
                                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
                                   <select 
-                                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-50"
+                                      className="w-full px-4 py-2 bg-slate-950 text-white border border-white/10 rounded-lg outline-none text-white"
                                       value={editingItem.category}
                                       onChange={e => setEditingItem({...editingItem, category: e.target.value})}
                                   >
@@ -255,14 +255,14 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                       <div>
                           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description (for printed menu)</label>
                           <textarea 
-                              className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-50 min-h-[80px]"
+                              className="w-full px-4 py-2 bg-slate-950 text-white border border-white/10 rounded-lg outline-none text-white min-h-[80px]"
                               value={editingItem.description}
                               onChange={e => setEditingItem({...editingItem, description: e.target.value})}
                           />
                       </div>
 
-                      <div className="border-t border-gray-200 dark:border-slate-700 pt-6">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-slate-50 mb-3 flex items-center">
+                      <div className="border-t border-white/10 pt-6">
+                          <h4 className="text-sm font-bold text-white mb-3 flex items-center">
                               <AlertTriangle className="w-4 h-4 mr-2 text-amber-500" />
                               Allergen Tags
                           </h4>
@@ -320,8 +320,8 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                       </div>
 
                   </div>
-                  <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 flex justify-end space-x-3">
-                      <button onClick={() => setEditingItem(null)} className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-lg">Cancel</button>
+                  <div className="px-6 py-4 bg-slate-950 text-white border-t border-white/10 flex justify-end space-x-3">
+                      <button onClick={() => setEditingItem(null)} className="px-4 py-2 text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-lg">Cancel</button>
                       <button onClick={handleSaveItem} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save Item</button>
                   </div>
               </div>

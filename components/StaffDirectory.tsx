@@ -132,7 +132,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
   });
 
   return (
-    <div className="flex-1 p-6 md:p-8 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900/50">
+    <div className="flex-1 p-6 md:p-8 overflow-auto custom-scrollbar bg-slate-950 text-white/50">
       {/* Header */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -142,7 +142,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
               {staff.length} Active Accounts
             </span>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Manage team members, 4-digit PIN credentials, and RBAC privilege levels.
           </p>
         </div>
@@ -206,7 +206,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
           placeholder="Search staff by name, role, email..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <div className="flex space-x-2">
           {['all', 'master', 'admin', 'standard'].map(filter => (
@@ -216,7 +216,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
               className={`px-3 py-2 rounded-xl text-xs font-bold capitalize transition-all ${
                 filterRole === filter
                   ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100'
+                  : 'bg-slate-900/60 backdrop-blur-xl border border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100'
               }`}
             >
               {filter === 'all' ? 'All Roles' : filter}
@@ -234,12 +234,12 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
           return (
             <div 
               key={member.id} 
-              className={`bg-white dark:bg-slate-800 rounded-2xl border transition-all duration-200 p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden ${
+              className={`bg-slate-900/60 backdrop-blur-xl rounded-2xl border transition-all duration-200 p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden ${
                 isMaster 
                   ? 'border-amber-400/60 dark:border-amber-500/40 ring-1 ring-amber-400/30' 
                   : isAdmin 
                     ? 'border-indigo-300 dark:border-indigo-700/50' 
-                    : 'border-slate-200 dark:border-slate-700'
+                    : 'border-white/10'
               }`}
             >
               {/* Header Ribbon for Master Admin */}
@@ -286,10 +286,10 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                 </div>
 
                 {/* Info List */}
-                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-950 text-white/40 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">PIN Code:</span>
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 tracking-widest">
+                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-slate-900/60 backdrop-blur-xl px-2 py-0.5 rounded border border-white/10 tracking-widest">
                       ••••
                     </span>
                   </div>
@@ -336,7 +336,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
       {/* Edit / Add Modal */}
       {editingMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
               <div className="flex items-center space-x-2">
                 <Shield className="w-5 h-5 text-indigo-400" />
@@ -360,7 +360,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                   required
                   value={editingMember.name} 
                   onChange={e => setEditingMember({ ...editingMember, name: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g. Robert Smith"
                 />
               </div>
@@ -382,7 +382,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                         accessLevel: roleConfig?.accessLevel || 'standard'
                       });
                     }}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
                   >
                     {ROLES.map(r => (
                       <option 
@@ -406,7 +406,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                     required
                     value={editingMember.pinCode} 
                     onChange={e => setEditingMember({ ...editingMember, pinCode: e.target.value.replace(/\D/g, '') })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-mono font-bold focus:ring-2 focus:ring-indigo-500 tracking-widest text-center"
+                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-slate-100 text-sm font-mono font-bold focus:ring-2 focus:ring-indigo-500 tracking-widest text-center"
                     placeholder="1234"
                   />
                 </div>
@@ -420,7 +420,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                   type="email" 
                   value={editingMember.email || ''} 
                   onChange={e => setEditingMember({ ...editingMember, email: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
                   placeholder="name@coasterstavern.co.nz"
                 />
               </div>
@@ -434,7 +434,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                     type="text" 
                     value={editingMember.phone || ''} 
                     onChange={e => setEditingMember({ ...editingMember, phone: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
                     placeholder="(03) 352 0210"
                   />
                 </div>
@@ -461,7 +461,7 @@ const StaffDirectory: React.FC<StaffDirectoryProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingMember(null)}
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-white/10 transition-colors transition-colors"
                 >
                   Cancel
                 </button>

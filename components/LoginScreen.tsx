@@ -64,7 +64,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
         backgroundPosition: 'center'
       }}
     >
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl">
+      <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl">
         {/* Header with Master Admin & Role Badge */}
         <div className="p-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-center border-b border-indigo-900/50 relative overflow-hidden">
           <div className="w-14 h-14 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-2xl mx-auto mb-3 p-0.5 shadow-lg flex items-center justify-center">
@@ -113,7 +113,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
               <button
                 key={n}
                 onClick={() => handleNum(n.toString())}
-                className="h-13 rounded-2xl bg-slate-100 dark:bg-slate-700/80 text-xl font-bold text-slate-800 dark:text-slate-100 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 active:scale-95 transition-all shadow-sm flex items-center justify-center"
+                className="h-13 rounded-2xl bg-slate-100 dark:bg-slate-700/80 text-xl font-bold text-slate-100 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 active:scale-95 transition-all shadow-sm flex items-center justify-center"
               >
                 {n}
               </button>
@@ -121,7 +121,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
             <div className="col-start-2">
               <button
                 onClick={() => handleNum('0')}
-                className="w-full h-13 rounded-2xl bg-slate-100 dark:bg-slate-700/80 text-xl font-bold text-slate-800 dark:text-slate-100 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 active:scale-95 transition-all shadow-sm flex items-center justify-center"
+                className="w-full h-13 rounded-2xl bg-slate-100 dark:bg-slate-700/80 text-xl font-bold text-slate-100 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 active:scale-95 transition-all shadow-sm flex items-center justify-center"
               >
                 0
               </button>
@@ -138,7 +138,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ staff, onLogin }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400">
+        <div className="p-4 bg-slate-950 text-white/80 border-t border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400">
           <div>Enter your authorized 4-digit staff PIN code to sign in.</div>
         </div>
       </div>

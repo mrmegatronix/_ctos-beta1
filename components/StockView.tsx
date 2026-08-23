@@ -108,7 +108,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden relative print:bg-white print:text-black print:overflow-visible print:h-auto">
+    <div className="flex-1 flex flex-col h-full bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm overflow-hidden relative print:bg-white print:text-black print:overflow-visible print:h-auto">
       {isLowStockPrintModalOpen && (
         <TemplateViewerModal title="Low Stock Report" onClose={() => setIsLowStockPrintModalOpen(false)}>
           <LowStockSheet stock={items} />
@@ -149,33 +149,33 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
 
       {/* Top Stats (Hidden during print) */}
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 print:hidden">
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex items-center space-x-4">
+        <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-xl p-4 flex items-center space-x-4">
            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
              <Package className="w-6 h-6" />
            </div>
            <div>
              <div className="text-sm text-slate-400">Total Items</div>
-             <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{displayItems.length}</div>
+             <div className="text-2xl font-bold text-white">{displayItems.length}</div>
            </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex items-center space-x-4">
+        <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-xl p-4 flex items-center space-x-4">
            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400">
              <AlertTriangle className="w-6 h-6" />
            </div>
            <div>
              <div className="text-sm text-slate-400">Low Stock Alerts</div>
-             <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{lowStockItems.length}</div>
+             <div className="text-2xl font-bold text-white">{lowStockItems.length}</div>
            </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex items-center space-x-4">
+        <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-xl p-4 flex items-center space-x-4">
            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 dark:text-emerald-400">
              <TrendingDown className="w-6 h-6" />
            </div>
            <div>
              <div className="text-sm text-slate-400">Inventory Value</div>
-             <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+             <div className="text-2xl font-bold text-white">
                 ${displayItems.reduce((acc, i) => acc + (i.price * i.quantity), 0).toFixed(0)}
              </div>
            </div>
@@ -236,7 +236,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
               className="flex items-center space-x-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg transition-colors font-medium text-sm shadow-sm"
               title="Print Stock Sheets"
             >
-               <Printer className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+               <Printer className="w-4 h-4 text-slate-300" />
                <span>Print</span>
             </button>
             <button 
@@ -258,10 +258,10 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
         </div>
 
         {/* Stock Items Table */}
-        <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-xl overflow-hidden print:border-gray-300 print:shadow-none print:rounded-none overflow-x-auto">
+        <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-xl overflow-hidden print:border-gray-300 print:shadow-none print:rounded-none overflow-x-auto">
           <table className="w-full text-left border-collapse print:text-xs min-w-[900px]">
             <thead>
-              <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 text-xs uppercase text-slate-500 dark:text-slate-400 print:bg-gray-100 print:text-gray-900 print:border-b-2 print:border-gray-400">
+              <tr className="bg-gray-50 dark:bg-slate-800 border-b border-white/10 text-xs uppercase text-slate-400 print:bg-gray-100 print:text-gray-900 print:border-b-2 print:border-gray-400">
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Item Name</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Location/Barcode</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Size / Unit</th>
@@ -295,11 +295,11 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                 
                 return (
                   <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors print:hover:bg-transparent ${item.isDemo ? 'demo-highlight' : ''} ${isLow ? 'bg-red-50/30 dark:bg-red-950/20' : ''}`}>
-                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">
+                    <td className="px-4 py-3 font-medium text-white print:text-gray-900 print:py-1.5 print:px-2">
                       {isInlineEditMode ? (
                         <input 
                           type="text" 
-                          className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          className="w-full bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
                           value={item.name} 
                           onChange={(e) => handleLocalEdit(item, 'name', e.target.value)} 
                           onBlur={() => handleBlur(item)} 
@@ -309,7 +309,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       )}
                       {!isInlineEditMode && <div className="text-xs text-slate-500 font-normal">{item.category}</div>}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs print:text-gray-700 print:py-1.5 print:px-2">
+                    <td className="px-4 py-3 text-slate-400 text-xs print:text-gray-700 print:py-1.5 print:px-2">
                       {item.location && <div className="mb-0.5">Loc: {item.location}</div>}
                       {item.barcode && <div>BC: {item.barcode}</div>}
                       {!item.location && !item.barcode && '-'}
@@ -320,13 +320,13 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                           <input 
                             type="text" 
                             placeholder="Unit (e.g. pcs)"
-                            className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                            className="w-full bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
                             value={item.unit || ''} 
                             onChange={(e) => handleLocalEdit(item, 'unit', e.target.value)} 
                             onBlur={() => handleBlur(item)} 
                           />
                           <select
-                            className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                            className="w-full bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
                             value={item.volumeMl || ''}
                             onChange={(e) => {
                               handleLocalEdit(item, 'volumeMl', e.target.value ? parseInt(e.target.value) : undefined);
@@ -353,7 +353,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-300 print:text-gray-800 print:py-1.5 print:px-2">
                       {isInlineEditMode ? (
                         <select
-                          className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-full bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
                           value={item.supplierId || ''}
                           onChange={(e) => {
                             handleLocalEdit(item, 'supplierId', e.target.value);
@@ -372,7 +372,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                         <input 
                           type="number" 
                           step="0.01"
-                          className="w-20 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          className="w-20 bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
                           value={item.cost || 0} 
                           onChange={(e) => handleLocalEdit(item, 'cost', parseFloat(e.target.value))} 
                           onBlur={() => handleBlur(item)} 
@@ -386,7 +386,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                         <input 
                           type="number" 
                           step="0.01"
-                          className="w-20 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          className="w-20 bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
                           value={item.price || 0} 
                           onChange={(e) => handleLocalEdit(item, 'price', parseFloat(e.target.value))} 
                           onBlur={() => handleBlur(item)} 
@@ -395,11 +395,11 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                         `$${(item.price || 0).toFixed(2)}`
                       )}
                     </td>
-                    <td className="px-4 py-3 font-bold text-center text-slate-900 dark:text-slate-50 print:text-gray-900 print:py-1.5 print:px-2">
+                    <td className="px-4 py-3 font-bold text-center text-white print:text-gray-900 print:py-1.5 print:px-2">
                       {isInlineEditMode ? (
                         <input 
                           type="number" 
-                          className="w-16 mx-auto bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-center" 
+                          className="w-16 mx-auto bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-center" 
                           value={item.quantity} 
                           onChange={(e) => handleLocalEdit(item, 'quantity', parseInt(e.target.value) || 0)} 
                           onBlur={() => handleBlur(item)} 
@@ -412,7 +412,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       {isInlineEditMode ? (
                         <input 
                           type="number" 
-                          className="w-16 mx-auto bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-center" 
+                          className="w-16 mx-auto bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-center" 
                           value={item.minLevel} 
                           onChange={(e) => handleLocalEdit(item, 'minLevel', parseInt(e.target.value) || 0)} 
                           onBlur={() => handleBlur(item)} 
@@ -433,14 +433,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                     <td className="px-4 py-3 text-right flex items-center justify-end space-x-2 print:hidden">
                       <button 
                           onClick={() => onUpdateQuantity(item.id, -1)}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400"
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-400"
                           title="Reduce Stock"
                       >
                           <ArrowDown className="w-4 h-4" />
                       </button>
                       <button 
                           onClick={() => onUpdateQuantity(item.id, 1)}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400"
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-400"
                           title="Add Stock"
                       >
                           <ArrowUp className="w-4 h-4" />
@@ -471,15 +471,15 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
       {/* Print Options Modal */}
       {showPrintModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 print:hidden">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200 dark:border-slate-700 animate-in zoom-in-95 duration-200">
+          <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl w-full max-w-md p-6 shadow-2xl border border-white/10 animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-2.5">
                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
                   <Printer className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">Print Stock Sheets</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Choose a printer-friendly layout format</p>
+                  <h3 className="text-lg font-bold text-white">Print Stock Sheets</h3>
+                  <p className="text-xs text-slate-400">Choose a printer-friendly layout format</p>
                 </div>
               </div>
               <button onClick={() => setShowPrintModal(false)} className="text-gray-400 hover:text-slate-600 dark:hover:text-slate-300">
@@ -490,14 +490,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
             <div className="space-y-3 my-5">
               <button
                 onClick={() => triggerPrint('inventory')}
-                className="w-full text-left p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
+                className="w-full text-left p-3.5 rounded-xl border border-white/10 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
               >
                 <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                  <div className="font-semibold text-sm text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                     Full Inventory Stock List
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <div className="text-xs text-slate-400 mt-0.5">
                     Complete product listing with cost, sell prices, current stock, par levels, and inventory valuation.
                   </div>
                 </div>
@@ -505,14 +505,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
 
               <button
                 onClick={() => triggerPrint('stocktake')}
-                className="w-full text-left p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
+                className="w-full text-left p-3.5 rounded-xl border border-white/10 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
               >
                 <ClipboardList className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-50 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                  <div className="font-semibold text-sm text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                     Stocktake Physical Count Sheet
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <div className="text-xs text-slate-400 mt-0.5">
                     Includes blank physical count boxes and signature lines for paper clipboard stocktakes.
                   </div>
                 </div>
@@ -520,24 +520,24 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
 
               <button
                 onClick={() => triggerPrint('reorder')}
-                className="w-full text-left p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
+                className="w-full text-left p-3.5 rounded-xl border border-white/10 hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-900/20 transition-all flex items-start space-x-3 group"
               >
                 <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-50 group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                  <div className="font-semibold text-sm text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">
                     Low Stock & Reorder Sheet ({lowStockItems.length} items)
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <div className="text-xs text-slate-400 mt-0.5">
                     Filters strictly to items below par level for fast ordering and supplier purchasing.
                   </div>
                 </div>
               </button>
             </div>
 
-            <div className="flex justify-end space-x-2 pt-2 border-t border-gray-100 dark:border-slate-700">
+            <div className="flex justify-end space-x-2 pt-2 border-t border-white/5 dark:border-slate-700">
               <button 
                 onClick={() => setShowPrintModal(false)} 
-                className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg font-medium"
+                className="px-4 py-2 text-sm text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg font-medium"
               >
                 Cancel
               </button>
@@ -549,7 +549,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
       {/* Transfer Modal */}
       {transferItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+              <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
                   <div className="flex justify-between items-start mb-4">
                       <h3 className="text-lg font-bold text-slate-50 ">Transfer Stock</h3>
                       <button onClick={() => setTransferItem(null)} className="text-gray-400 hover:text-slate-400">
@@ -557,7 +557,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       </button>
                   </div>
                   
-                  <div className="mb-4 p-3 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm rounded-lg">
+                  <div className="mb-4 p-3 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-lg">
                       <div className="text-sm text-slate-400 ">Item</div>
                       <div className="font-semibold text-slate-50 ">{transferItem.name}</div>
                       <div className="text-xs text-slate-400 mt-1">Current Stock: {transferItem.quantity} {transferItem.unit}</div>
@@ -570,7 +570,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                             type="number" 
                             min="1"
                             max={transferItem.quantity}
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  border border-white/10  rounded-lg outline-none"
                             value={transferQty}
                             onChange={(e) => setTransferQty(parseInt(e.target.value) || 0)}
                           />
@@ -578,7 +578,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                       <div>
                           <label className="block text-sm font-medium text-slate-200  mb-1">Destination Site</label>
                           <select 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg outline-none"
+                            className="w-full px-3 py-2 bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  border border-white/10  rounded-lg outline-none"
                             value={transferDest}
                             onChange={(e) => setTransferDest(e.target.value)}
                           >

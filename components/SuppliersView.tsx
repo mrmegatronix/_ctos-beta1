@@ -147,12 +147,14 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
   });
 
   return (
-    <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-full flex-col p-6 space-y-6 bg-slate-950 text-white overflow-y-auto relative custom-scrollbar">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 blur-[100px] rounded-full mix-blend-screen z-0 pointer-events-none"></div>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <div className="flex items-center space-x-3">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               <Building2 className="w-7 h-7 mr-3 text-indigo-600 dark:text-indigo-400" />
               Suppliers & Vendor Directory
             </h2>
@@ -160,7 +162,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
               {filteredSuppliers.length} Vendors Active
             </span>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Maintain contact directory, delivery addresses, and ordering portals for all venue vendors.
           </p>
         </div>
@@ -175,7 +177,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
       </div>
 
       {/* Filter and Search */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-4 w-full">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -184,7 +186,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
               placeholder="Search vendor name, contact, address..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-9 pr-4 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           <button 
@@ -205,7 +207,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterCategory === cat
                   ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                  : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-300 hover:bg-slate-200'
               }`}
             >
               {cat}
@@ -219,20 +221,20 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
         {filteredSuppliers.map(supplier => (
           <div
             key={supplier.id}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+            className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900">
                   <Building2 className="w-6 h-6" />
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                <span className="px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-300">
                   {supplier.category}
                 </span>
               </div>
 
-              <h3 className="text-lg font-black text-slate-900 dark:text-slate-50 mb-1">{supplier.name}</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <h3 className="text-lg font-black text-white mb-1">{supplier.name}</h3>
+              <p className="text-xs text-slate-400 mb-4">
                 Representative:{' '}
                 <span className="font-bold text-slate-800 dark:text-slate-200">{supplier.contactPerson || 'N/A'}</span>
               </p>
@@ -241,7 +243,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                 {supplier.email && (
                   <a
                     href={`mailto:${supplier.email}`}
-                    className="flex items-center text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 hover:text-indigo-600 transition-colors"
+                    className="flex items-center text-xs text-slate-700 dark:text-slate-300 bg-slate-950 text-white/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 hover:text-indigo-600 transition-colors"
                   >
                     <Mail className="w-3.5 h-3.5 mr-2.5 text-slate-400 flex-shrink-0" />
                     <span className="truncate">{supplier.email}</span>
@@ -251,7 +253,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                 {supplier.phone && (
                   <a
                     href={`tel:${supplier.phone}`}
-                    className="flex items-center text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 hover:text-indigo-600 transition-colors"
+                    className="flex items-center text-xs text-slate-700 dark:text-slate-300 bg-slate-950 text-white/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 hover:text-indigo-600 transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5 mr-2.5 text-slate-400 flex-shrink-0" />
                     <span>{supplier.phone}</span>
@@ -259,7 +261,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                 )}
 
                 {supplier.address && (
-                  <div className="flex items-center text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <div className="flex items-center text-xs text-slate-700 dark:text-slate-300 bg-slate-950 text-white/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
                     <MapPin className="w-3.5 h-3.5 mr-2.5 text-slate-400 flex-shrink-0" />
                     <span className="truncate">{supplier.address}</span>
                   </div>
@@ -283,7 +285,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex gap-2">
               <button
                 onClick={() => handleOpenEdit(supplier)}
-                className="flex-1 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center space-x-1"
+                className="flex-1 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 border border-white/10 rounded-xl hover:bg-white/10 transition-colors transition-colors flex items-center justify-center space-x-1"
               >
                 <Edit2 className="w-3.5 h-3.5" />
                 <span>Edit Vendor</span>
@@ -295,7 +297,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                       onDelete(supplier.id);
                     }
                   }}
-                  className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-white/10 transition-colors transition-colors"
                   title="Delete Supplier"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -306,10 +308,10 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
         ))}
 
         {filteredSuppliers.length === 0 && (
-          <div className="col-span-full text-center py-16 bg-white dark:bg-slate-800 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+          <div className="col-span-full text-center py-16 bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-dashed border-white/10">
             <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h4 className="font-bold text-slate-800 dark:text-slate-200">No Suppliers Found</h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               Add a supplier or adjust search query to see entries.
             </p>
           </div>
@@ -319,9 +321,9 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
       {/* Add / Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl w-full max-w-lg p-6 shadow-2xl animate-in zoom-in-95">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl w-full max-w-lg p-6 shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-700">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center">
+              <h3 className="text-lg font-bold text-white flex items-center">
                 <Building2 className="w-5 h-5 mr-2 text-indigo-600" />
                 {editingSupplier ? 'Edit Vendor Details' : 'Add New Vendor'}
               </h3>
@@ -332,7 +334,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Company / Vendor Name *
                 </label>
                 <input
@@ -341,13 +343,13 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                   placeholder="e.g. Lion Breweries, Bidfood NZ, Gilmours"
                   value={formData.name || ''}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Contact Person
                   </label>
                   <input
@@ -355,18 +357,18 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                     placeholder="e.g. Dave Miller (Account Rep)"
                     value={formData.contactPerson || ''}
                     onChange={e => setFormData({ ...formData, contactPerson: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Category
                   </label>
                   <select
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="Food & Produce">Food & Produce</option>
                     <option value="Beverage & Brewery">Beverage & Brewery</option>
@@ -380,7 +382,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Email Address
                   </label>
                   <input
@@ -388,12 +390,12 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                     placeholder="orders@supplier.co.nz"
                     value={formData.email || ''}
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                     Phone / Mobile
                   </label>
                   <input
@@ -401,13 +403,13 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                     placeholder="0800 123 456"
                     value={formData.phone || ''}
                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Physical Address / Warehouse
                 </label>
                 <input
@@ -415,12 +417,12 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                   placeholder="e.g. 14 Supply Road, Industrial Park, Auckland"
                   value={formData.address || ''}
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-300 mb-1">
                   Website / Ordering Portal
                 </label>
                 <input
@@ -428,7 +430,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                   placeholder="e.g. portal.supplier.co.nz"
                   value={formData.website || ''}
                   onChange={e => setFormData({ ...formData, website: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
@@ -436,7 +438,7 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl"
+                  className="px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 transition-colors rounded-xl"
                 >
                   Cancel
                 </button>

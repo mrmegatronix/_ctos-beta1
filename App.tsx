@@ -820,10 +820,16 @@ const App: React.FC = () => {
              <CalendarIcon className="w-5 h-5" />
              <span className="font-medium">{formatDate(currentDate)}</span>
           </div>
-          <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-mono">
+           <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-mono">
              <ClockIcon className="w-5 h-5" />
-             <span className="font-bold">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-          </div>
+             <span className="font-bold">
+               {currentTime.getHours().toString().padStart(2, '0')}
+               <span className="animate-[pulse_1s_ease-in-out_infinite] opacity-100">:</span>
+               {currentTime.getMinutes().toString().padStart(2, '0')}
+               <span className="animate-[pulse_1s_ease-in-out_infinite] opacity-100">:</span>
+               {currentTime.getSeconds().toString().padStart(2, '0')}
+             </span>
+           </div>
         </div>
 
         <div className="flex items-center space-x-4">
