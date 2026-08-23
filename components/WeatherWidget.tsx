@@ -37,8 +37,31 @@ const WeatherWidget: React.FC = () => {
                 });
                 setError(null);
             } catch (err) {
-                console.error("Failed to fetch from ct-wea1:", err);
-                setError('Station Offline');
+                console.warn("Failed to fetch from ct-wea1, falling back to Open-Meteo:", err);
+                try {
+                    const fallbackRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-43.5321&longitude=172.6362&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m');
+                    if (!fallbackRes.ok) throw new Error('Fallback API unavailable');
+                    const fallbackData = await fallbackRes.json();
+                    const cur = fallbackData.current;
+                    
+                    // Simple weather code mapping for widget
+                    let condition = 'Clear';
+                    if (cur.weather_code > 50) condition = 'Rain';
+                    if (cur.weather_code > 70) condition = 'Snow';
+                    if (cur.weather_code > 90) condition = 'Storm';
+                    if (cur.weather_code > 0 && cur.weather_code < 40) condition = 'Cloudy';
+
+                    setWeather({
+                        temperature: cur.temperature_2m,
+                        humidity: cur.relative_humidity_2m,
+                        windSpeed: cur.wind_speed_10m,
+                        condition: condition
+                    });
+                    setError(null);
+                } catch (fallbackErr) {
+                    console.error("Fallback also failed:", fallbackErr);
+                    setError('Station Offline');
+                }
             } finally {
                 setLoading(false);
             }
