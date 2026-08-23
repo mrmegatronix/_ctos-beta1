@@ -6,7 +6,7 @@ import {
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
   BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp,
-  Smartphone, Sliders, Crown, Shield, UploadCloud
+  Smartphone, Sliders, Crown, Shield, UploadCloud, Database
 } from 'lucide-react';
 import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry, isMasterAdmin, isAdminOrAbove } from './types';
 import MediaView from './components/MediaView';
