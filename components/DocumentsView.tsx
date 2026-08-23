@@ -190,9 +190,13 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
                              setActiveTemplate(item.id);
                            }
                          }}
-                         className="group relative bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-100  rounded-xl p-4 flex flex-col items-center text-center hover:bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm dark:hover:bg-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer"
+                         className={`group relative bg-white dark:bg-slate-800 shadow-sm rounded-xl p-4 flex flex-col items-center text-center transition-all cursor-pointer ${
+                           item.id === 'templates-folder' 
+                             ? 'border-2 border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-600' 
+                             : 'border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:border-indigo-300 dark:hover:border-indigo-700'
+                         }`}
                        >
-                           <div className="mb-3 transition-transform group-hover:scale-105">
+                           <div className={`mb-3 transition-transform group-hover:scale-105 ${item.id === 'templates-folder' ? 'animate-pulse group-hover:animate-none' : ''}`}>
                                {getIcon(item.type)}
                            </div>
                            <span className="text-sm font-medium text-slate-200  break-words w-full line-clamp-2">

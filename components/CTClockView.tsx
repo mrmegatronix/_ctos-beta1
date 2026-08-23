@@ -326,7 +326,7 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
           </div>
 
           <a
-            href="/ct-clock/index.html"
+            href={`${import.meta.env.BASE_URL}ct-clock/index.html`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2 bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-sm"
@@ -338,7 +338,7 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
           </a>
 
           <a
-            href="/ct-clock/mobile.html"
+            href={`${import.meta.env.BASE_URL}ct-clock/mobile.html`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2 bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 text-indigo-300 rounded-xl text-xs font-bold transition-colors shadow-sm"
@@ -795,10 +795,10 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
               <div className="flex items-center space-x-2">
                 <Monitor className="w-4 h-4 text-emerald-400" />
                 <span className="font-bold text-white">CT-Clock Standalone Kiosk Application</span>
-                <span className="text-slate-400">(/ct-clock/index.html)</span>
+                <span className="text-slate-400">({import.meta.env.BASE_URL}ct-clock/index.html)</span>
               </div>
               <a
-                href="/ct-clock/index.html"
+                href={`${import.meta.env.BASE_URL}ct-clock/index.html`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg transition-colors"
@@ -808,7 +808,7 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
               </a>
             </div>
             <iframe
-              src="/ct-clock/index.html"
+              src={`${import.meta.env.BASE_URL}ct-clock/index.html`}
               title="CT-Clock Kiosk"
               className="w-full flex-1 border-0"
             />
@@ -823,7 +823,7 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
               <div className="p-2 bg-slate-800/80 border-b border-white/10 flex items-center justify-between text-xs rounded-t-2xl">
                 <span className="font-bold text-white">Mobile Staff Portal</span>
                 <a
-                  href="/ct-clock/mobile.html"
+                  href={`${import.meta.env.BASE_URL}ct-clock/mobile.html`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-indigo-400 hover:text-indigo-300 font-bold"
@@ -832,7 +832,7 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
                 </a>
               </div>
               <iframe
-                src="/ct-clock/mobile.html"
+                src={`${import.meta.env.BASE_URL}ct-clock/mobile.html`}
                 title="CT-Clock Mobile"
                 className="w-full flex-1 rounded-b-2xl border-0"
               />

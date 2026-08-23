@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { StockItem, StocktakeSession, TeamMember } from '../types';
-import { ClipboardList, Search, CheckCircle, AlertTriangle, Play, Save, Smartphone, X, Scan } from 'lucide-react';
+import { ClipboardList, Search, CheckCircle, AlertTriangle, Play, Save, Smartphone, X, Scan, Printer } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateId } from '../utils';
 import { BarcodeScanner } from './BarcodeScanner';
+import TemplateViewerModal from './TemplateViewerModal';
+import StocktakeSheet from './templates/StocktakeSheet';
 
 interface StocktakeViewProps {
   items: StockItem[];
@@ -17,6 +19,7 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
   const [filter, setFilter] = useState('');
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   // Load progress on mount
   useEffect(() => {
@@ -97,6 +100,12 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
               className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-900 dark:text-white px-4 py-2.5 rounded-lg shadow-sm font-medium transition-colors"
             >
               <Smartphone className="w-4 h-4" /> <span>Mobile Stocktake</span>
+            </button>
+            <button
+              onClick={() => setIsPrintModalOpen(true)}
+              className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-900 dark:text-white px-4 py-2.5 rounded-lg shadow-sm font-medium transition-colors"
+            >
+              <Printer className="w-4 h-4" /> <span>Print Sheet</span>
             </button>
 
             {!isActive ? (
@@ -225,6 +234,12 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
               </p>
             </div>
           </div>
+        )}
+      
+        {isPrintModalOpen && (
+          <TemplateViewerModal title="Stocktake Sheet" onClose={() => setIsPrintModalOpen(false)}>
+            <StocktakeSheet stock={items} />
+          </TemplateViewerModal>
         )}
 
         {showScanner && (
