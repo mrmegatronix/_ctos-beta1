@@ -57,7 +57,7 @@ const BookingsView: React.FC<BookingsViewProps> = ({ bookings, onSaveBooking }) 
               {checkingEmail ? 'Checking...' : 'Check Emails for Manual Bookings'}
            </button>
            <a 
-              href="https://bookings.nowbookit.com/?accountid=d7034cd3-cfde-4556-a98c-ea943ec35ef4&venueid=13703&theme=light&colors=hex,000000" 
+              href="https://admin.nowbookit.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow text-sm font-medium"
@@ -116,7 +116,7 @@ const BookingsView: React.FC<BookingsViewProps> = ({ bookings, onSaveBooking }) 
         {/* Right Pane: NowBookIt Widget */}
         <div className="flex-1 bg-white rounded-xl overflow-hidden shadow-lg border border-white/10">
             <iframe 
-                src="https://bookings.nowbookit.com/?accountid=d7034cd3-cfde-4556-a98c-ea943ec35ef4&venueid=13703&theme=light&colors=hex,000000" 
+                src="https://admin.nowbookit.com" 
                 title="NowBookIt Reservations"
                 className="w-full h-full border-none"
                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
