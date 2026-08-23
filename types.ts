@@ -108,6 +108,7 @@ export interface StockItem {
   location?: string;
 }
 
+
 export interface Supplier {
   id: string;
   name: string;
@@ -443,18 +444,20 @@ export interface Allergen {
   id: string;
   name: string;
   icon?: string;
+  category: 'food' | 'beverage' | 'both';
 }
 
 export const STANDARD_ALLERGENS: Allergen[] = [
-  { id: 'dairy', name: 'Dairy' },
-  { id: 'eggs', name: 'Eggs' },
-  { id: 'nuts', name: 'Tree Nuts' },
-  { id: 'peanuts', name: 'Peanuts' },
-  { id: 'shellfish', name: 'Shellfish' },
-  { id: 'fish', name: 'Fish' },
-  { id: 'soy', name: 'Soy' },
-  { id: 'wheat', name: 'Wheat/Gluten' },
-  { id: 'sesame', name: 'Sesame' }
+  { id: 'dairy', name: 'Dairy', category: 'both' },
+  { id: 'eggs', name: 'Eggs', category: 'food' },
+  { id: 'nuts', name: 'Tree Nuts', category: 'both' },
+  { id: 'peanuts', name: 'Peanuts', category: 'food' },
+  { id: 'shellfish', name: 'Shellfish', category: 'food' },
+  { id: 'fish', name: 'Fish', category: 'food' },
+  { id: 'soy', name: 'Soy', category: 'both' },
+  { id: 'wheat', name: 'Wheat/Gluten', category: 'food' },
+  { id: 'sesame', name: 'Sesame', category: 'food' },
+  { id: 'sulphites', name: 'Sulphites', category: 'beverage' }
 ];
 
 export interface MenuItem {

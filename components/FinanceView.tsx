@@ -4,7 +4,8 @@ import CashUpView from "./CashUpView";
 import { CashUpRecord, TeamMember, Invoice } from '../types';
 import { formatDate, generateId } from '../utils';
 import { db } from '../services/database';
-import { DollarSign, CreditCard, Wallet, TrendingUp, AlertTriangle, Calculator, FileText, Camera, Upload, X, Check } from 'lucide-react';
+import { DollarSign, CreditCard, Wallet, TrendingUp, AlertTriangle, Calculator, FileText, Camera, Upload, X, Check, Table } from 'lucide-react';
+import { exportToGoogleSheets } from '../services/googleService';
 
 interface FinanceViewProps {
   records: CashUpRecord[];
@@ -12,6 +13,7 @@ interface FinanceViewProps {
 }
 
 const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
+  const [isExporting, setIsExporting] = useState(false);
   const [activeTab, setActiveTab] = useState<'history' | 'entry' | 'invoices'>('history');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -106,6 +108,33 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
   const weeklyEftpos = records.reduce((sum, r) => sum + r.eftposTotal, 0);
   const totalTakings = weeklyCash + weeklyEftpos;
 
+  const handleExportSheets = async () => {
+    setIsExporting(true);
+    try {
+      const headers = ['Date', 'Manager', 'Expected Cash', 'Actual Cash', 'Variance', 'EFTPOS', 'Notes'];
+      const values = [
+        headers,
+        ...records.map(r => [
+          formatDate(r.date),
+          staff.find(s => s.id === r.managerId)?.name || 'Unknown',
+          r.expectedCash.toFixed(2),
+          r.actualCash.toFixed(2),
+          r.variance.toFixed(2),
+          r.eftposTotal.toFixed(2),
+          r.notes || ''
+        ])
+      ];
+      
+      const result = await exportToGoogleSheets('', 'Sheet1!A1', values);
+      alert(`Exported successfully! Spreadsheet ID: ${result.spreadsheetId}`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export to Google Sheets. Ensure you are connected to Google.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="flex-1 p-8 overflow-auto custom-scrollbar bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm ">
        <div className="flex justify-between items-center mb-8">
@@ -162,6 +191,17 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
            </div>
 
            <div className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  rounded-xl border border-gray-200 dark:border-slate-700  overflow-hidden">
+             <div className="p-6 border-b border-gray-200 dark:border-slate-700  flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                 <h3 className="text-lg font-bold text-slate-50 ">Recent Cash Ups</h3>
+                 <button 
+                   onClick={handleExportSheets}
+                   disabled={isExporting}
+                   className="flex items-center space-x-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 disabled:opacity-50"
+                 >
+                   <Table className={`w-4 h-4 ${isExporting ? 'animate-pulse' : ''}`} />
+                   <span>{isExporting ? 'Exporting...' : 'Export to Sheets'}</span>
+                 </button>
+             </div>
              <table className="w-full text-left">
                 <thead className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm text-xs uppercase text-slate-400  border-b border-gray-200 dark:border-slate-700 ">
                     <tr>

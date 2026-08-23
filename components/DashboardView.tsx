@@ -230,7 +230,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               <button onClick={() => onNavigate('browser')} className="bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl border border-slate-700 transition-all flex flex-col items-center justify-center text-center group">
+               <button onClick={() => onNavigate('pos')} className="bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl border border-slate-700 transition-all flex flex-col items-center justify-center text-center group">
                    <Monitor className="w-12 h-12 text-blue-500 mb-4 group-hover:scale-110 transition-transform" />
                    <h3 className="text-xl font-bold text-white mb-1">Point of Sale</h3>
                    <p className="text-sm text-slate-400">Launch Till System</p>

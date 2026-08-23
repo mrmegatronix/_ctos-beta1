@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { FileText, Save, CheckCircle, AlertCircle, Calendar as CalendarIcon, Users, Clock } from 'lucide-react';
+import { FileText, Save, CheckCircle, AlertCircle, Calendar as CalendarIcon, Users, Clock, Table } from 'lucide-react';
 import { TeamMember, TimesheetEntry, RosterShift } from '../types';
 import { formatTime } from '../utils';
+import { exportToGoogleSheets } from '../services/googleService';
 
 interface TimesheetsViewProps {
   staff: TeamMember[];
@@ -12,6 +13,7 @@ interface TimesheetsViewProps {
 const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [entries, setEntries] = useState<Record<string, number>>({});
+  const [isExporting, setIsExporting] = useState(false);
 
   const shiftsForDay = shifts.filter(s => 
     new Date(s.start).toISOString().split('T')[0] === selectedDate
@@ -26,6 +28,35 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
     return Math.round(diff * 10) / 10;
   };
 
+  const handleExportSheets = async () => {
+    setIsExporting(true);
+    try {
+      const headers = ['Date', 'Staff Member', 'Rostered Hours', 'Actual Hours'];
+      const values = [
+        headers,
+        ...shiftsForDay.map(shift => {
+          const staffMember = staff.find(s => s.id === shift.staffId);
+          const rosteredHours = calculateRosteredHours(shift.start, shift.end);
+          const actualHours = entries[shift.staffId] !== undefined ? entries[shift.staffId] : rosteredHours;
+          return [
+            selectedDate,
+            staffMember?.name || 'Unknown',
+            rosteredHours.toString(),
+            actualHours.toString()
+          ];
+        })
+      ];
+      
+      const result = await exportToGoogleSheets('', 'Timesheets!A1', values);
+      alert(`Exported successfully! Spreadsheet ID: ${result.spreadsheetId}`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export to Google Sheets. Ensure you are connected to Google.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="flex h-full flex-col p-6 space-y-6 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm /50 overflow-y-auto">
       <div className="flex justify-between items-center">
@@ -34,6 +65,14 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
           <p className="text-sm text-slate-400">Verify worked hours against the rostered schedule</p>
         </div>
         <div className="flex space-x-3">
+            <button 
+              onClick={handleExportSheets}
+              disabled={isExporting}
+              className="flex items-center space-x-2 px-4 py-2 bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:hover:bg-emerald-800/60 text-emerald-700 dark:text-emerald-400 rounded-lg font-medium transition-colors text-sm disabled:opacity-50"
+            >
+              <Table className={`w-4 h-4 ${isExporting ? 'animate-pulse' : ''}`} />
+              <span>{isExporting ? 'Exporting...' : 'Export to Sheets'}</span>
+            </button>
             <div className="relative">
                 <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input 
@@ -43,7 +82,30 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                     className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm  border border-gray-200 dark:border-slate-700  rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                 />
             </div>
-            <button className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors shadow-lg">
+            <button 
+              className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors shadow-lg"
+              onClick={() => {
+                let savedCount = 0;
+                staff.filter(s => s.visible).forEach(member => {
+                  const actualHrs = entries[member.id] || 0;
+                  if (actualHrs > 0) {
+                    onSave({
+                      id: `ts-${Date.now()}-${member.id}`,
+                      staffId: member.id,
+                      date: new Date(selectedDate),
+                      hoursWorked: actualHrs,
+                      isVerified: true
+                    });
+                    savedCount++;
+                  }
+                });
+                if (savedCount > 0) {
+                  alert(`Saved ${savedCount} timesheet entries.`);
+                } else {
+                  alert('No hours entered to save.');
+                }
+              }}
+            >
                 <Save className="w-4 h-4" />
                 <span>Save All Entries</span>
             </button>

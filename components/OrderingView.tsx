@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { PurchaseOrder, Supplier, StockItem } from '../types';
-import { ShoppingCart, Plus, Send, CheckCircle, Package } from 'lucide-react';
+import { ShoppingCart, Plus, Send, CheckCircle, Package, Printer, Zap } from 'lucide-react';
 import { generateId, formatDate } from '../utils';
+import TemplateViewerModal from './TemplateViewerModal';
+import PurchaseOrderSheet from './templates/PurchaseOrderSheet';
 
 interface OrderingViewProps {
   orders: PurchaseOrder[];
@@ -13,6 +15,7 @@ interface OrderingViewProps {
 const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockItems, onSaveOrder }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newOrder, setNewOrder] = useState<Partial<PurchaseOrder>>({ status: 'draft', items: [], date: new Date() });
+  const [printingOrder, setPrintingOrder] = useState<PurchaseOrder | null>(null);
 
   const handleAddItem = () => {
     setNewOrder({
@@ -54,6 +57,54 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
     setNewOrder({ status: 'draft', items: [], date: new Date() });
   };
 
+  const handleAutoGenerate = () => {
+    // Find all stock items that are below or equal to their min level
+    const lowStock = stockItems.filter(s => s.quantity <= s.minLevel);
+    
+    if (lowStock.length === 0) {
+      alert("No items are currently below their minimum stock level.");
+      return;
+    }
+
+    // Group by supplier
+    const itemsBySupplier: Record<string, typeof lowStock> = {};
+    lowStock.forEach(item => {
+      // Default to first supplier if item has no supplierId
+      const sid = item.supplierId || (suppliers[0] ? suppliers[0].id : 'unknown');
+      if (!itemsBySupplier[sid]) itemsBySupplier[sid] = [];
+      itemsBySupplier[sid].push(item);
+    });
+
+    let generated = 0;
+    Object.keys(itemsBySupplier).forEach(supplierId => {
+      const items = itemsBySupplier[supplierId];
+      const orderItems = items.map(item => {
+        // Order enough to get back to minLevel + 20%, minimum 1
+        const shortfall = item.minLevel - item.quantity;
+        const orderQty = Math.max(1, Math.ceil(shortfall * 1.2));
+        return {
+          stockId: item.id,
+          quantity: orderQty,
+          unitPrice: item.price || 0
+        };
+      });
+
+      const total = orderItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+      
+      onSaveOrder({
+        id: generateId(),
+        supplierId: supplierId === 'unknown' && suppliers.length > 0 ? suppliers[0].id : supplierId,
+        date: new Date(),
+        status: 'draft',
+        items: orderItems,
+        total
+      });
+      generated++;
+    });
+
+    alert(`Auto-generated ${generated} draft order(s) for low stock items.`);
+  };
+
   const getSupplierName = (id: string) => suppliers.find(s => s.id === id)?.name || 'Unknown Supplier';
   const getStockName = (id: string) => stockItems.find(s => s.id === id)?.name || 'Unknown Item';
 
@@ -67,9 +118,14 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
              <p className="text-slate-400 ">Manage supplier orders and restocks.</p>
          </div>
          {!isCreating && (
-             <button onClick={() => setIsCreating(true)} className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                <Plus className="w-4 h-4" /> <span>Create Order</span>
-             </button>
+             <div className="flex space-x-3">
+                 <button onClick={handleAutoGenerate} className="flex items-center space-x-2 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:hover:bg-amber-800/60 text-amber-700 dark:text-amber-400 px-4 py-2 rounded-lg font-medium transition-colors">
+                    <Zap className="w-4 h-4" /> <span className="hidden sm:inline">Auto-Generate (Low Stock)</span>
+                 </button>
+                 <button onClick={() => setIsCreating(true)} className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    <Plus className="w-4 h-4" /> <span>Create Order</span>
+                 </button>
+             </div>
          )}
        </div>
 
@@ -190,7 +246,14 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                                  {order.status}
                              </span>
                          </td>
-                         <td className="px-6 py-4 text-right">
+                         <td className="px-6 py-4 text-right flex items-center justify-end space-x-3">
+                             <button 
+                               onClick={() => setPrintingOrder(order)}
+                               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                               title="Print Order"
+                             >
+                                <Printer className="w-4 h-4" />
+                             </button>
                              {order.status === 'sent' && (
                                  <button 
                                      onClick={() => onSaveOrder({...order, status: 'received'})}
@@ -211,6 +274,16 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
              </tbody>
           </table>
        </div>
+
+       {printingOrder && (
+         <TemplateViewerModal title={`Purchase Order #${printingOrder.id.slice(-8).toUpperCase()}`} onClose={() => setPrintingOrder(null)}>
+           <PurchaseOrderSheet 
+             order={printingOrder} 
+             supplier={suppliers.find(s => s.id === printingOrder.supplierId) || suppliers[0]} 
+             stockItems={stockItems} 
+           />
+         </TemplateViewerModal>
+       )}
     </div>
   );
 };

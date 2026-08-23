@@ -63,9 +63,9 @@ import EODSalesView from './components/EODSalesView';
 import MenuView from './components/MenuView';
 import MasterDataView from './components/MasterDataView';
 import { parseNaturalLanguageCommand } from './services/geminiService';
-import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents } from './services/googleService';
+import { initGoogleClient, handleGoogleLogin, importGoogleCalendarEvents, exportEventToGoogleCalendar, sendEmailViaGmail, exportToGoogleSheets } from './services/googleService';
 
-import CTClockView from './components/CTClockView';
+import { CTClockView } from './components/CTClockView';
 import StocktakeView from './components/StocktakeView';
 import OrderingView from './components/OrderingView';
 import BudgetingView from './components/BudgetingView';
@@ -472,6 +472,16 @@ const App: React.FC = () => {
   const handleSaveEvent = async (event: CalendarEvent) => {
     await db.saveEvent(event);
     setEvents(await db.getEvents());
+    
+    // Auto-export to Google Calendar if connected and it didn't come from Google
+    if (googleUser && event.source !== 'google') {
+      try {
+        await exportEventToGoogleCalendar(event);
+      } catch (err) {
+        console.warn("Failed to export to Google Calendar", err);
+      }
+    }
+    
     showNotification("Event saved", 'success');
   };
   const handleDeleteEvent = async (id: string) => {
@@ -655,6 +665,27 @@ const App: React.FC = () => {
   };
 
   const handleSaveOrder = async (order: PurchaseOrder) => {
+    if (order.status === 'sent') {
+      // Send via Gmail if connected
+      if (googleUser) {
+        const supplier = suppliers.find(s => s.id === order.supplierId);
+        if (supplier?.email) {
+          try {
+             await sendEmailViaGmail(
+               supplier.email, 
+               `Purchase Order #${order.id.slice(-8).toUpperCase()} - CTOS`,
+               `Hello ${supplier.contactPerson || supplier.name},\n\nPlease find attached our purchase order.\n\nTotal: $${order.total.toFixed(2)}\n\nRegards,\nCoasters Tavern`
+             );
+             showNotification(`Order emailed to ${supplier.name} via Gmail`, 'success');
+          } catch (e) {
+             console.error("Failed to email PO", e);
+             showNotification("Failed to send email via Gmail", 'error');
+          }
+        } else {
+           showNotification(`Supplier ${supplier?.name} has no email address`, 'warning');
+        }
+      }
+    }
     await db.saveOrder(order);
     setOrders(await db.getOrders());
     showNotification("Purchase order saved", 'success');
@@ -875,6 +906,17 @@ const App: React.FC = () => {
                 </button>
                 <button onClick={() => setCurrentModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <ClockIcon className="w-5 h-5" /><span>Timeclock</span>
+                </button>
+
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-6">Inventory Hub</div>
+                <button onClick={() => setCurrentModule("stock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "stock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Boxes className="w-5 h-5" /><span>Products & Stock</span>
+                </button>
+                <button onClick={() => setCurrentModule("stocktake")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "stocktake" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <ClipboardList className="w-5 h-5" /><span>Stocktaking</span>
+                </button>
+                <button onClick={() => setCurrentModule("ordering")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "ordering" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <ShoppingCart className="w-5 h-5" /><span>Purchase Orders</span>
                 </button>
             </div>
         ) : (

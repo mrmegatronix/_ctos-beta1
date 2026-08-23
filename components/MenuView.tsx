@@ -266,20 +266,43 @@ const MenuView: React.FC<MenuViewProps> = ({ menus, onSaveMenu, onDeleteMenu }) 
                               <AlertTriangle className="w-4 h-4 mr-2 text-amber-500" />
                               Allergen Tags
                           </h4>
-                          <div className="flex flex-wrap gap-2">
-                              {STANDARD_ALLERGENS.map(allergen => (
-                                  <button
-                                      key={allergen.id}
-                                      onClick={() => toggleAllergen(allergen.id)}
-                                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                                          editingItem.allergens.includes(allergen.id) 
-                                              ? 'bg-amber-100 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300' 
-                                              : 'bg-white border-gray-200 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700'
-                                      }`}
-                                  >
-                                      {allergen.name}
-                                  </button>
-                              ))}
+                          
+                          <div className="mb-4">
+                              <h5 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Food Allergens</h5>
+                              <div className="flex flex-wrap gap-2">
+                                  {STANDARD_ALLERGENS.filter(a => a.category === 'food').map(allergen => (
+                                      <button
+                                          key={allergen.id}
+                                          onClick={() => toggleAllergen(allergen.id)}
+                                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                              editingItem.allergens.includes(allergen.id) 
+                                                  ? 'bg-amber-100 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300' 
+                                                  : 'bg-white border-gray-200 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700'
+                                          }`}
+                                      >
+                                          {allergen.name}
+                                      </button>
+                                  ))}
+                              </div>
+                          </div>
+
+                          <div>
+                              <h5 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Beverage Allergens</h5>
+                              <div className="flex flex-wrap gap-2">
+                                  {STANDARD_ALLERGENS.filter(a => a.category === 'beverage').map(allergen => (
+                                      <button
+                                          key={allergen.id}
+                                          onClick={() => toggleAllergen(allergen.id)}
+                                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                              editingItem.allergens.includes(allergen.id) 
+                                                  ? 'bg-amber-100 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300' 
+                                                  : 'bg-white border-gray-200 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700'
+                                          }`}
+                                      >
+                                          {allergen.name}
+                                      </button>
+                                  ))}
+                              </div>
                           </div>
                       </div>
 

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { StockItem, Supplier } from '../types';
 import { AlertTriangle, Package, TrendingDown, ArrowUp, ArrowDown, ArrowRightLeft, X, Plus, Edit2, Printer, Edit3, Scan } from 'lucide-react';
 import { StockInfoModal } from './StockInfoModal';
-import { FileText, ClipboardList } from 'lucide-react';
+import { FileText, ClipboardList, RefreshCw } from 'lucide-react';
 import { BarcodeScanner } from './BarcodeScanner';
+import TemplateViewerModal from './TemplateViewerModal';
+import LowStockSheet from './templates/LowStockSheet';
 
 interface StockViewProps {
   onSaveItem: (item: StockItem) => void;
@@ -21,6 +23,8 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
   const [isInlineEditMode, setIsInlineEditMode] = useState(false);
   const [localEdits, setLocalEdits] = useState<Record<string, StockItem>>({});
   const [showScanner, setShowScanner] = useState(false);
+  const [activeTab, setActiveTab] = useState<'All' | 'Food' | 'Beverage'>('All');
+  const [isLowStockPrintModalOpen, setIsLowStockPrintModalOpen] = useState(false);
 
   const handleLocalEdit = (item: StockItem, field: keyof StockItem, value: any) => {
     const current = localEdits[item.id] || item;
@@ -61,8 +65,11 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
     }
   };
 
+
   let displayItems = items;
-  if (filterType) {
+  if (activeTab !== 'All') {
+      displayItems = displayItems.filter(i => (i.productType || '').toLowerCase() === activeTab.toLowerCase());
+  } else if (filterType) {
       displayItems = displayItems.filter(i => i.productType === filterType);
   }
   if (groupBy) {
@@ -102,6 +109,11 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden relative print:bg-white print:text-black print:overflow-visible print:h-auto">
+      {isLowStockPrintModalOpen && (
+        <TemplateViewerModal title="Low Stock Report" onClose={() => setIsLowStockPrintModalOpen(false)}>
+          <LowStockSheet stock={items} />
+        </TemplateViewerModal>
+      )}
       {/* Printable Header (Visible only when printing) */}
       <div className="hidden print:block px-6 pt-4 pb-2 mb-4 border-b-2 border-gray-800">
         <div className="flex justify-between items-start">
@@ -175,9 +187,27 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
         <div className="flex justify-between items-center mb-4 print:hidden">
           <div className="flex items-center space-x-2">
             <span className="text-xs uppercase font-bold text-slate-400">Active View:</span>
-            <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-              {filterType || 'All Items'} ({displayItems.length})
-            </span>
+            
+            <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+              <button 
+                onClick={() => setActiveTab('All')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${activeTab === 'All' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+              >
+                All ({items.length})
+              </button>
+              <button 
+                onClick={() => setActiveTab('Food')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${activeTab === 'Food' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+              >
+                Food
+              </button>
+              <button 
+                onClick={() => setActiveTab('Beverage')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${activeTab === 'Beverage' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+              >
+                Beverage
+              </button>
+            </div>
             {lowStockItems.length > 0 && (
               <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
                 {lowStockItems.length} Low Stock
@@ -208,6 +238,14 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
             >
                <Printer className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                <span>Print</span>
+            </button>
+            <button 
+              onClick={() => setIsLowStockPrintModalOpen(true)}
+              className="flex items-center space-x-2 px-3.5 py-2 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/50 dark:hover:bg-amber-800/50 text-amber-800 dark:text-amber-200 rounded-lg transition-colors font-medium text-sm shadow-sm"
+              title="Print Low Stock Report"
+            >
+               <AlertTriangle className="w-4 h-4" />
+               <span className="hidden sm:inline">Low Stock Report</span>
             </button>
             <button 
               onClick={() => handleAdd()} 

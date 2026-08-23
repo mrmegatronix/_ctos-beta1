@@ -439,6 +439,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
             </div>
           </div>
 
+
+
           {/* Ecosystem & Hub Links */}
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
