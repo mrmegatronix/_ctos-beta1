@@ -477,7 +477,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
               </a>
 
               <a
-                href="/ct-matrix/masteradmin.html"
+                href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-all flex items-center justify-between group"

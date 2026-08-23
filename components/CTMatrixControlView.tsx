@@ -134,18 +134,18 @@ const SCENE_PRESETS: PresetScene[] = [
 ];
 
 const MATRIX_MODULES = [
-  { id: 'masteradmin', name: 'Master TV Admin Control', file: '/ct-matrix/masteradmin.html', category: 'Admin Control', icon: Crown, badge: 'Main TV Advertising Hub', color: 'from-amber-500 to-red-600', description: 'Primary master control center for TV advertising slides, promotions, overlay tickers, countdowns, and live sports ads.' },
-  { id: 'matrix-live', name: 'CT-Matrix Live Signage', file: '/ct-matrix/index.html', category: 'Display Player', icon: Tv, badge: 'Live Screen Feed', color: 'from-blue-600 to-indigo-600', description: 'Automated fullscreen digital signage player with live CSV schedules, band ads, daily specials, and smooth transitions.' },
-  { id: 'billboard', name: 'Billboard Display Engine', file: '/ct-matrix/billboard.html', category: 'Display Player', icon: Monitor, badge: 'High-Impact Signage', color: 'from-emerald-600 to-teal-600', description: 'Large format portrait & landscape display engine for venue entrance, big screens, and promo boards.' },
-  { id: 'remote', name: 'Mobile TV Remote Control', file: '/ct-matrix/remote.html', category: 'Remote Pages', icon: Smartphone, badge: 'Staff Mobile Controller', color: 'from-purple-600 to-indigo-600', description: 'Fast mobile-friendly touch remote for duty managers and bartenders to switch TV feeds, mute, and trigger instant ads.' },
-  { id: 'live-commander', name: 'Live Sports Commander', file: '/ct-matrix/live-commander.html', category: 'Admin Control', icon: Zap, badge: 'Real-Time Tickers', color: 'from-rose-600 to-amber-600', description: 'Instant lower-third overlays, breaking match score updates, emergency tickers, and live crowd announcements.' },
-  { id: 'loyalty-slide', name: 'Loyalty & Jackpot Display', file: '/ct-matrix/loyalty-slide.html', category: 'Display Player', icon: Award, badge: 'CTSC Membership', color: 'from-amber-600 to-yellow-500', description: 'Social club member loyalty perks, membership QR sign-up codes, and active gaming jackpot displays.' },
-  { id: 'navi', name: 'Matrix Navigation Hub', file: '/ct-matrix/navi.html', category: 'Admin Control', icon: Compass, badge: 'Screen Routing Map', color: 'from-cyan-600 to-blue-600', description: 'Visual map and routing matrix connecting all physical displays, TV outputs, and digital signage zones.' }
+  { id: 'masteradmin', name: 'Master TV Admin Control', file: 'https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html', category: 'Admin Control', icon: Crown, badge: 'Main TV Advertising Hub', color: 'from-amber-500 to-red-600', description: 'Primary master control center for TV advertising slides, promotions, overlay tickers, countdowns, and live sports ads.' },
+  { id: 'matrix-live', name: 'CT-Matrix Live Signage', file: 'https://mrmegatronix.github.io/_ct-MATRIX/index.html', category: 'Display Player', icon: Tv, badge: 'Live Screen Feed', color: 'from-blue-600 to-indigo-600', description: 'Automated fullscreen digital signage player with live CSV schedules, band ads, daily specials, and smooth transitions.' },
+  { id: 'billboard', name: 'Billboard Display Engine', file: 'https://mrmegatronix.github.io/_ct-MATRIX/billboard.html', category: 'Display Player', icon: Monitor, badge: 'High-Impact Signage', color: 'from-emerald-600 to-teal-600', description: 'Large format portrait & landscape display engine for venue entrance, big screens, and promo boards.' },
+  { id: 'remote', name: 'Mobile TV Remote Control', file: 'https://mrmegatronix.github.io/_ct-MATRIX/remote.html', category: 'Remote Pages', icon: Smartphone, badge: 'Staff Mobile Controller', color: 'from-purple-600 to-indigo-600', description: 'Fast mobile-friendly touch remote for duty managers and bartenders to switch TV feeds, mute, and trigger instant ads.' },
+  { id: 'live-commander', name: 'Live Sports Commander', file: 'https://mrmegatronix.github.io/_ct-MATRIX/live-commander.html', category: 'Admin Control', icon: Zap, badge: 'Real-Time Tickers', color: 'from-rose-600 to-amber-600', description: 'Instant lower-third overlays, breaking match score updates, emergency tickers, and live crowd announcements.' },
+  { id: 'loyalty-slide', name: 'Loyalty & Jackpot Display', file: 'https://mrmegatronix.github.io/_ct-MATRIX/loyalty-slide.html', category: 'Display Player', icon: Award, badge: 'CTSC Membership', color: 'from-amber-600 to-yellow-500', description: 'Social club member loyalty perks, membership QR sign-up codes, and active gaming jackpot displays.' },
+  { id: 'navi', name: 'Matrix Navigation Hub', file: 'https://mrmegatronix.github.io/_ct-MATRIX/navi.html', category: 'Admin Control', icon: Compass, badge: 'Screen Routing Map', color: 'from-cyan-600 to-blue-600', description: 'Visual map and routing matrix connecting all physical displays, TV outputs, and digital signage zones.' }
 ];
 
 const CTMatrixControlView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tv-advertising' | 'embedded-hub' | 'video' | 'audio' | 'presets'>('tv-advertising');
-  const [selectedEmbedUrl, setSelectedEmbedUrl] = useState<string>('/ct-matrix/masteradmin.html');
+  const [selectedEmbedUrl, setSelectedEmbedUrl] = useState<string>('https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html');
   const [inputs] = useState<VideoInput[]>(DEFAULT_INPUTS);
   const [outputs, setOutputs] = useState<VideoOutput[]>(DEFAULT_OUTPUTS);
   const [audioZones, setAudioZones] = useState<AudioZone[]>(DEFAULT_AUDIO_ZONES);
@@ -236,7 +236,7 @@ const CTMatrixControlView: React.FC = () => {
         {/* Primary Main Controls Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
           <a
-            href="/ct-matrix/masteradmin.html"
+            href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 transition-all active:scale-95"
@@ -248,7 +248,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="/ct-matrix/index.html"
+            href="https://mrmegatronix.github.io/_ct-MATRIX/index.html"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-4 py-2.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 font-bold rounded-2xl text-xs transition-colors"
@@ -260,7 +260,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="/ct-matrix/remote.html"
+            href="https://mrmegatronix.github.io/_ct-MATRIX/remote.html"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 font-bold rounded-2xl text-xs transition-colors"
@@ -272,7 +272,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="/ct-matrix/postermaker.html"
+            href="https://mrmegatronix.github.io/_ct-MATRIX/postermaker.html"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-200 font-bold rounded-2xl text-xs transition-colors"
@@ -284,7 +284,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="/ct-matrix/files.html"
+            href="https://mrmegatronix.github.io/_ct-MATRIX/files.html"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-200 font-bold rounded-2xl text-xs transition-colors"
@@ -390,7 +390,7 @@ const CTMatrixControlView: React.FC = () => {
 
               <div className="flex items-center space-x-3">
                 <a
-                  href="/ct-matrix/masteradmin.html"
+                  href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs flex items-center space-x-1.5 shadow-md shadow-amber-500/20"
@@ -400,7 +400,7 @@ const CTMatrixControlView: React.FC = () => {
                 </a>
                 <button
                   onClick={() => {
-                    setSelectedEmbedUrl('/ct-matrix/masteradmin.html');
+                    setSelectedEmbedUrl('https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html');
                     setActiveTab('embedded-hub');
                   }}
                   className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs flex items-center space-x-1.5"
@@ -472,7 +472,7 @@ const CTMatrixControlView: React.FC = () => {
               <ul className="space-y-3 text-xs">
                 <li>
                   <a
-                    href="/ct-matrix/masteradmin.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -483,7 +483,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="/ct-matrix/live-commander.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/live-commander.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -494,7 +494,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="/ct-matrix/navi.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/navi.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -515,7 +515,7 @@ const CTMatrixControlView: React.FC = () => {
               <ul className="space-y-3 text-xs">
                 <li>
                   <a
-                    href="/ct-matrix/index.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/index.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -526,7 +526,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="/ct-matrix/billboard.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/billboard.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -537,7 +537,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="/ct-matrix/loyalty-slide.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/loyalty-slide.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -558,7 +558,7 @@ const CTMatrixControlView: React.FC = () => {
               <ul className="space-y-3 text-xs">
                 <li>
                   <a
-                    href="/ct-matrix/remote.html"
+                    href="https://mrmegatronix.github.io/_ct-MATRIX/remote.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -602,13 +602,13 @@ const CTMatrixControlView: React.FC = () => {
                 onChange={e => setSelectedEmbedUrl(e.target.value)}
                 className="bg-slate-900 text-amber-300 font-bold border border-white/10 px-3 py-1 rounded-xl outline-none"
               >
-                <option value="/ct-matrix/masteradmin.html">masteradmin.html (Master TV Ads)</option>
-                <option value="/ct-matrix/index.html">index.html (Matrix Live Display)</option>
-                <option value="/ct-matrix/remote.html">remote.html (Mobile TV Remote)</option>
-                <option value="/ct-matrix/billboard.html">billboard.html (Billboard)</option>
-                <option value="/ct-matrix/live-commander.html">live-commander.html (Sports Commander)</option>
-                <option value="/ct-matrix/loyalty-slide.html">loyalty-slide.html (Loyalty Slide)</option>
-                <option value="/ct-matrix/navi.html">navi.html (Matrix Navigation)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html">masteradmin.html (Master TV Ads)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/index.html">index.html (Matrix Live Display)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/remote.html">remote.html (Mobile TV Remote)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/billboard.html">billboard.html (Billboard)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/live-commander.html">live-commander.html (Sports Commander)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/loyalty-slide.html">loyalty-slide.html (Loyalty Slide)</option>
+                <option value="https://mrmegatronix.github.io/_ct-MATRIX/navi.html">navi.html (Matrix Navigation)</option>
               </select>
             </div>
 
