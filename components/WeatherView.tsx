@@ -17,6 +17,7 @@ import {
   Sunrise
 } from 'lucide-react';
 import ActionToolbar from './ActionToolbar';
+import DigitalClock from './DigitalClock';
 
 interface LocationConfig {
   name: string;
@@ -225,7 +226,7 @@ const WeatherView: React.FC = () => {
                   {selectedLoc.name} Current
                 </span>
                 <span className="text-[10px] text-indigo-200/80 bg-white/10 px-2.5 py-1 rounded-full backdrop-blur-sm">
-                  Refreshed {lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  Refreshed <DigitalClock date={lastRefreshed} />
                 </span>
               </div>
 

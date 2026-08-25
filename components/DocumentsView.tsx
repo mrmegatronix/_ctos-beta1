@@ -12,7 +12,8 @@ import LostAndFoundLog from './templates/LostAndFoundLog';
 import OrderingSheet from './templates/OrderingSheet';
 import FOHShiftRunsheet from './templates/FOHShiftRunsheet';
 import LowStockSheet from './templates/LowStockSheet';
-import PurchaseOrderSheet from './templates/PurchaseOrderSheet';
+import BlankRosterSheet from './templates/BlankRosterSheet';
+
 interface DocumentsViewProps {
   files: FileItem[];
   stock?: StockItem[];
@@ -21,7 +22,7 @@ interface DocumentsViewProps {
   onDeleteFile?: (id: string) => void;
 }
 
-const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppliers = [], onSaveFile, onDeleteFile }) => {
+const DocumentsView: React.FC<DocumentsViewProps> = ({ files = [], stock = [], suppliers = [], onSaveFile, onDeleteFile }) => {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
@@ -38,9 +39,11 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
         { id: 'tpl-fohshift', name: 'FOH Shift Runsheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
         { id: 'tpl-lowstock', name: 'Low Stock Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
         { id: 'tpl-purchaseorder', name: 'Purchase Order Sheet', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
+        { id: 'tpl-roster', name: 'Blank Staff Roster', type: 'doc', parentId: 'templates-folder', lastModified: new Date() },
       ] as FileItem[];
     }
-    return files.filter(f => f.parentId === parentId);
+    const safeFiles = Array.isArray(files) ? files : [];
+    return safeFiles.filter(f => f.parentId === parentId);
   };
 
   const getBreadcrumbs = () => {
@@ -52,7 +55,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
       return crumbs;
     }
 
-    const folder = files.find(f => f.id === currentFolderId);
+    const safeFiles = Array.isArray(files) ? files : [];
+    const folder = safeFiles.find(f => f.id === currentFolderId);
     if (folder) {
         // Simple 1-level depth logic
         crumbs.push({ id: folder.id, name: folder.name });
@@ -70,7 +74,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
       setCurrentFolderId(null);
       return;
     }
-    const current = files.find(f => f.id === currentFolderId);
+    const safeFiles = Array.isArray(files) ? files : [];
+    const current = safeFiles.find(f => f.id === currentFolderId);
     setCurrentFolderId(current?.parentId || null);
   };
 
@@ -231,6 +236,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ files, stock = [], suppli
            {activeTemplate === 'tpl-fohshift' && <FOHShiftRunsheet />}
            {activeTemplate === 'tpl-lowstock' && <LowStockSheet stock={stock} />}
            {activeTemplate === 'tpl-purchaseorder' && <PurchaseOrderSheet stock={stock} suppliers={suppliers} />}
+           {activeTemplate === 'tpl-roster' && <BlankRosterSheet />}
          </TemplateViewerModal>
        )}
     </div>

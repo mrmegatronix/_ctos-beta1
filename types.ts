@@ -106,6 +106,7 @@ export interface StockItem {
   barcode?: string;
   expiryDate?: Date;
   location?: string;
+  status?: 'In Stock' | 'Sold Out' | 'Back Order' | 'Deprecated' | 'No Longer Stocked';
 }
 
 

@@ -35,11 +35,15 @@ interface DashboardViewProps {
   lowStock: StockItem[];
   bookings: Booking[];
   tvSchedule: TVScheduleItem[];
+  tasks?: MaintenanceTask[];
+  lowStock?: StockItem[];
+  bookings?: Booking[];
+  tvSchedule?: TVScheduleItem[];
   onNavigate: (module: AppModule) => void;
 }
 
 const DashboardView: React.FC<DashboardViewProps> = ({ 
-  mode, user, events, entertainmentEvents = [], tasks, lowStock, bookings, tvSchedule, onNavigate 
+  mode, user, events = [], entertainmentEvents = [], tasks = [], lowStock = [], bookings = [], tvSchedule = [], onNavigate 
 }) => {
   const today = new Date();
   
@@ -75,11 +79,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <p className="text-gray-500 dark:text-gray-400">Welcome back, {user.name}.</p>
              </div>
              <div className="flex flex-col items-end gap-3">
-                <div className="text-sm font-medium text-gray-500 bg-slate-900/60 backdrop-blur-xl px-4 py-2 rounded-lg border border-white/10 shadow-sm">
+                <div className="text-sm font-medium text-gray-200 bg-slate-900/60 backdrop-blur-xl px-4 py-2 rounded-lg border border-white/10 shadow-lg">
                     {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </div>
-                <div className="w-64">
-                    <WeatherWidget />
                 </div>
              </div>
           </div>
@@ -144,6 +145,21 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                      </div>
                  </div>
 
+                 {/* Financial Summary */}
+                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm overflow-hidden p-6">
+                     <h3 className="font-semibold text-white mb-4 flex items-center"><DollarSign className="w-5 h-5 mr-2 text-emerald-500"/> Financial Summary (Today)</h3>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                           <p className="text-sm text-emerald-400 font-medium">Gross Sales</p>
+                           <p className="text-2xl font-bold text-white">$4,250.00</p>
+                        </div>
+                        <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                           <p className="text-sm text-indigo-400 font-medium">Net Sales</p>
+                           <p className="text-2xl font-bold text-white">$3,695.65</p>
+                        </div>
+                     </div>
+                 </div>
+
                  {/* System Alerts */}
                  <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm overflow-hidden">
                      <div className="px-6 py-4 border-b border-white/10">
@@ -185,6 +201,20 @@ const DashboardView: React.FC<DashboardViewProps> = ({
              <div className="space-y-6">
                 <WeatherWidget />
                 
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm p-6">
+                    <h3 className="font-semibold text-white mb-4">Staff on Shift</h3>
+                    <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                           <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-xs">JD</div>
+                           <div><p className="text-sm text-white font-medium">John Doe</p><p className="text-xs text-slate-400">Duty Manager</p></div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                           <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-xs">SJ</div>
+                           <div><p className="text-sm text-white font-medium">Sarah Jenkins</p><p className="text-xs text-slate-400">Barista</p></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm p-6">
                     <h3 className="font-semibold text-white mb-4">Today's Schedule</h3>
                     <div className="space-y-4">
@@ -251,6 +281,37 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                    <p className="text-sm text-slate-400">Gig Guide & Events</p>
                </button>
             </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+               <div className="lg:col-span-2 bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+                   <h3 className="font-semibold text-white mb-4 flex items-center"><Utensils className="w-5 h-5 mr-2 text-emerald-500"/> Today's Bookings</h3>
+                   {todaysBookings.length > 0 ? (
+                       <div className="space-y-3">
+                           {todaysBookings.map(b => (
+                               <div key={b.id} className="p-4 bg-slate-900/80 rounded-lg border border-slate-700 flex justify-between items-center">
+                                   <div><p className="font-bold text-white text-lg">{b.customerName}</p><p className="text-sm text-slate-400">{b.guests} Guests • {b.area}</p></div>
+                                   <div className="text-emerald-400 font-bold text-xl">{b.time}</div>
+                               </div>
+                           ))}
+                       </div>
+                   ) : <p className="text-slate-500 bg-slate-900/50 p-6 rounded-lg text-center">No bookings for today.</p>}
+               </div>
+               <div className="space-y-6">
+                   <div className="bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+                       <h3 className="font-semibold text-white mb-4 flex items-center"><Tv className="w-5 h-5 mr-2 text-purple-500"/> Live Sports</h3>
+                       {todaysTv.length > 0 ? (
+                           <div className="space-y-3">
+                               {todaysTv.map(tv => (
+                                   <div key={tv.id} className="p-3 bg-slate-900/80 rounded-lg border border-slate-700 border-l-4 border-l-purple-500">
+                                       <p className="font-bold text-white">{tv.match}</p>
+                                       <p className="text-sm text-slate-400 mt-1">{tv.channel} • {formatTime(tv.startTime)}</p>
+                                   </div>
+                               ))}
+                           </div>
+                       ) : <p className="text-slate-500 text-sm bg-slate-900/50 p-4 rounded-lg text-center">No games scheduled today.</p>}
+                   </div>
+               </div>
+            </div>
          </div>
       </div>
     );
@@ -293,6 +354,27 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                           <div className="p-8 text-center text-slate-500 bg-slate-900 rounded-lg">All caught up!</div>
                       )}
                   </div>
+
+                  {/* Recipes to Prep */}
+                  <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><BookOpen className="w-6 h-6 mr-2 text-blue-500"/> Recipes to Prep</h2>
+                      <div className="space-y-3">
+                          <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+                              <div className="flex-1">
+                                  <h4 className="text-white font-medium">Burger Patties</h4>
+                                  <p className="text-sm text-slate-400 mt-1">Prep 50x 150g patties</p>
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Morning Prep</span>
+                          </div>
+                          <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+                              <div className="flex-1">
+                                  <h4 className="text-white font-medium">Napoli Sauce</h4>
+                                  <p className="text-sm text-slate-400 mt-1">Make 5L batch</p>
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Afternoon Prep</span>
+                          </div>
+                      </div>
+                  </div>
                </div>
 
                <div className="space-y-6">
@@ -310,6 +392,21 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                           <p className="text-sm text-slate-400">Inventory Management</p>
                        </div>
                    </button>
+
+                   {/* Low Stock Widget */}
+                   <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                       <h3 className="font-semibold text-white mb-4 flex items-center"><AlertTriangle className="w-5 h-5 mr-2 text-red-500"/> Low Stock Alerts</h3>
+                       {lowStock.length > 0 ? (
+                           <div className="space-y-3">
+                               {lowStock.slice(0,5).map(item => (
+                                   <div key={item.id} className="p-3 bg-slate-900/80 rounded-lg border border-red-500/20">
+                                       <p className="font-medium text-white text-sm">{item.name}</p>
+                                       <p className="text-xs text-red-400 font-bold mt-1">Only {item.quantity} {item.unit} left</p>
+                                   </div>
+                               ))}
+                           </div>
+                       ) : <p className="text-slate-500 text-sm bg-slate-900/50 p-4 rounded-lg text-center">Stock levels good.</p>}
+                   </div>
                </div>
             </div>
          </div>

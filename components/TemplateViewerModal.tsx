@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, Printer } from 'lucide-react';
 
 interface TemplateViewerModalProps {
@@ -8,6 +8,14 @@ interface TemplateViewerModalProps {
 }
 
 const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({ title, onClose, children }) => {
+  useEffect(() => {
+    const originalTitle = document.title;
+    document.title = `${title} - CTOS`;
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [title]);
+
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-slate-900/80 backdrop-blur-sm print:bg-white print:backdrop-blur-none">
       {/* Non-printable Header */}

@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { TeamMember, RosterShift, TimesheetEntry } from '../types';
 import { db } from '../services/database';
+import DigitalClock from './DigitalClock';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface CTClockViewProps {
   staff: TeamMember[];
@@ -318,7 +320,7 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
         <div className="flex items-center space-x-3">
           <div className="text-right hidden sm:block">
             <div className="text-xl font-black text-white tracking-tighter tabular-nums">
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              <DigitalClock date={currentTime} showSeconds />
             </div>
             <div className="text-[11px] text-slate-400 font-medium">
               {currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
@@ -348,6 +350,9 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
             <span>Mobile Portal</span>
             <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
           </a>
+          <div className="bg-white p-1 rounded-md shadow-sm ml-2" title="Scan to open Mobile Portal">
+             <QRCodeSVG value={`${window.location.origin}/ct-clock/mobile.html`} size={36} />
+          </div>
         </div>
       </div>
 

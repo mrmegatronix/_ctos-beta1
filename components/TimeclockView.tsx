@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TeamMember } from '../types';
 import { Clock, CheckCircle, LogIn, LogOut, X } from 'lucide-react';
+import DigitalClock from './DigitalClock';
 
 interface TimeclockViewProps {
   user: TeamMember | null;
@@ -66,7 +67,7 @@ const TimeclockView: React.FC<TimeclockViewProps> = ({ staff }) => {
 
         <div className="text-center mb-8">
             <h1 className="text-6xl font-black text-white mb-2 drop-shadow-lg tracking-tighter tabular-nums">
-                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                <DigitalClock date={currentTime} showSeconds />
             </h1>
             <p className="text-xl text-slate-400 font-medium">CT-Clock Terminal</p>
         </div>

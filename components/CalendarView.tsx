@@ -4,6 +4,7 @@ import ActionToolbar from './ActionToolbar';
 import { formatDate, isSameDay, getStartOfWeek, addDays } from '../utils';
 import { HOURS } from '../constants';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid } from 'lucide-react';
+import DigitalClock from './DigitalClock';
 
 interface CalendarViewProps {
   events: CalendarEvent[];
@@ -126,7 +127,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
                                   return (
                                       <div key={e.id} onClick={(ev) => { ev.stopPropagation(); onEditLocation(e); }} className={`absolute left-1 right-1 rounded-md p-1 text-xs cursor-pointer shadow-lg overflow-hidden border-l-4 ${styleClass}`} style={{ top: `${top}px`, height: `${height}px` }}>
                                           <div className="font-bold truncate">{e.title}</div>
-                                          <div className="truncate opacity-80">{e.start.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                                          <div className="truncate opacity-80"><DigitalClock date={e.start} /></div>
                                       </div>
                                   );
                               })}
@@ -146,7 +147,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
                           <div key={e.id} onClick={() => onEditLocation(e)} className="flex items-start p-4 rounded-xl border border-white/5  hover:shadow-xl transition-shadow cursor-pointer bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  group">
                               <div className="w-32 flex-shrink-0 border-r border-white/5  pr-4">
                                   <div className="text-sm font-bold text-slate-400 ">{e.start.toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                  <div className="text-xl font-black text-slate-50  mt-1">{e.start.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                                  <div className="text-xl font-black text-slate-50  mt-1"><DigitalClock date={e.start} /></div>
                               </div>
                               <div className="flex-1 pl-6">
                                   <div className="flex justify-between items-start">
@@ -186,7 +187,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, teamMembers, isFohM
                                <div className="space-y-1">
                                    {dayEvents.slice(0, 3).map(e => (
                                        <div key={e.id} onClick={() => onEditLocation(e)} className={`text-xs p-1 rounded font-medium truncate cursor-pointer hover:opacity-80 transition-opacity ${e.source==='google'?'bg-green-100 text-green-700':'bg-gray-100 text-slate-200  '}`}>
-                                           {e.start.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} {e.title}
+                                           <DigitalClock date={e.start} /> {e.title}
                                        </div>
                                    ))}
                                    {dayEvents.length > 3 && <div className="text-xs text-gray-400 font-medium pl-1">+{dayEvents.length - 3} more</div>}

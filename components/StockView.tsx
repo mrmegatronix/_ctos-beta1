@@ -6,6 +6,7 @@ import { FileText, ClipboardList, RefreshCw } from 'lucide-react';
 import { BarcodeScanner } from './BarcodeScanner';
 import TemplateViewerModal from './TemplateViewerModal';
 import LowStockSheet from './templates/LowStockSheet';
+import DigitalClock from './DigitalClock';
 
 interface StockViewProps {
   onSaveItem: (item: StockItem) => void;
@@ -132,7 +133,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
             </div>
           </div>
           <div className="text-right text-xs text-gray-600">
-            <div><strong>Date:</strong> {new Date().toLocaleDateString('en-NZ', { dateStyle: 'medium' })} {new Date().toLocaleTimeString('en-NZ', { timeStyle: 'short' })}</div>
+            <div><strong>Date:</strong> {new Date().toLocaleDateString('en-NZ', { dateStyle: 'medium' })} <DigitalClock date={new Date()} /></div>
             <div><strong>Total Listed Items:</strong> {printableItems.length}</div>
             {printFormat === 'inventory' && (
               <div><strong>Total Inventory Value:</strong> ${displayItems.reduce((acc, i) => acc + (i.price * i.quantity), 0).toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
@@ -260,9 +261,10 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
         {/* Stock Items Table */}
         <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-xl overflow-hidden print:border-gray-300 print:shadow-none print:rounded-none overflow-x-auto">
           <table className="w-full text-left border-collapse print:text-xs min-w-[900px]">
-            <thead>
+            <thead className="sticky top-0 z-10 shadow-sm">
               <tr className="bg-gray-50 dark:bg-slate-800 border-b border-white/10 text-xs uppercase text-slate-400 print:bg-gray-100 print:text-gray-900 print:border-b-2 print:border-gray-400">
-                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Item Name</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2 w-[25%] min-w-[250px]">Item Name</th>
+                <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Status</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Location/Barcode</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Size / Unit</th>
                 <th className="px-4 py-3 font-semibold print:py-1.5 print:px-2">Supplier</th>
@@ -295,19 +297,47 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                 
                 return (
                   <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors print:hover:bg-transparent ${item.isDemo ? 'demo-highlight' : ''} ${isLow ? 'bg-red-50/30 dark:bg-red-950/20' : ''}`}>
-                    <td className="px-4 py-3 font-medium text-white print:text-gray-900 print:py-1.5 print:px-2">
+                    <td className="px-4 py-3 font-medium text-white print:text-gray-900 print:py-1.5 print:px-2 w-[25%] min-w-[250px]">
                       {isInlineEditMode ? (
                         <input 
                           type="text" 
-                          className="w-full bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
+                          className="w-full min-w-[230px] bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500" 
                           value={item.name} 
                           onChange={(e) => handleLocalEdit(item, 'name', e.target.value)} 
                           onBlur={() => handleBlur(item)} 
                         />
                       ) : (
-                        item.name
+                        <div className="whitespace-normal break-words max-w-sm">{item.name}</div>
                       )}
                       {!isInlineEditMode && <div className="text-xs text-slate-500 font-normal">{item.category}</div>}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {isInlineEditMode ? (
+                        <select
+                          className="w-[120px] bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                          value={item.status || 'In Stock'}
+                          onChange={(e) => {
+                            handleLocalEdit(item, 'status', e.target.value);
+                            onSaveItem({ ...item, status: e.target.value as any });
+                          }}
+                        >
+                          <option value="In Stock">In Stock</option>
+                          <option value="Sold Out">Sold Out</option>
+                          <option value="Back Order">Back Order</option>
+                          <option value="No Longer Stocked">No Longer Stocked</option>
+                          <option value="Deprecated">Deprecated</option>
+                        </select>
+                      ) : (
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          item.status === 'Sold Out' ? 'bg-red-100 text-red-700' :
+                          item.status === 'Back Order' ? 'bg-amber-100 text-amber-700' :
+                          item.status === 'No Longer Stocked' ? 'bg-gray-100 text-gray-700' :
+                          item.status === 'Deprecated' ? 'bg-slate-200 text-slate-500 line-through' :
+                          'bg-emerald-100 text-emerald-700'
+                        }`}>
+                          {item.status || 'In Stock'}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-400 text-xs print:text-gray-700 print:py-1.5 print:px-2">
                       {item.location && <div className="mb-0.5">Loc: {item.location}</div>}
@@ -326,7 +356,7 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                             onBlur={() => handleBlur(item)} 
                           />
                           <select
-                            className="w-full bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                            className="w-[120px] bg-slate-900/60 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
                             value={item.volumeMl || ''}
                             onChange={(e) => {
                               handleLocalEdit(item, 'volumeMl', e.target.value ? parseInt(e.target.value) : undefined);
@@ -335,12 +365,17 @@ const StockView: React.FC<StockViewProps> = ({ items, suppliers, onUpdateQuantit
                             }}
                           >
                             <option value="">No Size</option>
-                            <option value="50000">50,000ml (50L)</option>
+                            <option value="50000">50,000ml (50L Keg)</option>
+                            <option value="30000">30,000ml (30L Keg)</option>
+                            <option value="20000">20,000ml (20L Keg)</option>
+                            <option value="1140">1140ml</option>
                             <option value="1000">1000ml</option>
                             <option value="750">750ml</option>
                             <option value="700">700ml</option>
                             <option value="500">500ml</option>
+                            <option value="425">425ml</option>
                             <option value="330">330ml</option>
+                            <option value="250">250ml</option>
                           </select>
                         </div>
                       ) : (

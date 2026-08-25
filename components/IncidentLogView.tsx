@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IncidentReport, TeamMember } from '../types';
 import { formatDate, generateId } from '../utils';
 import { AlertTriangle, ShieldAlert, Plus, Save, Trash2, Printer, Search, Filter, PhoneCall, CheckCircle } from 'lucide-react';
+import DigitalClock from './DigitalClock';
 
 interface IncidentLogViewProps {
   incidents: IncidentReport[];
@@ -275,7 +276,7 @@ const IncidentLogView: React.FC<IncidentLogViewProps> = ({ incidents, staff, cur
                       {incident.type}
                     </span>
                     <span className="text-xs font-semibold text-slate-400">
-                      {formatDate(incDate)} at {incDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatDate(incDate)} at <DigitalClock date={incDate} />
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StockItem } from '../../types';
 import { formatDate } from '../../utils';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface StocktakeSheetProps {
   stock: StockItem[];
@@ -22,9 +23,15 @@ const StocktakeSheet: React.FC<StocktakeSheetProps> = ({ stock }) => {
           <h1 className="text-3xl font-bold uppercase tracking-wider">Stocktake Sheet</h1>
           <p className="text-gray-600 mt-1">Generated: {formatDate(new Date())}</p>
         </div>
-        <div className="text-right">
-          <p className="font-bold border-b border-black inline-block w-48 text-left mb-2">Staff Name:</p><br/>
-          <p className="font-bold border-b border-black inline-block w-48 text-left">Signature:</p>
+        <div className="text-right flex items-center justify-end space-x-6">
+          <div>
+            <p className="font-bold border-b border-black inline-block w-48 text-left mb-2">Staff Name:</p><br/>
+            <p className="font-bold border-b border-black inline-block w-48 text-left">Signature:</p>
+          </div>
+          <div className="text-center">
+            <QRCodeSVG value={`${window.location.origin}/ct-stocktake`} size={64} className="mx-auto border p-1" />
+            <p className="text-[10px] mt-1 text-gray-500">Scan to Stocktake</p>
+          </div>
         </div>
       </div>
 
@@ -34,21 +41,23 @@ const StocktakeSheet: React.FC<StocktakeSheetProps> = ({ stock }) => {
           <table className="w-full text-left border-collapse border border-gray-300 text-sm">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border border-gray-300 p-2 w-1/4">Location/Bin</th>
-                <th className="border border-gray-300 p-2 w-1/3">Item Name</th>
-                <th className="border border-gray-300 p-2 w-1/6">Size/Unit</th>
-                <th className="border border-gray-300 p-2 w-1/6">Expected</th>
-                <th className="border border-gray-300 p-2 text-center">Actual Count</th>
+                <th className="border border-gray-300 p-2 w-[15%]">Location/Bin</th>
+                <th className="border border-gray-300 p-2 w-[40%]">Item Name</th>
+                <th className="border border-gray-300 p-2 w-[10%]">Status</th>
+                <th className="border border-gray-300 p-2 w-[10%]">Size/Unit</th>
+                <th className="border border-gray-300 p-2 w-[10%]">Expected</th>
+                <th className="border border-gray-300 p-2 text-center w-[15%]">Actual Count</th>
               </tr>
             </thead>
             <tbody>
               {items.sort((a, b) => (a.location || '').localeCompare(b.location || '')).map(item => (
-                <tr key={item.id} className="border-b border-gray-300">
+                <tr key={item.id} className={`border-b border-gray-300 ${item.status && item.status !== 'In Stock' ? 'text-gray-500' : ''}`}>
                   <td className="border border-gray-300 p-2 font-medium">{item.location || '-'}</td>
-                  <td className="border border-gray-300 p-2">{item.name}</td>
+                  <td className="border border-gray-300 p-2 font-semibold text-base">{item.name}</td>
+                  <td className="border border-gray-300 p-2 text-xs italic">{item.status || 'In Stock'}</td>
                   <td className="border border-gray-300 p-2 text-gray-600">{item.volumeMl ? `${item.volumeMl}ml` : item.unit}</td>
-                  <td className="border border-gray-300 p-2 text-gray-500">{item.quantity}</td>
-                  <td className="border border-gray-300 p-2 bg-gray-50"></td>
+                  <td className="border border-gray-300 p-2 text-gray-500 text-center">{item.quantity}</td>
+                  <td className="border border-gray-300 p-3 bg-gray-50"></td>
                 </tr>
               ))}
             </tbody>

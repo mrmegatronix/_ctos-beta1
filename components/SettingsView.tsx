@@ -28,6 +28,7 @@ import {
 import { db } from '../services/database';
 import { getPublicSyncMeta, scanAndImportPublicFolder, PublicSyncMeta } from '../services/publicSync';
 import { PublicFolderUploadModal } from './PublicFolderUploadModal';
+import DigitalClock from './DigitalClock';
 
 interface SettingsViewProps {
   onShowNotification?: (msg: string, type: 'success' | 'error' | 'warning' | 'info') => void;
@@ -451,7 +452,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
                 Connected CT Ecosystem & Hubs
               </h3>
               <a
-                href="https://mrmegatronix.github.io/_ct-LAND/"
+                href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center space-x-1"
@@ -463,7 +464,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <a
-                href="https://mrmegatronix.github.io/_ct-LAND/"
+                href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3.5 rounded-2xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition-all flex items-center justify-between group"
@@ -481,7 +482,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
               </a>
 
               <a
-                href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
+                href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-all flex items-center justify-between group"
@@ -499,7 +500,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
               </a>
 
               <a
-                href="https://ctsc-app.web.app/"
+                href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3.5 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-all flex items-center justify-between group"
@@ -673,7 +674,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
               <div className="p-4 bg-slate-950 text-white/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
                 <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block mb-1">Last Scan</span>
                 <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
-                  {syncMeta.lastRun ? new Date(syncMeta.lastRun).toLocaleTimeString() : 'Never'}
+                  {syncMeta.lastRun ? <DigitalClock date={new Date(syncMeta.lastRun)} showSeconds /> : 'Never'}
                   {syncMeta.lastResult && (
                     <span className="ml-1 text-[11px] font-normal text-slate-500">
                       ({syncMeta.lastResult.importedItems} items)
@@ -685,7 +686,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onShowNotification }) => {
               <div className="p-4 bg-slate-950 text-white/60 border border-slate-100 dark:border-slate-800 rounded-2xl">
                 <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block mb-1">Next Auto-Scan</span>
                 <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                  {syncMeta.nextRun ? new Date(syncMeta.nextRun).toLocaleTimeString() : 'Top of next hour'}
+                  {syncMeta.nextRun ? <DigitalClock date={new Date(syncMeta.nextRun)} showSeconds /> : 'Top of next hour'}
                 </div>
               </div>
             </div>

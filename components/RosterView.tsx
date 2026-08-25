@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { RosterShift, TeamMember, LeaveRequest } from '../types';
 import { formatTime, isSameDay, generateId } from '../utils';
 import { CalendarDays, Plus, Printer } from 'lucide-react';
+import DigitalClock from './DigitalClock';
 
 interface RosterViewProps {
   shifts: RosterShift[];
@@ -73,7 +74,7 @@ const RosterView: React.FC<RosterViewProps> = ({
             </p>
           </div>
           <div className="text-right text-xs text-slate-600 space-y-0.5">
-            <div><strong>Printed:</strong> {new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            <div><strong>Printed:</strong> {new Date().toLocaleDateString('en-GB')} <DigitalClock date={new Date()} /></div>
             <div><strong>Staff Rostered:</strong> {teamMembers.length} | <strong>Total Shifts:</strong> {shifts.length}</div>
           </div>
         </div>

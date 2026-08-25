@@ -1122,7 +1122,26 @@ const App: React.FC = () => {
               <CTClockView
                   staff={teamMembers}
                   currentUser={currentUser}
-                  onPunchSuccess={() => {
+                  onPunchSuccess={(entry) => {
+                      if (entry && entry.clockIn) {
+                          const newEntry: TimesheetEntry = {
+                              id: `ts-${Date.now()}`,
+                              employeeId: entry.employeeId!,
+                              employeeName: entry.employeeName!,
+                              date: entry.date!,
+                              clockIn: entry.clockIn,
+                              clockOut: entry.clockOut,
+                              status: 'pending',
+                              hourlyRate: entry.hourlyRate || 25
+                          };
+                          setTimesheetEntries(prev => [newEntry, ...prev]);
+                      } else if (entry && entry.clockOut) {
+                          setTimesheetEntries(prev => prev.map(t => 
+                              t.employeeId === entry.employeeId && t.status === 'pending'
+                                  ? { ...t, clockOut: entry.clockOut, totalHours: entry.totalHours, status: 'approved' }
+                                  : t
+                          ));
+                      }
                       showNotification('Timeclock punch processed successfully', 'success');
                   }}
               />
@@ -1135,7 +1154,7 @@ const App: React.FC = () => {
                events={events}
                entertainmentEvents={entertainmentEvents}
                tasks={maintenanceTasks}
-               lowStock={stockItems.filter(i => i.quantity <= i.minLevel)}
+               lowStock={(stockItems || []).filter(i => i.quantity <= i.minLevel)}
                bookings={bookings}
                tvSchedule={tvSchedule}
                onNavigate={setCurrentModule}
@@ -1146,6 +1165,7 @@ const App: React.FC = () => {
              <MasterDataView 
                stock={stockItems}
                staff={teamMembers}
+               menus={menus}
                onSaveStock={async (updatedStock) => {
                  for (const item of updatedStock) {
                    await db.saveStock(item);
@@ -1157,6 +1177,12 @@ const App: React.FC = () => {
                    await db.saveStaff(member);
                  }
                  setTeamMembers(await db.getStaff());
+               }}
+               onSaveMenus={async (updatedMenus) => {
+                 for (const menu of updatedMenus) {
+                   await db.saveMenu(menu);
+                 }
+                 setMenus(await db.getMenus());
                }}
              />
           )}

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,7 +12,15 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden; /* Global overflow disabled to enforce 1-page fit */
-  font-family: "Inter", sans-serif;
+  font-family: "Outfit", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Premium Dark Mode Background */
+.dark body {
+  background: radial-gradient(circle at top left, #1e1b4b, #0f172a, #000000);
+  background-attachment: fixed;
 }
 
 /* Base custom scrollbar */

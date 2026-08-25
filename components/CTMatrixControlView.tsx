@@ -236,7 +236,7 @@ const CTMatrixControlView: React.FC = () => {
         {/* Primary Main Controls Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
           <a
-            href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
+            href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 transition-all active:scale-95"
@@ -248,7 +248,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="https://mrmegatronix.github.io/_ct-MATRIX/index.html"
+            href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-4 py-2.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 font-bold rounded-2xl text-xs transition-colors"
@@ -260,7 +260,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="https://mrmegatronix.github.io/_ct-MATRIX/remote.html"
+            href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 font-bold rounded-2xl text-xs transition-colors"
@@ -272,7 +272,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="https://mrmegatronix.github.io/_ct-MATRIX/postermaker.html"
+            href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-200 font-bold rounded-2xl text-xs transition-colors"
@@ -284,7 +284,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="https://mrmegatronix.github.io/_ct-MATRIX/files.html"
+            href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-200 font-bold rounded-2xl text-xs transition-colors"
@@ -296,7 +296,7 @@ const CTMatrixControlView: React.FC = () => {
           </a>
 
           <a
-            href="https://mrmegatronix.github.io/_ct-LAND/"
+            href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-3.5 py-2.5 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 text-cyan-200 font-bold rounded-2xl text-xs transition-colors"
@@ -390,7 +390,7 @@ const CTMatrixControlView: React.FC = () => {
 
               <div className="flex items-center space-x-3">
                 <a
-                  href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
+                  href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs flex items-center space-x-1.5 shadow-md shadow-amber-500/20"
@@ -472,7 +472,7 @@ const CTMatrixControlView: React.FC = () => {
               <ul className="space-y-3 text-xs">
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/masteradmin.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -483,7 +483,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/live-commander.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -494,7 +494,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/navi.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -515,7 +515,7 @@ const CTMatrixControlView: React.FC = () => {
               <ul className="space-y-3 text-xs">
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/index.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -526,7 +526,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/billboard.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -537,7 +537,7 @@ const CTMatrixControlView: React.FC = () => {
                 </li>
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/loyalty-slide.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
@@ -558,7 +558,7 @@ const CTMatrixControlView: React.FC = () => {
               <ul className="space-y-3 text-xs">
                 <li>
                   <a
-                    href="https://mrmegatronix.github.io/_ct-MATRIX/remote.html"
+                    href="#" onClick={(e) => { e.preventDefault(); alert('This external module is currently offline for maintenance.'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-between text-white font-semibold transition-colors"
