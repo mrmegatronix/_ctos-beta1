@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coasters Tavern - Shift Clock-In & PAYE Portal</title>
+    <!-- Outfit Font for Modern Premium Feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons for Clean Modern UI -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="app-header no-print">
+        <div class="header-logo">
+            <img src="logo.png" alt="Coasters Tavern Logo" class="header-logo-img">
+            <div class="logo-text">
+                <h1>Coasters Tavern</h1>
+                <span>Staff Portal & Payroll Admin</span>
+            </div>
+        </div>
+        <nav class="app-nav">
+            <button class="nav-btn active" id="nav-btn-terminal" onclick="switchView('terminal')">
+                <i data-lucide="tablet"></i> Venue PIN Terminal
+            </button>
+            <button class="nav-btn" id="nav-btn-admin" onclick="checkAdminAccess()">
+                <i data-lucide="shield-check"></i> Manager / PAYE Portal
+            </button>
+            <a class="nav-btn" href="mobile.html" style="text-decoration:none; font-size:0.82rem;">
+                <i data-lucide="smartphone"></i> Staff Mobile App
+            </a>
+        </nav>
+        <div class="header-share">
+            <button class="nav-btn btn-outline" id="share-btn" onclick="toggleShareQR(event)">
+                <i data-lucide="qr-code"></i> Share QR
+            </button>
+            <div class="qr-dropdown card" id="share-qr-dropdown" style="display: none;">
+                <h4>Portal QR Link</h4>
+                <div class="qr-code-img-wrapper">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mrmegatronix.github.io/_ct-CLOCK/" alt="App QR Code">
+                </div>
+                <p>Scan to open portal on your mobile phone</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-content">
+        <!-- View 2: Venue PIN Terminal (Phoneless Staff) -->
+        <section id="terminal-view" class="view-panel active no-print">
+            <div class="terminal-container card">
+                <div class="terminal-header">
+                    <div class="terminal-logo">
+                        <i data-lucide="tablet"></i>
+                        <div>
+                            <h2>Coasters Tavern</h2>
+                            <span>Wall Terminal Clock-In</span>
+                        </div>
+                    </div>
+                    <div class="terminal-status">
+                        <span class="badge badge-success"><i data-lucide="check-circle-2"></i> Fixed Geofence Verified</span>
+                    </div>
+                </div>
+
+                <div class="terminal-layout">
+                    <!-- Keypad Input Area -->
+                    <div class="keypad-section">
+                        <div class="pin-display">
+                            <input type="password" id="pin-input" readonly placeholder="ENTER PIN">
+                        </div>
+                        <div class="keypad-grid">
+                            <button class="key-btn" onclick="appendPin('1')">1</button>
+                            <button class="key-btn" onclick="appendPin('2')">2</button>
+                            <button class="key-btn" onclick="appendPin('3')">3</button>
+                            <button class="key-btn" onclick="appendPin('4')">4</button>
+                            <button class="key-btn" onclick="appendPin('5')">5</button>
+                            <button class="key-btn" onclick="appendPin('6')">6</button>
+                            <button class="key-btn" onclick="appendPin('7')">7</button>
+                            <button class="key-btn" onclick="appendPin('8')">8</button>
+                            <button class="key-btn" onclick="appendPin('9')">9</button>
+                            <button class="key-btn danger" onclick="clearPin()">C</button>
+                            <button class="key-btn" onclick="appendPin('0')">0</button>
+                            <button class="key-btn success" onclick="submitPin()"><i data-lucide="arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Active Terminal Status / Roster -->
+                    <div class="terminal-info">
+                        <h3>Terminal Status & Activity</h3>
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 15px; font-size: 0.85rem; color: var(--muted); margin-bottom: 15px; box-sizing: border-box;">
+                            <p style="margin-bottom: 10px; display: flex; align-items: center; gap: 6px; color: #4ade80;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block; box-shadow: 0 0 8px #4ade80;"></span> Active Terminal Status</p>
+                            <p style="margin-bottom: 8px;"><strong>Location:</strong> 1 Daniels Road Redwood</p>
+                            <p><strong>Geofence check:</strong> Enabled (Within boundary)</p>
+                        </div>
+                        <div id="terminal-feedback" class="terminal-feedback">
+                            <!-- Feedback alert message -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 3: Manager / PAYE Portal -->
+        <section id="admin-view" class="view-panel">
+            <!-- Summary Stats (No Print) -->
+            <div class="stats-row no-print">
+                <div class="stat-card card">
+                    <div class="stat-icon info"><i data-lucide="users"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">On Shift Now</span>
+                        <h2 id="stat-on-shift">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card card text-danger">
+                    <div class="stat-icon warning" id="stat-flagged-icon"><i data-lucide="alert-triangle"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">Red Flagged Shifts</span>
+                        <h2 id="stat-flagged">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card card">
+                    <div class="stat-icon success"><i data-lucide="calendar"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">Pending Holidays</span>
+                        <h2 id="stat-holidays">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabbed Panel in Admin -->
+            <div class="admin-tabs-container card">
+                <div class="admin-tabs no-print">
+                    <button class="admin-tab-btn active" id="tab-paye" onclick="switchAdminTab('paye')"><i data-lucide="dollar-sign"></i> PAYE Weekly Summary</button>
+                    <button class="admin-tab-btn" id="tab-logs" onclick="switchAdminTab('logs')"><i data-lucide="history"></i> Geofence Clock-In Logs</button>
+                    <button class="admin-tab-btn" id="tab-roster" onclick="switchAdminTab('roster')"><i data-lucide="calendar"></i> Roster Planner</button>
+                    <button class="admin-tab-btn" id="tab-approvals" onclick="switchAdminTab('approvals')"><i data-lucide="check-square"></i> Shift Approvals</button>
+                    <button class="admin-tab-btn" id="tab-holidays" onclick="switchAdminTab('holidays')"><i data-lucide="calendar"></i> Holiday Approvals</button>
+                    <button class="admin-tab-btn" id="tab-pins" onclick="switchAdminTab('pins')"><i data-lucide="key"></i> Employee PINs</button>
+                </div>
+
+                <!-- Admin Tab Content 1: PAYE Summary (Printable) -->
+                <div id="admin-paye-panel" class="admin-tab-panel active">
+                    <div class="panel-header no-print">
+                        <div>
+                            <h3>PAYE Employee Weekly Timesheet Summary</h3>
+                            <p>End of week report showing aggregated regular and overtime hours, gross earnings, and PAYE tax deductions.</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-outline" onclick="window.print()"><i data-lucide="printer"></i> PDF Summary</button>
+                            <button class="btn btn-primary" onclick="exportToCSV()"><i data-lucide="download"></i> Export CSV</button>
+                        </div>
+                    </div>
+
+                    <!-- Printable Invoice Header -->
+                    <div class="print-only-header">
+                        <h2>Coasters Tavern - PAYE Payroll Summary</h2>
+                        <p><strong>Location:</strong> 1 Daniels Road Redwood, Christchurch, New Zealand</p>
+                        <p><strong>Report Date:</strong> <span id="print-report-date"></span></p>
+                        <hr>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="report-table" id="paye-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Clock-In Method</th>
+                                    <th>Normal Hours</th>
+                                    <th>Overtime (1.5x)</th>
+                                    <th>Total Hours</th>
+                                    <th>Gross Pay ($)</th>
+                                    <th>PAYE Tax ($)</th>
+                                    <th>Net Pay ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paye-table-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Content 2: Geofence Logs -->
+                <div id="admin-logs-panel" class="admin-tab-panel">
+                    <div class="panel-header no-print">
+                        <div>
+                            <h3>Geofence Clock-In Logs</h3>
+                            <p>Chronological audit log of all clock-in attempts and their GPS accuracy verification status.</p>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Event</th>
+                                    <th>Method</th>
+                                    <th>Distance</th>
+                                    <th>Coordinates</th>
+                                    <th>Geofence Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Content 3: Holiday Approvals -->
+                <div id="admin-holidays-panel" class="admin-tab-panel">
+                    <div class="panel-header no-print">
+                        <div>
+                            <h3>Staff Leave Requests</h3>
+                            <p>Approve or deny submitted staff holiday, sick, and unpaid leave requests.</p>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Submit Date</th>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Leave Type</th>
+                                    <th>Dates</th>
+                                    <th>Total Days</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th class="no-print">Approval Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holidays-table-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Content 4: Roster Planner -->
+                <div id="admin-roster-panel" class="admin-tab-panel">
+                    <div class="panel-header no-print">
+                        <div>
+                            <h3>Roster Planner & Scheduler</h3>
+                            <p>Assign scheduled shifts to staff members. Rostered shifts are displayed on employee mobile views.</p>
+                        </div>
+                    </div>
+                    <div class="roster-planner-layout no-print card" style="background-color:rgba(0,0,0,0.1); margin-bottom:24px; padding: 16px;">
+                        <form id="roster-form" onsubmit="submitRosterShift(event)">
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
+                                <div class="form-group">
+                                    <label for="roster-employee">Staff Member</label>
+                                    <select id="roster-employee" required style="width:100%; padding:8px; background-color:rgba(0,0,0,0.3)"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="roster-date">Date</label>
+                                    <input type="date" id="roster-date" required min="2026-07-10" style="width:100%; padding:8px; background-color:rgba(0,0,0,0.3)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roster-start">Start Time</label>
+                                    <input type="time" id="roster-start" required value="09:00" style="width:100%; padding:8px; background-color:rgba(0,0,0,0.3)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roster-end">End Time</label>
+                                    <input type="time" id="roster-end" required value="17:00" style="width:100%; padding:8px; background-color:rgba(0,0,0,0.3)">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-top:12px;"><i data-lucide="plus"></i> Add Scheduled Shift</button>
+                        </form>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Scheduled Shift</th>
+                                    <th>Status</th>
+                                    <th class="no-print">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-table-body">
+                                <!-- Dynamic roster rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Content 5: Shift Approvals -->
+                <div id="admin-approvals-panel" class="admin-tab-panel">
+                    <div class="panel-header no-print">
+                        <div>
+                            <h3>Completed Shift Approvals</h3>
+                            <p>Authorize completed staff shifts. Unauthorised shifts are excluded from final PAYE payouts.</p>
+                        </div>
+                        <div class="actions">
+                            <div class="form-group" style="margin-bottom:0; display:flex; align-items:center; gap:8px;">
+                                <label for="authoriser-manager" style="margin-bottom:0; white-space:nowrap;">Authorising As:</label>
+                                <select id="authoriser-manager" style="width:200px; padding:6px 12px; background-color:rgba(0,0,0,0.3)">
+                                    <option value="System Admin (Admin)">System Admin (Admin)</option>
+                                    <option value="Alice Green (Duty Mgr)">Alice Green (Duty Mgr)</option>
+                                    <option value="Bob Johnson (Duty Mgr)">Bob Johnson (Duty Mgr)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Shift Date</th>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Clock-In / Out</th>
+                                    <th>Net Hours</th>
+                                    <th>Method</th>
+                                    <th>Geofence Status</th>
+                                    <th>Approval Status</th>
+                                    <th class="no-print">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvals-table-body">
+                                <!-- Dynamic approvals rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Content 6: Employee PINs -->
+                <div id="admin-pins-panel" class="admin-tab-panel">
+                    <div class="panel-header no-print">
+                        <div>
+                            <h3>Employee Quick Reference PINs</h3>
+                            <p>Confidential PIN code references for phone-less terminal logins.</p>
+                        </div>
+                    </div>
+                    <div class="pin-reference-list" id="pin-ref-list" style="margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+                        <!-- Dynamic items -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+
+    <!-- Main Logic script -->
+    <script src="app.js"></script>
+</body>
+</html>

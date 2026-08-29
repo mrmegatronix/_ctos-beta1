@@ -1,0 +1,1514 @@
+/* ==========================================================================
+   Coasters Tavern - Staff Clock-In & PAYE System
+   Production Build — localStorage persistence, real GPS geofencing
+   ========================================================================== */
+
+// 1. Configuration
+const VENUE_LAT = -43.4839;
+const VENUE_LNG = 172.6105;
+const GEOFENCE_LIMIT = 20; // Green boundary (metres)
+const WARNING_LIMIT = 50;  // Orange boundary (metres)
+
+const EMPLOYEES = {
+    "1111": { id: "1111", name: "Test User", role: "Bar Staff", rate: 25.00 },
+    "1001": { id: "1001", name: "Robert", role: "Bar Staff", rate: 25.00 },
+    "1002": { id: "1002", name: "Bianca", role: "Bar Staff", rate: 25.00 },
+    "1003": { id: "1003", name: "Nicole", role: "Bar Staff", rate: 25.00 },
+    "1004": { id: "1004", name: "Nikko", role: "Bar Staff", rate: 25.00 },
+    "1005": { id: "1005", name: "Carma", role: "Bar Staff", rate: 25.00 },
+    "1006": { id: "1006", name: "Jess", role: "Bar Staff", rate: 25.00 },
+    "1007": { id: "1007", name: "Racheal", role: "Bar Staff", rate: 25.00 },
+    "1008": { id: "1008", name: "Harsh", role: "Bar Staff", rate: 25.00 },
+    "2222": { id: "2222", name: "Jane Smith", role: "Kitchen Staff", rate: 26.50 },
+    "3333": { id: "3333", name: "Bob Johnson", role: "Duty Manager", rate: 32.00 },
+    "4444": { id: "4444", name: "Alice Green", role: "Duty Manager", rate: 32.00 }
+};
+
+// Initial demonstration data
+const SEED_LOGS = [
+    // Test User shifts
+    { id: 1, employeeId: "1111", employeeName: "Test User", role: "Bar Staff", timestamp: "2026-07-06T08:00:00Z", event: "Clock-In", method: "GPS Mobile", distance: 12, coordinates: "-43.4840, 172.6106", status: "Green Pass" },
+    { id: 2, employeeId: "1111", employeeName: "Test User", role: "Bar Staff", timestamp: "2026-07-06T16:30:00Z", event: "Clock-Out", method: "GPS Mobile", distance: 15, coordinates: "-43.4841, 172.6107", status: "Green Pass" },
+    { id: 3, employeeId: "1111", employeeName: "Test User", role: "Bar Staff", timestamp: "2026-07-07T08:15:00Z", event: "Clock-In", method: "GPS Mobile", distance: 125, coordinates: "-43.4851, 172.6120", status: "Red Flagged" }, // out of bounds
+    { id: 4, employeeId: "1111", employeeName: "Test User", role: "Bar Staff", timestamp: "2026-07-07T17:15:00Z", event: "Clock-Out", method: "GPS Mobile", distance: 10, coordinates: "-43.4839, 172.6105", status: "Green Pass" },
+    
+    // Jane Smith shifts (PIN terminal)
+    { id: 5, employeeId: "2222", employeeName: "Jane Smith", role: "Kitchen Staff", timestamp: "2026-07-08T09:00:00Z", event: "Clock-In", method: "PIN Terminal", distance: 0, coordinates: "-43.4839, 172.6105", status: "Green Pass" },
+    { id: 6, employeeId: "2222", employeeName: "Jane Smith", role: "Kitchen Staff", timestamp: "2026-07-08T18:00:00Z", event: "Clock-Out", method: "PIN Terminal", distance: 0, coordinates: "-43.4839, 172.6105", status: "Green Pass" }, // 9 hours (1 hour overtime)
+    
+    // Bob Johnson shifts
+    { id: 7, employeeId: "3333", employeeName: "Bob Johnson", role: "Duty Manager", timestamp: "2026-07-09T10:00:00Z", event: "Clock-In", method: "QR Code Bypass", distance: 42, coordinates: "-43.4842, 172.6110", status: "Green Pass" }, // out of bounds but scanned QR
+    { id: 8, employeeId: "3333", employeeName: "Bob Johnson", role: "Duty Manager", timestamp: "2026-07-09T18:00:00Z", event: "Clock-Out", method: "GPS Mobile", distance: 14, coordinates: "-43.4840, 172.6106", status: "Green Pass" }
+];
+
+// Initial holiday data
+const SEED_HOLIDAYS = [
+    { id: 1, submitDate: "2026-07-08", employeeId: "1111", employeeName: "Test User", role: "Bar Staff", type: "Annual Leave", startDate: "2026-07-20", endDate: "2026-07-24", totalDays: 5, reason: "Family holiday in Queenstown", status: "Pending" },
+    { id: 2, submitDate: "2026-07-05", employeeId: "2222", employeeName: "Jane Smith", role: "Kitchen Staff", type: "Sick Leave", startDate: "2026-07-06", endDate: "2026-07-06", totalDays: 1, reason: "Dental checkup", status: "Approved" }
+];
+// State variables
+let logs = [];
+let holidayRequests = [];
+let activeShifts = {}; // keyed by employeeId: { clockInTime, coordinates, distance, status, qrBypassed }
+let simulatedDistance = 10; // default 10 metres
+let qrBypassed = false;
+let currentUser = EMPLOYEES["1111"]; // Test User as default mobile user
+
+// Roster state variables
+let rosterShifts = [];
+let approvalStates = {};
+
+const SEED_ROSTER = [
+    // --- Week 1 (Week Ending 02/08/26) ---
+    { id: "r1_1", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-07-28", start: "12:00", end: "17:00" },
+    { id: "r1_2", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-07-29", start: "12:00", end: "23:00" },
+    { id: "r1_3", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-07-30", start: "13:00", end: "23:00" },
+    { id: "r1_4", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-07-27", start: "08:30", end: "15:00" },
+    { id: "r1_5", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-07-28", start: "17:00", end: "22:00" },
+    { id: "r1_6", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-07-29", start: "08:30", end: "14:00" },
+    { id: "r1_7", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-07-30", start: "08:30", end: "16:00" },
+    { id: "r1_8", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-07-31", start: "08:30", end: "16:00" },
+    { id: "r1_9", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-07-27", start: "15:00", end: "21:00" },
+    { id: "r1_10", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-07-28", start: "08:30", end: "14:00" },
+    { id: "r1_11", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-07-29", start: "16:00", end: "23:00" },
+    { id: "r1_12", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-01", start: "08:30", end: "17:30" },
+    { id: "r1_13", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-02", start: "08:30", end: "22:00" },
+    { id: "r1_14", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-07-29", start: "17:00", end: "23:00" },
+    { id: "r1_15", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-07-30", start: "16:00", end: "23:00" },
+    { id: "r1_16", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-07-31", start: "16:00", end: "Close" },
+    { id: "r1_17", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-01", start: "16:00", end: "24:00" },
+    { id: "r1_18", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-02", start: "15:00", end: "22:00" },
+    { id: "r1_19", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-07-28", start: "16:30", end: "Close" },
+    { id: "r1_20", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-07-29", start: "16:30", end: "21:30" },
+    { id: "r1_21", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-07-30", start: "16:00", end: "Close" },
+    { id: "r1_22", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-07-31", start: "16:00", end: "Close" },
+    { id: "r1_23", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-08-01", start: "16:00", end: "Close" },
+    { id: "r1_24", employeeId: "1006", employeeName: "Jess", role: "Bar Staff", date: "2026-07-30", start: "17:30", end: "20:30" },
+    { id: "r1_25", employeeId: "1006", employeeName: "Jess", role: "Bar Staff", date: "2026-07-31", start: "13:00", end: "20:00" },
+    { id: "r1_26", employeeId: "1006", employeeName: "Jess", role: "Bar Staff", date: "2026-08-01", start: "12:00", end: "20:00" },
+    { id: "r1_27", employeeId: "1006", employeeName: "Jess", role: "Bar Staff", date: "2026-08-02", start: "On Call", end: "On Call" },
+    { id: "r1_28", employeeId: "1007", employeeName: "Racheal", role: "Bar Staff", date: "2026-07-30", start: "17:30", end: "20:30" },
+    { id: "r1_29", employeeId: "1007", employeeName: "Racheal", role: "Bar Staff", date: "2026-08-02", start: "12:00", end: "16:30" },
+    { id: "r1_30", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-07-27", start: "16:30", end: "21:00" },
+    { id: "r1_31", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-07-30", start: "16:30", end: "Close" },
+    { id: "r1_32", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-07-31", start: "16:00", end: "Close" },
+    { id: "r1_33", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-01", start: "16:00", end: "Close" },
+    { id: "r1_34", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-02", start: "16:00", end: "Close" },
+
+    // --- Week 2 (Week Ending 09/08/26) ---
+    { id: "r2_1", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-08-04", start: "12:00", end: "17:00" },
+    { id: "r2_2", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-08-05", start: "12:00", end: "23:00" },
+    { id: "r2_3", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-08-06", start: "13:00", end: "23:00" },
+    { id: "r2_4", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-08-07", start: "13:00", end: "23:00" },
+    { id: "r2_5", employeeId: "1001", employeeName: "Robert", role: "Bar Staff", date: "2026-08-08", start: "12:00", end: "20:00" },
+    { id: "r2_6", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-08-03", start: "08:30", end: "15:00" },
+    { id: "r2_7", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-08-04", start: "17:00", end: "22:00" },
+    { id: "r2_8", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-08-05", start: "08:30", end: "14:00" },
+    { id: "r2_9", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-08-06", start: "08:30", end: "16:00" },
+    { id: "r2_10", employeeId: "1002", employeeName: "Bianca", role: "Bar Staff", date: "2026-08-07", start: "08:30", end: "16:00" },
+    { id: "r2_11", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-03", start: "15:00", end: "21:00" },
+    { id: "r2_12", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-04", start: "08:30", end: "14:00" },
+    { id: "r2_13", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-05", start: "16:00", end: "23:00" },
+    { id: "r2_14", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-08", start: "08:30", end: "17:30" },
+    { id: "r2_15", employeeId: "1003", employeeName: "Nicole", role: "Bar Staff", date: "2026-08-09", start: "08:30", end: "22:00" },
+    { id: "r2_16", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-05", start: "17:00", end: "23:00" },
+    { id: "r2_17", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-06", start: "16:00", end: "23:00" },
+    { id: "r2_18", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-07", start: "16:00", end: "21:00" },
+    { id: "r2_19", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-08", start: "16:00", end: "00:00" },
+    { id: "r2_20", employeeId: "1004", employeeName: "Nikko", role: "Bar Staff", date: "2026-08-09", start: "15:00", end: "20:30" },
+    { id: "r2_21", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-08-04", start: "16:30", end: "Close" },
+    { id: "r2_22", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-08-05", start: "16:30", end: "Close" },
+    { id: "r2_23", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-08-06", start: "16:00", end: "Close" },
+    { id: "r2_24", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-08-07", start: "16:00", end: "Close" },
+    { id: "r2_25", employeeId: "1005", employeeName: "Carma", role: "Bar Staff", date: "2026-08-08", start: "16:00", end: "Close" },
+    { id: "r2_26", employeeId: "1006", employeeName: "Jess", role: "Bar Staff", date: "2026-08-06", start: "17:30", end: "20:30" },
+    { id: "r2_27", employeeId: "1006", employeeName: "Jess", role: "Bar Staff", date: "2026-08-09", start: "On Call", end: "On Call" },
+    { id: "r2_28", employeeId: "1007", employeeName: "Racheal", role: "Bar Staff", date: "2026-08-09", start: "12:00", end: "16:30" },
+    { id: "r2_29", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-03", start: "16:30", end: "21:00" },
+    { id: "r2_30", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-06", start: "16:30", end: "Close" },
+    { id: "r2_31", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-07", start: "16:00", end: "Close" },
+    { id: "r2_32", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-08", start: "16:00", end: "Close" },
+    { id: "r2_33", employeeId: "1008", employeeName: "Harsh", role: "Bar Staff", date: "2026-08-09", start: "16:00", end: "Close" }
+];
+
+// Pin Terminal variables
+let currentPinInput = "";
+
+
+// 2. Initialize Application
+document.addEventListener("DOMContentLoaded", async () => {
+    // Load config from .env first
+    await loadEnvConfig();
+
+    // Load local storage or default seed data
+    if (localStorage.getItem("ct_logs")) {
+        logs = JSON.parse(localStorage.getItem("ct_logs"));
+        logs.forEach(log => {
+            if (!log.accuracy) log.accuracy = "± 3m";
+            if (!log.ip) log.ip = "122.56.24.110";
+            if (!log.userAgent) log.userAgent = "Web desktop client (Linux)";
+        });
+    } else {
+        SEED_LOGS.forEach(log => {
+            log.accuracy = "± 3m";
+            log.ip = "122.56.24.110";
+            log.userAgent = "Web desktop client (Linux)";
+        });
+        logs = [...SEED_LOGS];
+        saveLogs();
+    }
+
+    if (localStorage.getItem("ct_holidays")) {
+        holidayRequests = JSON.parse(localStorage.getItem("ct_holidays"));
+    } else {
+        holidayRequests = [...SEED_HOLIDAYS];
+        saveHolidays();
+    }
+
+    if (localStorage.getItem("ct_active_shifts")) {
+        activeShifts = JSON.parse(localStorage.getItem("ct_active_shifts"));
+    }
+
+    // Load roster
+    if (localStorage.getItem("ct_roster")) {
+        rosterShifts = JSON.parse(localStorage.getItem("ct_roster"));
+        if (rosterShifts.length < 10) {
+            rosterShifts = [...SEED_ROSTER];
+            localStorage.setItem("ct_roster", JSON.stringify(rosterShifts));
+        }
+    } else {
+        rosterShifts = [...SEED_ROSTER];
+        localStorage.setItem("ct_roster", JSON.stringify(rosterShifts));
+    }
+
+    // Load approvals
+    if (localStorage.getItem("ct_approvals")) {
+        approvalStates = JSON.parse(localStorage.getItem("ct_approvals"));
+    } else {
+        approvalStates = {
+            "shift_1111_2026-07-06T08:00:00Z": { status: "Authorised", authorisedBy: "System Admin (Admin)" },
+            "shift_2222_2026-07-08T09:00:00Z": { status: "Authorised", authorisedBy: "Alice Green (Duty Mgr)" }
+        };
+    }
+
+    // Migrate cache from old "John Doe" to "Test User"
+    logs.forEach(l => { if (l.employeeName === "John Doe") l.employeeName = "Test User"; });
+    holidayRequests.forEach(h => { if (h.employeeName === "John Doe") h.employeeName = "Test User"; });
+    rosterShifts.forEach(r => { if (r.employeeName === "John Doe") r.employeeName = "Test User"; });
+    saveLogs();
+    saveHolidays();
+    localStorage.setItem("ct_roster", JSON.stringify(rosterShifts));
+
+    // Initialize UI Icons
+    lucide.createIcons();
+
+    // Start Live Clock
+    startLiveClocks();
+
+    // Set Initial simulated distance
+    updateSimulatedLocation(simulatedDistance);
+
+    // Fill roster dropdown
+    initRosterSelectors();
+
+    // Initial table renders
+    renderAll();
+});
+
+async function loadEnvConfig() {
+    try {
+        const response = await fetch('.env');
+        if (response.ok) {
+            const text = await response.text();
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                const parts = line.split('=');
+                if (parts.length === 2) {
+                    const key = parts[0].trim();
+                    const value = parts[1].trim();
+                    if (key === 'ADMIN_PIN') {
+                        EMPLOYEES[value] = { id: value, name: "admin-nikko", role: "Administrator", rate: 45.00 };
+                    }
+                    if (key === 'DEMO_PIN') {
+                        EMPLOYEES[value] = { id: value, name: "demo", role: "Administrator", rate: 45.00 };
+                    }
+                }
+            });
+        } else {
+            EMPLOYEES["5551"] = { id: "5551", name: "admin-nikko", role: "Administrator", rate: 45.00 };
+            EMPLOYEES["0001"] = { id: "0001", name: "demo", role: "Administrator", rate: 45.00 };
+        }
+    } catch (e) {
+        console.warn("Could not load .env file, using default fallbacks", e);
+        EMPLOYEES["5551"] = { id: "5551", name: "admin-nikko", role: "Administrator", rate: 45.00 };
+        EMPLOYEES["0001"] = { id: "0001", name: "demo", role: "Administrator", rate: 45.00 };
+    }
+}
+
+function renderPinReference() {
+    const pinRefListEl = document.getElementById("pin-ref-list");
+    if (!pinRefListEl) return;
+    
+    pinRefListEl.innerHTML = Object.values(EMPLOYEES).map(emp => {
+        return `<div class="pin-ref-item"><span>${emp.name} (${emp.role})</span> <strong style="color:var(--color-primary); font-family:monospace; font-size:1.05rem;">••••</strong></div>`;
+    }).join("");
+}
+
+function saveLogs() {
+    logs.forEach(log => {
+        if (!log.accuracy) {
+            log.accuracy = `± ${Math.max(3, Math.round((log.distance || 0) / 10))}m`;
+        }
+        if (!log.ip) {
+            log.ip = `122.56.${Math.floor(Math.random() * 254) + 1}.${Math.floor(Math.random() * 254) + 1}`;
+        }
+        if (!log.userAgent) {
+            log.userAgent = navigator.userAgent.includes("Mobile") ? "Mobile browser (iOS)" : "Web desktop client (Linux)";
+        }
+    });
+    localStorage.setItem("ct_logs", JSON.stringify(logs));
+}
+
+function saveApprovalStates() {
+    localStorage.setItem("ct_approvals", JSON.stringify(approvalStates));
+}
+
+function saveHolidays() {
+    localStorage.setItem("ct_holidays", JSON.stringify(holidayRequests));
+}
+
+function saveActiveShifts() {
+    localStorage.setItem("ct_active_shifts", JSON.stringify(activeShifts));
+}
+
+// 3. Clock & UI view controls
+function startLiveClocks() {
+    let colonVisible = true;
+    setInterval(() => {
+        const now = new Date();
+        const hrs = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const secs = String(now.getSeconds()).padStart(2, '0');
+        const sep = colonVisible ? ':' : ' ';
+
+        const liveTimeEl = document.getElementById('live-time');
+        if (liveTimeEl) liveTimeEl.textContent = `${hrs}${sep}${mins}${sep}${secs}`;
+
+        const phoneTimeEl = document.getElementById('phone-time');
+        if (phoneTimeEl) phoneTimeEl.textContent = `${hrs}${colonVisible ? ':' : ' '}${mins}`;
+
+        colonVisible = !colonVisible;
+
+        updateShiftDurationDisplay();
+    }, 500);
+}
+
+function switchView(viewId) {
+    document.querySelectorAll(".view-panel").forEach(panel => panel.classList.remove("active"));
+    document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById(`${viewId}-view`).classList.add("active");
+    document.getElementById(`nav-btn-${viewId}`).classList.add("active");
+}
+
+function checkAdminAccess() {
+    const pin = prompt("Enter Admin/Manager PIN to access portal:");
+    if (pin) {
+        const emp = EMPLOYEES[pin];
+        if (emp && emp.role === "Administrator") {
+            switchView('admin');
+        } else {
+            alert("Access Denied: Invalid PIN or insufficient privileges.");
+        }
+    }
+}
+
+function switchPhoneSubView(subviewId) {
+    document.querySelectorAll(".phone-sub-panel").forEach(panel => panel.classList.remove("active"));
+    document.querySelectorAll(".sub-nav-btn").forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById(`phone-${subviewId}-subview`).classList.add("active");
+    document.getElementById(`sub-nav-${subviewId}`).classList.add("active");
+}
+
+function switchAdminTab(tabId) {
+    document.querySelectorAll(".admin-tab-panel").forEach(panel => panel.classList.remove("active"));
+    document.querySelectorAll(".admin-tab-btn").forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById(`admin-${tabId}-panel`).classList.add("active");
+    document.getElementById(`tab-${tabId}`).classList.add("active");
+}
+
+// 4. Geofencing Engine
+function updateSimulatedLocation(meters) {
+    simulatedDistance = parseInt(meters);
+    document.getElementById("slider-val").textContent = `${simulatedDistance}m`;
+    document.getElementById("distance-readout-val").textContent = `${simulatedDistance}m`;
+
+    // Calculate simulated coordinates based on offset
+    // approx 1 meter is ~0.000009 degrees
+    const latOffset = (simulatedDistance * 0.000009);
+    const simulatedLat = (VENUE_LAT + latOffset).toFixed(6);
+    const simulatedLng = (VENUE_LNG + latOffset).toFixed(6);
+    document.getElementById("sim-coords").textContent = `${simulatedLat}, ${simulatedLng}`;
+
+    // Update gauge styling (Green / Orange / Red)
+    const gaugeBar = document.getElementById("gauge-bar");
+    const gaugeBadge = document.getElementById("gauge-badge");
+    const distanceDesc = document.getElementById("distance-readout-desc");
+    const qrCard = document.getElementById("qr-bypass-card");
+    const clockBtn = document.getElementById("clock-btn");
+
+    // Remove existing state classes
+    gaugeBadge.className = "badge";
+    
+    // Position percentage for gauge indicator
+    // Max slider distance is 250m
+    const percentage = Math.min((simulatedDistance / 250) * 100, 100);
+    gaugeBar.style.width = `${Math.max(percentage, 5)}%`;
+
+    if (simulatedDistance <= GEOFENCE_LIMIT) {
+        // Green State: In Bounds
+        gaugeBar.style.backgroundColor = "var(--color-success)";
+        gaugeBadge.classList.add("badge-success");
+        gaugeBadge.textContent = "In Range";
+        distanceDesc.textContent = "Within tavern geofence (<=20m)";
+        qrCard.style.display = "none";
+        
+        // Clear red class on clock button if inside range
+        if (clockBtn.classList.contains("flagged")) {
+            clockBtn.classList.remove("flagged");
+        }
+    } else if (simulatedDistance <= WARNING_LIMIT) {
+        // Orange State: Warning Zone
+        gaugeBar.style.backgroundColor = "var(--color-warning)";
+        gaugeBadge.classList.add("badge-warning");
+        gaugeBadge.textContent = "Near Venue";
+        distanceDesc.textContent = "Slightly outside boundary (21m-50m)";
+        
+        // Show QR code validation prompt if not already QR bypassed or clocked in
+        if (!qrBypassed && !activeShifts[currentUser.id]) {
+            qrCard.style.display = "block";
+        } else {
+            qrCard.style.display = "none";
+        }
+    } else {
+        // Red State: Far Away
+        gaugeBar.style.backgroundColor = "var(--color-danger)";
+        gaugeBadge.classList.add("badge-danger");
+        gaugeBadge.textContent = "Out of Range";
+        distanceDesc.textContent = "Far from venue (>50m). Clock-in will be FLAGGED.";
+        
+        // Show QR scan requirement to authenticate
+        if (!qrBypassed && !activeShifts[currentUser.id]) {
+            qrCard.style.display = "block";
+        } else {
+            qrCard.style.display = "none";
+        }
+    }
+}
+
+function setQuickPosition(meters) {
+    document.getElementById("distance-slider").value = meters;
+    updateSimulatedLocation(meters);
+}
+
+// Haversine formula to compute actual distance between two coordinates (for verification logs)
+function calculateHaversine(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // Earth radius in metres
+    const phi1 = lat1 * Math.PI/180;
+    const phi2 = lat2 * Math.PI/180;
+    const deltaPhi = (lat2-lat1) * Math.PI/180;
+    const deltaLambda = (lon2-lon1) * Math.PI/180;
+
+    const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+              Math.cos(phi1) * Math.cos(phi2) *
+              Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c; // in metres
+}
+
+// 5. QR Code Bypass
+function simulateQRScan() {
+    document.getElementById("qr-modal").classList.add("active");
+    document.getElementById("qr-success-message").style.display = "none";
+
+    setTimeout(() => {
+        document.getElementById("qr-success-message").style.display = "block";
+        setTimeout(() => {
+            closeQRModal();
+            qrBypassed = true;
+            document.getElementById("qr-bypass-card").style.display = "none";
+            
+            // Visual notification to staff
+            const distanceDesc = document.getElementById("distance-readout-desc");
+            distanceDesc.textContent = "Verified via Venue QR scan. Ready to clock in.";
+        }, 1500);
+    }, 1500);
+}
+
+function closeQRModal() {
+    document.getElementById("qr-modal").classList.remove("active");
+}
+
+// 6. Mobile Clock In/Out Process
+function toggleClock() {
+    const userId = currentUser.id;
+    const clockBtn = document.getElementById("clock-btn");
+    const clockBtnText = document.getElementById("clock-btn-text");
+    const timerDisplay = document.getElementById("shift-timer-display");
+
+    const now = new Date();
+    let coordsStr;
+    if (window._realGPSCoords) {
+        coordsStr = `${window._realGPSCoords.lat.toFixed(6)}, ${window._realGPSCoords.lng.toFixed(6)}`;
+    } else {
+        const latOffset = (simulatedDistance * 0.000009);
+        coordsStr = `${(VENUE_LAT + latOffset).toFixed(6)}, ${(VENUE_LNG + latOffset).toFixed(6)}`;
+    }
+
+    if (!activeShifts[userId]) {
+        // Clocking In
+        let status = "Green Pass";
+        let method = "GPS Mobile";
+
+        if (qrBypassed) {
+            status = "Green Pass";
+            method = "QR Code Bypass";
+        } else if (simulatedDistance > GEOFENCE_LIMIT) {
+            status = "Red Flagged";
+            // Red flag triggers visual warning on button
+            clockBtn.classList.add("flagged");
+        }
+
+        activeShifts[userId] = {
+            clockInTime: now.toISOString(),
+            coordinates: coordsStr,
+            distance: simulatedDistance,
+            status: status,
+            method: method
+        };
+
+        // Record clock-in log
+        logs.unshift({
+            id: Date.now(),
+            employeeId: userId,
+            employeeName: currentUser.name,
+            role: currentUser.role,
+            timestamp: now.toISOString(),
+            event: "Clock-In",
+            method: method,
+            distance: simulatedDistance,
+            coordinates: coordsStr,
+            status: status
+        });
+
+        clockBtn.classList.add("active");
+        clockBtnText.textContent = "Clock Out";
+        timerDisplay.style.display = "block";
+
+    } else {
+        // Clocking Out
+        const activeShift = activeShifts[userId];
+        
+        if (activeShift.onBreak) {
+            logs.unshift({
+                id: Date.now() - 1,
+                employeeId: userId,
+                employeeName: currentUser.name,
+                role: currentUser.role,
+                timestamp: now.toISOString(),
+                event: "Break-End",
+                method: activeShift.method,
+                distance: simulatedDistance,
+                coordinates: coordsStr,
+                status: "Green Pass"
+            });
+        }
+
+        logs.unshift({
+            id: Date.now(),
+            employeeId: userId,
+            employeeName: currentUser.name,
+            role: currentUser.role,
+            timestamp: now.toISOString(),
+            event: "Clock-Out",
+            method: activeShift.method,
+            distance: simulatedDistance,
+            coordinates: coordsStr,
+            status: "Green Pass" // Clock-out geolocation is recorded but typically doesn't restrict payroll
+        });
+
+        delete activeShifts[userId];
+        qrBypassed = false;
+
+        clockBtn.className = "btn-clock";
+        clockBtnText.textContent = "Clock In";
+        timerDisplay.style.display = "none";
+    }
+
+    saveLogs();
+    saveActiveShifts();
+    renderAll();
+}
+
+function updateShiftDurationDisplay() {
+    const timerValEl = document.getElementById("shift-duration-val");
+    if (!timerValEl || !activeShifts[currentUser.id]) return;
+
+    const shift = activeShifts[currentUser.id];
+    const diffMs = new Date() - new Date(shift.clockInTime);
+    
+    const sec = Math.floor((diffMs / 1000) % 60);
+    const min = Math.floor((diffMs / (1000 * 60)) % 60);
+    const hrs = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+
+    timerValEl.textContent = `${String(hrs).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+// 7. PIN Terminal Logic
+function appendPin(num) {
+    if (currentPinInput.length < 4) {
+        currentPinInput += num;
+        document.getElementById("pin-input").value = currentPinInput;
+        if (currentPinInput.length === 4) {
+            setTimeout(submitPin, 100);
+        }
+    }
+}
+
+function clearPin() {
+    currentPinInput = "";
+    document.getElementById("pin-input").value = "";
+}
+
+window.addEventListener('keydown', (e) => {
+    // Only capture digits when we don't focus another text input
+    if (document.activeElement.tagName === 'INPUT' && document.activeElement.id !== 'pin-input') return;
+    if (e.key >= '0' && e.key <= '9') {
+        appendPin(e.key);
+    } else if (e.key === 'Backspace') {
+        currentPinInput = currentPinInput.slice(0, -1);
+        document.getElementById("pin-input").value = currentPinInput;
+    } else if (e.key === 'Escape' || e.key === 'Delete') {
+        clearPin();
+    } else if (e.key === 'Enter') {
+        submitPin();
+    }
+});
+
+function submitPin() {
+    const feedbackEl = document.getElementById("terminal-feedback");
+    
+    if (!EMPLOYEES[currentPinInput]) {
+        feedbackEl.innerHTML = `
+            <div class="alert alert-danger">
+                <i data-lucide="alert-circle"></i> Invalid Employee PIN. Try again.
+            </div>
+        `;
+        lucide.createIcons();
+        clearPin();
+        return;
+    }
+
+    const employee = EMPLOYEES[currentPinInput];
+    const now = new Date();
+    const isClockedIn = activeShifts[employee.id];
+
+    if (!isClockedIn) {
+        // Clock In
+        activeShifts[employee.id] = {
+            clockInTime: now.toISOString(),
+            coordinates: `${VENUE_LAT}, ${VENUE_LNG}`,
+            distance: 0,
+            status: "Green Pass",
+            method: "PIN Terminal",
+            onBreak: false
+        };
+
+        logs.unshift({
+            id: Date.now(),
+            employeeId: employee.id,
+            employeeName: employee.name,
+            role: employee.role,
+            timestamp: now.toISOString(),
+            event: "Clock-In",
+            method: "PIN Terminal",
+            distance: 0,
+            coordinates: `${VENUE_LAT}, ${VENUE_LNG}`,
+            status: "Green Pass"
+        });
+
+        feedbackEl.innerHTML = `
+            <div class="alert alert-success">
+                <i data-lucide="check-circle-2"></i> Welcome, ${employee.name}. Clocked In at ${now.toLocaleTimeString()}.
+            </div>
+        `;
+        saveLogs();
+        saveActiveShifts();
+        clearPin();
+        renderAll();
+        lucide.createIcons();
+    } else {
+        // Clocked in action prompt (Select break / Clock Out)
+        const onBreak = activeShifts[employee.id].onBreak;
+        const breakBtnHtml = onBreak 
+            ? `<button class="btn btn-primary" onclick="terminalAction('${employee.id}', 'Break-End')">End Break</button>`
+            : `<button class="btn btn-outline" onclick="terminalAction('${employee.id}', 'Break-Start')">Start Break</button>`;
+        
+        feedbackEl.innerHTML = `
+            <div class="terminal-action-prompt card" style="background-color:rgba(0,0,0,0.2); padding:16px; border:1px solid var(--border-color); margin-top:12px;">
+                <h4 style="font-size:0.95rem; margin-bottom:8px;">Hello, ${employee.name}. Select Action:</h4>
+                <div style="display:flex; gap:10px;">
+                    ${breakBtnHtml}
+                    <button class="btn btn-primary" style="background-color:var(--color-danger); color:#fff" onclick="terminalAction('${employee.id}', 'Clock-Out')">Clock Out</button>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+        clearPin();
+    }
+}
+
+function terminalAction(empId, action) {
+    const employee = EMPLOYEES[empId];
+    const now = new Date();
+    const feedbackEl = document.getElementById("terminal-feedback");
+
+    if (action === 'Clock-Out') {
+        if (activeShifts[employee.id].onBreak) {
+            logs.unshift({
+                id: Date.now() - 1,
+                employeeId: employee.id,
+                employeeName: employee.name,
+                role: employee.role,
+                timestamp: now.toISOString(),
+                event: "Break-End",
+                method: "PIN Terminal",
+                distance: 0,
+                coordinates: `${VENUE_LAT}, ${VENUE_LNG}`,
+                status: "Green Pass"
+            });
+        }
+
+        logs.unshift({
+            id: Date.now(),
+            employeeId: employee.id,
+            employeeName: employee.name,
+            role: employee.role,
+            timestamp: now.toISOString(),
+            event: "Clock-Out",
+            method: "PIN Terminal",
+            distance: 0,
+            coordinates: `${VENUE_LAT}, ${VENUE_LNG}`,
+            status: "Green Pass"
+        });
+        delete activeShifts[employee.id];
+        feedbackEl.innerHTML = `<div class="alert alert-success"><i data-lucide="check-circle-2"></i> ${employee.name} clocked out successfully.</div>`;
+    } else if (action === 'Break-Start') {
+        activeShifts[employee.id].onBreak = true;
+        activeShifts[employee.id].breakStartTime = now.toISOString();
+        
+        logs.unshift({
+            id: Date.now(),
+            employeeId: employee.id,
+            employeeName: employee.name,
+            role: employee.role,
+            timestamp: now.toISOString(),
+            event: "Break-Start",
+            method: "PIN Terminal",
+            distance: 0,
+            coordinates: `${VENUE_LAT}, ${VENUE_LNG}`,
+            status: "Green Pass"
+        });
+        feedbackEl.innerHTML = `<div class="alert alert-success"><i data-lucide="check-circle-2"></i> ${employee.name} started break.</div>`;
+    } else if (action === 'Break-End') {
+        activeShifts[employee.id].onBreak = false;
+        
+        logs.unshift({
+            id: Date.now(),
+            employeeId: employee.id,
+            employeeName: employee.name,
+            role: employee.role,
+            timestamp: now.toISOString(),
+            event: "Break-End",
+            method: "PIN Terminal",
+            distance: 0,
+            coordinates: `${VENUE_LAT}, ${VENUE_LNG}`,
+            status: "Green Pass"
+        });
+        feedbackEl.innerHTML = `<div class="alert alert-success"><i data-lucide="check-circle-2"></i> ${employee.name} ended break.</div>`;
+    }
+
+    saveLogs();
+    saveActiveShifts();
+    renderAll();
+    lucide.createIcons();
+}
+
+function toggleBreak() {
+    const userId = currentUser.id;
+    const now = new Date();
+    const breakBtnText = document.getElementById("break-btn-text");
+    
+    if (!activeShifts[userId]) return;
+    
+    const activeShift = activeShifts[userId];
+    let coordsStr;
+    if (window._realGPSCoords) {
+        coordsStr = `${window._realGPSCoords.lat.toFixed(6)}, ${window._realGPSCoords.lng.toFixed(6)}`;
+    } else {
+        const latOffset = (simulatedDistance * 0.000009);
+        coordsStr = `${(VENUE_LAT + latOffset).toFixed(6)}, ${(VENUE_LNG + latOffset).toFixed(6)}`;
+    }
+
+    if (!activeShift.onBreak) {
+        activeShift.onBreak = true;
+        activeShift.breakStartTime = now.toISOString();
+        
+        logs.unshift({
+            id: Date.now(),
+            employeeId: userId,
+            employeeName: currentUser.name,
+            role: currentUser.role,
+            timestamp: now.toISOString(),
+            event: "Break-Start",
+            method: activeShift.method,
+            distance: simulatedDistance,
+            coordinates: coordsStr,
+            status: "Green Pass"
+        });
+
+        breakBtnText.textContent = "End Break";
+    } else {
+        activeShift.onBreak = false;
+        
+        logs.unshift({
+            id: Date.now(),
+            employeeId: userId,
+            employeeName: currentUser.name,
+            role: currentUser.role,
+            timestamp: now.toISOString(),
+            event: "Break-End",
+            method: activeShift.method,
+            distance: simulatedDistance,
+            coordinates: coordsStr,
+            status: "Green Pass"
+        });
+
+        breakBtnText.textContent = "Start Break";
+    }
+
+    saveLogs();
+    saveActiveShifts();
+    renderAll();
+}
+
+// 8. Holiday Management
+function submitHolidayRequest(event) {
+    event.preventDefault();
+    
+    const startVal = document.getElementById("holiday-start").value;
+    const endVal = document.getElementById("holiday-end").value;
+    const typeVal = document.getElementById("holiday-type").value;
+    const reasonVal = document.getElementById("holiday-reason").value;
+
+    const start = new Date(startVal);
+    const end = new Date(endVal);
+
+    if (end < start) {
+        alert("End date cannot be prior to start date.");
+        return;
+    }
+
+    // Calculate days inclusive
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    const newRequest = {
+        id: Date.now(),
+        submitDate: new Date().toISOString().split('T')[0],
+        employeeId: currentUser.id,
+        employeeName: currentUser.name,
+        role: currentUser.role,
+        type: typeVal,
+        startDate: startVal,
+        endDate: endVal,
+        totalDays: diffDays,
+        reason: reasonVal || "Not specified",
+        status: "Pending"
+    };
+
+    holidayRequests.unshift(newRequest);
+    saveHolidays();
+    
+    // Reset form
+    document.getElementById("holiday-form").reset();
+    
+    renderAll();
+}
+
+function handleHolidayDecision(id, decision) {
+    const req = holidayRequests.find(h => h.id === id);
+    if (req) {
+        req.status = decision;
+        saveHolidays();
+        renderAll();
+    }
+}
+
+// 9. Reporting and Calculations (PAYE Aggregate engine)
+function calculatePAYEData() {
+    const weeklyData = {};
+
+    Object.keys(EMPLOYEES).forEach(empId => {
+        const emp = EMPLOYEES[empId];
+        weeklyData[empId] = {
+            id: empId,
+            name: emp.name,
+            role: emp.role,
+            normalHours: 0,
+            overtimeHours: 0,
+            totalHours: 0,
+            methods: new Set()
+        };
+    });
+
+    // Group logs by employee
+    const empLogs = {};
+    logs.forEach(log => {
+        if (!empLogs[log.employeeId]) empLogs[log.employeeId] = [];
+        empLogs[log.employeeId].push(log);
+    });
+
+    Object.keys(weeklyData).forEach(empId => {
+        const rawLogs = empLogs[empId] || [];
+        // Sort chronologically
+        const chronLogs = [...rawLogs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        // Track methods
+        chronLogs.forEach(l => weeklyData[empId].methods.add(l.method));
+
+        // Group into shifts and breaks
+        const shifts = [];
+        let activeIn = null;
+        let activeBreaks = [];
+        let currentBreakStart = null;
+
+        chronLogs.forEach(log => {
+            if (log.event === "Clock-In") {
+                activeIn = new Date(log.timestamp);
+                activeBreaks = [];
+            } else if (log.event === "Break-Start" && activeIn) {
+                currentBreakStart = new Date(log.timestamp);
+            } else if (log.event === "Break-End" && currentBreakStart) {
+                activeBreaks.push({
+                    start: currentBreakStart,
+                    end: new Date(log.timestamp)
+                });
+                currentBreakStart = null;
+            } else if (log.event === "Clock-Out" && activeIn) {
+                const outTime = new Date(log.timestamp);
+                shifts.push({
+                    in: activeIn,
+                    out: outTime,
+                    breaks: [...activeBreaks]
+                });
+                activeIn = null;
+                activeBreaks = [];
+            }
+        });
+
+        // Group completed shifts by local date
+        const dayHours = {}; // keyed by "YYYY-MM-DD"
+                shifts.forEach(shift => {
+            const shiftId = `shift_${empId}_${shift.in.toISOString()}`;
+            const approval = approvalStates[shiftId] || { status: "Pending" };
+            
+            if (approval.status === "Authorised") {
+                const localDate = new Date(shift.in).toISOString().split('T')[0];
+                let shiftDuration = (shift.out - shift.in) / (1000 * 60 * 60); // hours
+                
+                let breakDuration = 0;
+                shift.breaks.forEach(b => {
+                    breakDuration += (b.end - b.start) / (1000 * 60 * 60);
+                });
+                
+                const netDuration = Math.max(0, shiftDuration - breakDuration);
+                dayHours[localDate] = (dayHours[localDate] || 0) + netDuration;
+            }
+        });
+        Object.values(dayHours).forEach(hours => {
+            if (hours > 8) {
+                weeklyData[empId].normalHours += 8;
+                weeklyData[empId].overtimeHours += (hours - 8);
+            } else {
+                weeklyData[empId].normalHours += hours;
+            }
+        });
+    });
+
+    // Format output
+    return Object.values(weeklyData).map(data => {
+        const rate = EMPLOYEES[data.id].rate;
+        data.totalHours = data.normalHours + data.overtimeHours;
+        data.grossPay = (data.normalHours * rate) + (data.overtimeHours * rate * 1.5);
+        data.payeTax = data.grossPay * 0.175; // 17.5% PAYE
+        data.netPay = data.grossPay - data.payeTax;
+        data.methodsList = Array.from(data.methods).join(", ") || "None";
+        return data;
+    });
+}
+
+function renderAll() {
+    renderMobileUI();
+    renderHolidayLists();
+    renderPAYETable();
+    renderLogsTable();
+    renderStats();
+    renderPinReference();
+    renderRosterPlanner();
+    renderPhoneRoster();
+    renderApprovalsTable();
+    const printDateEl = document.getElementById('print-report-date');
+    if (printDateEl) {
+        printDateEl.textContent = new Date().toLocaleDateString('en-NZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+}
+function renderMobileUI() {
+    const clockBtn = document.getElementById("clock-btn");
+    if (!clockBtn) return;
+    const clockBtnText = document.getElementById("clock-btn-text");
+    const timerDisplay = document.getElementById("shift-timer-display");
+
+    if (activeShifts[currentUser.id]) {
+        const shift = activeShifts[currentUser.id];
+        clockBtn.className = "btn-clock active";
+        if (shift.status === "Red Flagged") {
+            clockBtn.classList.add("flagged");
+        }
+        clockBtnText.textContent = "Clock Out";
+        timerDisplay.style.display = "block";
+        
+        const breakBtnText = document.getElementById("break-btn-text");
+        if (breakBtnText) {
+            breakBtnText.textContent = shift.onBreak ? "End Break" : "Start Break";
+        }
+    } else {
+        clockBtn.className = "btn-clock";
+        clockBtnText.textContent = "Clock In";
+        timerDisplay.style.display = "none";
+    }
+}
+
+function renderHolidayLists() {
+    // Phone UI subview requests
+    const phoneListEl = document.getElementById("phone-requests-list");
+    if (phoneListEl) {
+        const myRequests = holidayRequests.filter(h => h.employeeId === currentUser.id);
+        if (myRequests.length === 0) {
+            phoneListEl.innerHTML = `<p class="text-center" style="grid-column: 1/-1; padding: 12px;">No requests found</p>`;
+        } else {
+            phoneListEl.innerHTML = myRequests.map(r => {
+                let badgeClass = "badge-warning";
+                if (r.status === "Approved") badgeClass = "badge-success";
+                if (r.status === "Denied") badgeClass = "badge-danger";
+                
+                return `
+                    <div class="request-item">
+                        <div class="request-item-details">
+                            <strong>${r.type} (${r.totalDays} Days)</strong>
+                            <span>${r.startDate} to ${r.endDate}</span>
+                        </div>
+                        <span class="badge ${badgeClass}">${r.status}</span>
+                    </div>
+                `;
+            }).join("");
+        }
+    }
+
+    // Admin Panel Table requests
+    const adminListEl = document.getElementById("holidays-table-body");
+    if (adminListEl) {
+        if (holidayRequests.length === 0) {
+            adminListEl.innerHTML = `<tr><td colspan="9" class="text-center">No holiday requests submitted</td></tr>`;
+        } else {
+            adminListEl.innerHTML = holidayRequests.map(r => {
+                let badgeClass = "badge-warning";
+                if (r.status === "Approved") badgeClass = "badge-success";
+                if (r.status === "Denied") badgeClass = "badge-danger";
+
+                const isPending = r.status === "Pending";
+                const actionButtons = isPending 
+                    ? `<button class="btn btn-sm btn-primary" onclick="handleHolidayDecision(${r.id}, 'Approved')">Approve</button>
+                       <button class="btn btn-sm btn-outline" style="color:var(--color-danger); border-color:rgba(239,68,68,0.2)" onclick="handleHolidayDecision(${r.id}, 'Denied')">Deny</button>`
+                    : `<span style="color:var(--color-text-muted)">Evaluated</span>`;
+
+                return `
+                    <tr>
+                        <td>${r.submitDate}</td>
+                        <td><strong>${r.employeeName}</strong></td>
+                        <td>${r.role}</td>
+                        <td>${r.type}</td>
+                        <td>${r.startDate} to ${r.endDate}</td>
+                        <td>${r.totalDays}</td>
+                        <td><small>${r.reason}</small></td>
+                        <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                        <td class="no-print" style="display:flex; gap:8px;">${actionButtons}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+    }
+}
+
+function renderPAYETable() {
+    const tableBody = document.getElementById("paye-table-body");
+    if (!tableBody) return;
+
+    const data = calculatePAYEData();
+
+    tableBody.innerHTML = data.map(row => {
+        return `
+            <tr>
+                <td><strong>${row.name}</strong></td>
+                <td>${row.role}</td>
+                <td><small>${row.methodsList}</small></td>
+                <td>${row.normalHours.toFixed(2)} hrs</td>
+                <td>${row.overtimeHours.toFixed(2)} hrs</td>
+                <td><strong>${row.totalHours.toFixed(2)} hrs</strong></td>
+                <td>$${row.grossPay.toFixed(2)}</td>
+                <td style="color:#fca5a5">$${row.payeTax.toFixed(2)}</td>
+                <td style="color:#a7f3d0; font-weight:600">$${row.netPay.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join("");
+}
+function renderLogsTable() {
+    const tableBody = document.getElementById("logs-table-body");
+    if (!tableBody) return;
+
+    if (logs.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center">No clock-in logs found</td></tr>`;
+        return;
+    }
+
+    // Sort logs chronologically desc
+    const sortedLogs = [...logs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    // Group logs by local date string
+    const grouped = {};
+    sortedLogs.forEach(log => {
+        const dateStr = new Date(log.timestamp).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        if (!grouped[dateStr]) grouped[dateStr] = [];
+        grouped[dateStr].push(log);
+    });
+
+    let rowsHtml = "";
+    Object.keys(grouped).forEach(date => {
+        rowsHtml += `
+            <tr class="log-date-header">
+                <td colspan="8">${date}</td>
+            </tr>
+        `;
+        grouped[date].forEach(log => {
+            let statusDotClass = "green";
+            if (log.status === "Orange Warning") statusDotClass = "orange";
+            if (log.status === "Red Flagged") statusDotClass = "red";
+
+            const formattedTime = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            let actionBtn = "";
+            if (log.status === "Red Flagged") {
+                actionBtn = `<button class="btn btn-sm btn-outline no-print" onclick="resolveFlag(${log.id})"><i data-lucide="check-circle-2"></i> Approve Flag</button>`;
+            }
+
+            rowsHtml += `
+                <tr>
+                    <td>${formattedTime}</td>
+                    <td><strong>${log.employeeName}</strong></td>
+                    <td><span style="font-weight:600; color:${log.event.includes('In') || log.event.includes('Start') ? 'var(--color-success)' : 'var(--color-text-muted)'}">${log.event}</span></td>
+                    <td>${log.method}</td>
+                    <td>${log.distance}m</td>
+                    <td>
+                        <strong>${log.coordinates}</strong>
+                        <span class="log-meta-details">Acc: ${log.accuracy || "± 3m"} | IP: ${log.ip || "122.56.24.110"}</span>
+                    </td>
+                    <td>
+                        <span class="status-pill">
+                            <span class="status-dot ${statusDotClass}"></span>
+                            ${log.status}
+                        </span>
+                        <span class="log-meta-details" style="margin-top:2px;">${log.userAgent || "Web desktop client (Linux)"}</span>
+                    </td>
+                    <td>${actionBtn}</td>
+                </tr>
+            `;
+        });
+    });
+
+    tableBody.innerHTML = rowsHtml;
+    lucide.createIcons();
+}
+
+function resolveFlag(logId) {
+    const log = logs.find(l => l.id === logId);
+    if (log) {
+        log.status = "Green Pass (Approved)";
+        saveLogs();
+        renderAll();
+    }
+}
+
+function renderStats() {
+    // 1. On shift count
+    const onShiftEl = document.getElementById("stat-on-shift");
+    if (onShiftEl) {
+        onShiftEl.textContent = Object.keys(activeShifts).length;
+    }
+
+    // 2. Red flagged shifts count
+    const flaggedEl = document.getElementById("stat-flagged");
+    if (flaggedEl) {
+        const count = logs.filter(l => l.status === "Red Flagged").length;
+        flaggedEl.textContent = count;
+        
+        const flaggedIcon = document.getElementById("stat-flagged-icon");
+        if (flaggedIcon) {
+            if (count > 0) {
+                flaggedIcon.parentElement.classList.add("text-danger");
+            } else {
+                flaggedIcon.parentElement.classList.remove("text-danger");
+            }
+        }
+    }
+
+    // 3. Pending Holiday Requests
+    const holidaysEl = document.getElementById("stat-holidays");
+    if (holidaysEl) {
+        const count = holidayRequests.filter(h => h.status === "Pending").length;
+        holidaysEl.textContent = count;
+    }
+}
+
+// 11. Spreadsheet CSV Exporter
+function exportToCSV() {
+    const data = calculatePAYEData();
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // Headers
+    csvContent += "Employee,Role,Clock-In Methods,Normal Hours,Overtime Hours,Total Hours,Gross Pay ($),PAYE Tax Deduction ($),Net Pay ($)\r\n";
+
+    // Row loop
+    data.forEach(row => {
+        const cleanName = `"${row.name.replace(/"/g, '""')}"`;
+        const cleanRole = `"${row.role.replace(/"/g, '""')}"`;
+        const cleanMethods = `"${row.methodsList.replace(/"/g, '""')}"`;
+        
+        csvContent += `${cleanName},${cleanRole},${cleanMethods},${row.normalHours.toFixed(2)},${row.overtimeHours.toFixed(2)},${row.totalHours.toFixed(2)},${row.grossPay.toFixed(2)},${row.payeTax.toFixed(2)},${row.netPay.toFixed(2)}\r\n`;
+    });
+
+    // Create hidden link and download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `PAYE_Weekly_Summary_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// 12. Share QR Dropdown Controls
+function toggleShareQR(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById("share-qr-dropdown");
+    const isVisible = dropdown.style.display === "block";
+    
+    if (!isVisible) {
+        const qrImg = dropdown.querySelector(".qr-code-img-wrapper img");
+        if (qrImg) {
+            const currentUrl = encodeURIComponent(window.location.href);
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${currentUrl}`;
+        }
+    }
+    
+    dropdown.style.display = isVisible ? "none" : "block";
+}
+
+// Global click handler to close QR dropdown on outside clicks
+document.addEventListener("click", (event) => {
+    const dropdown = document.getElementById("share-qr-dropdown");
+    const shareBtn = document.getElementById("share-btn");
+    if (dropdown && dropdown.style.display === "block" && !dropdown.contains(event.target) && event.target !== shareBtn && !shareBtn.contains(event.target)) {
+        dropdown.style.display = "none";
+    }
+});
+
+// 13. Roster Management Functions
+function initRosterSelectors() {
+    const select = document.getElementById("roster-employee");
+    if (select) {
+        select.innerHTML = Object.keys(EMPLOYEES).map(empId => {
+            return `<option value="${empId}">${EMPLOYEES[empId].name} (${EMPLOYEES[empId].role})</option>`;
+        }).join("");
+    }
+
+    const phoneSelect = document.getElementById("phone-user-select");
+    if (phoneSelect) {
+        phoneSelect.innerHTML = Object.keys(EMPLOYEES).map(empId => {
+            return `<option value="${empId}" ${empId === currentUser.id ? 'selected' : ''}>${EMPLOYEES[empId].name}</option>`;
+        }).join("");
+
+        // Set initial values
+        const avatarEl = document.getElementById("phone-avatar");
+        if (avatarEl) {
+            const names = currentUser.name.split(" ");
+            const initials = names.map(n => n[0]).join("").substring(0, 2).toUpperCase();
+            avatarEl.textContent = initials;
+        }
+        const roleEl = document.getElementById("phone-user-role");
+        if (roleEl) {
+            roleEl.textContent = currentUser.role;
+        }
+
+        phoneSelect.addEventListener("change", (e) => {
+            const selectedId = e.target.value;
+            currentUser = EMPLOYEES[selectedId];
+
+            const avatarEl = document.getElementById("phone-avatar");
+            if (avatarEl) {
+                const names = currentUser.name.split(" ");
+                const initials = names.map(n => n[0]).join("").substring(0, 2).toUpperCase();
+                avatarEl.textContent = initials;
+            }
+
+            const roleEl = document.getElementById("phone-user-role");
+            if (roleEl) {
+                roleEl.textContent = currentUser.role;
+            }
+
+            renderAll();
+        });
+    }
+}
+
+function submitRosterShift(event) {
+    event.preventDefault();
+    const empId = document.getElementById("roster-employee").value;
+    const dateVal = document.getElementById("roster-date").value;
+    const startVal = document.getElementById("roster-start").value;
+    const endVal = document.getElementById("roster-end").value;
+
+    if (!empId || !dateVal || !startVal || !endVal) return;
+
+    const newShift = {
+        id: Date.now(),
+        employeeId: empId,
+        employeeName: EMPLOYEES[empId].name,
+        role: EMPLOYEES[empId].role,
+        date: dateVal,
+        start: startVal,
+        end: endVal
+    };
+
+    rosterShifts.unshift(newShift);
+    localStorage.setItem("ct_roster", JSON.stringify(rosterShifts));
+    renderAll();
+    document.getElementById("roster-form").reset();
+}
+
+function deleteRosterShift(shiftId) {
+    rosterShifts = rosterShifts.filter(s => s.id !== shiftId);
+    localStorage.setItem("ct_roster", JSON.stringify(rosterShifts));
+    renderAll();
+}
+
+function renderRosterPlanner() {
+    const tableBody = document.getElementById("roster-table-body");
+    if (!tableBody) return;
+
+    if (rosterShifts.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center">No shifts scheduled</td></tr>`;
+        return;
+    }
+
+    const sortedShifts = [...rosterShifts].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    tableBody.innerHTML = sortedShifts.map(shift => {
+        const dateStr = new Date(shift.date).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+        return `
+            <tr>
+                <td>${dateStr}</td>
+                <td><strong>${shift.employeeName}</strong></td>
+                <td>${shift.role}</td>
+                <td>${shift.start} - ${shift.end}</td>
+                <td><span class="badge badge-success">Scheduled</span></td>
+                <td class="no-print">
+                    <button class="btn btn-sm btn-outline" style="color:var(--color-danger); border-color:rgba(239,68,68,0.2)" onclick="deleteRosterShift(${shift.id})">Cancel</button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function renderPhoneRoster() {
+    const listEl = document.getElementById("phone-roster-list");
+    if (!listEl) return;
+
+    const myShifts = rosterShifts.filter(s => s.employeeId === currentUser.id);
+
+    if (myShifts.length === 0) {
+        listEl.innerHTML = `<p class="text-center" style="padding: 12px; color:var(--color-text-muted)">No upcoming shifts rostered.</p>`;
+        return;
+    }
+
+    const sortedMyShifts = [...myShifts].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    listEl.innerHTML = sortedMyShifts.map(shift => {
+        const dateStr = new Date(shift.date).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' });
+        return `
+            <div class="phone-roster-card">
+                <h5>${dateStr}</h5>
+                <p><strong>Time:</strong> ${shift.start} - ${shift.end}</p>
+                <p><strong>Role:</strong> ${shift.role}</p>
+            </div>
+        `;
+    }).join("");
+}
+
+// 14. Completed Shifts Authorization
+function compileCompletedShifts() {
+    const completedShifts = [];
+    const empLogs = {};
+    
+    logs.forEach(log => {
+        if (!empLogs[log.employeeId]) empLogs[log.employeeId] = [];
+        empLogs[log.employeeId].push(log);
+    });
+
+    Object.keys(EMPLOYEES).forEach(empId => {
+        const rawLogs = empLogs[empId] || [];
+        const chronLogs = [...rawLogs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        let activeIn = null;
+        let activeBreaks = [];
+        let currentBreakStart = null;
+
+        chronLogs.forEach(log => {
+            if (log.event === "Clock-In") {
+                activeIn = log;
+                activeBreaks = [];
+            } else if (log.event === "Break-Start" && activeIn) {
+                currentBreakStart = log;
+            } else if (log.event === "Break-End" && currentBreakStart) {
+                activeBreaks.push({
+                    start: new Date(currentBreakStart.timestamp),
+                    end: new Date(log.timestamp)
+                });
+                currentBreakStart = null;
+            } else if (log.event === "Clock-Out" && activeIn) {
+                const clockInTime = new Date(activeIn.timestamp);
+                const clockOutTime = new Date(log.timestamp);
+                
+                let shiftDuration = (clockOutTime - clockInTime) / (1000 * 60 * 60);
+                let breakDuration = 0;
+                activeBreaks.forEach(b => {
+                    breakDuration += (b.end - b.start) / (1000 * 60 * 60);
+                });
+                const netHours = Math.max(0, shiftDuration - breakDuration);
+                const shiftId = `shift_${empId}_${activeIn.timestamp}`;
+
+                let geofenceStatus = "Green Pass";
+                if (activeIn.status === "Red Flagged" || log.status === "Red Flagged") {
+                    geofenceStatus = "Red Flagged";
+                } else if (activeIn.status === "Orange Warning" || log.status === "Orange Warning") {
+                    geofenceStatus = "Orange Warning";
+                }
+
+                completedShifts.push({
+                    id: shiftId,
+                    employeeId: empId,
+                    employeeName: EMPLOYEES[empId].name,
+                    role: EMPLOYEES[empId].role,
+                    clockIn: activeIn.timestamp,
+                    clockOut: log.timestamp,
+                    netHours: netHours,
+                    method: activeIn.method,
+                    geofenceStatus: geofenceStatus
+                });
+
+                activeIn = null;
+                activeBreaks = [];
+            }
+        });
+    });
+
+    return completedShifts;
+}
+
+function renderApprovalsTable() {
+    const tableBody = document.getElementById("approvals-table-body");
+    if (!tableBody) return;
+
+    const completedShifts = compileCompletedShifts();
+    
+    if (completedShifts.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center">No completed shifts found</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = completedShifts.map(shift => {
+        const approval = approvalStates[shift.id] || { status: "Pending", authorisedBy: null };
+        
+        let statusBadgeClass = "badge-warning";
+        if (approval.status === "Authorised") statusBadgeClass = "badge-success";
+        
+        let geofenceBadgeClass = "green";
+        if (shift.geofenceStatus === "Orange Warning") geofenceBadgeClass = "orange";
+        if (shift.geofenceStatus === "Red Flagged") geofenceBadgeClass = "red";
+
+        const clockInStr = new Date(shift.clockIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const clockOutStr = new Date(shift.clockOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateStr = new Date(shift.clockIn).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+
+        let actionHtml = "";
+        if (approval.status === "Pending") {
+            actionHtml = `<button class="btn btn-sm btn-primary" onclick="authoriseShift('${shift.id}')">Authorise</button>`;
+        } else {
+            actionHtml = `<span style="font-size:0.8rem; color:var(--color-text-muted)">Authorised by ${approval.authorisedBy}</span>`;
+        }
+
+        return `
+            <tr>
+                <td>${dateStr}</td>
+                <td><strong>${shift.employeeName}</strong></td>
+                <td>${shift.role}</td>
+                <td>${clockInStr} - ${clockOutStr}</td>
+                <td>${shift.netHours.toFixed(2)} hrs</td>
+                <td>${shift.method}</td>
+                <td>
+                    <span class="status-pill">
+                        <span class="status-dot ${geofenceBadgeClass}"></span>
+                        ${shift.geofenceStatus}
+                    </span>
+                </td>
+                <td><span class="badge ${statusBadgeClass}">${approval.status}</span></td>
+                <td class="no-print">${actionHtml}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function authoriseShift(shiftId) {
+    const authoriserSelect = document.getElementById("authoriser-manager");
+    const managerName = authoriserSelect ? authoriserSelect.value : "System Admin (Admin)";
+    
+    approvalStates[shiftId] = {
+        status: "Authorised",
+        authorisedBy: managerName
+    };
+    
+    saveApprovalStates();
+    renderAll();
+}
