@@ -250,40 +250,66 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   if (mode === 'FOH') {
     return (
       <div className="flex-1 p-8 overflow-auto">
-         <div className="max-w-6xl mx-auto space-y-8">
-            <div className="text-center mb-8 relative">
-               <div className="absolute right-0 top-0 w-64 text-left">
-                  <WeatherWidget />
+         <div className="max-w-7xl mx-auto space-y-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
+               <div>
+                 <h1 className="text-4xl font-bold text-white mb-2">Front of House</h1>
+                 <p className="text-slate-400">Select a terminal or module to begin service.</p>
                </div>
-               <h1 className="text-4xl font-bold text-white mb-2">Front of House</h1>
-               <p className="text-slate-400">Select a terminal or module to begin service.</p>
+               <div className="flex items-center space-x-6">
+                   <div className="w-64">
+                       <WeatherWidget />
+                   </div>
+                   <div className="text-slate-400 text-lg">{today.toLocaleDateString()}</div>
+               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               <button onClick={() => onNavigate('pos')} className="bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl border border-slate-700 transition-all flex flex-col items-center justify-center text-center group">
-                   <Monitor className="w-12 h-12 text-blue-500 mb-4 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-xl font-bold text-white mb-1">Point of Sale</h3>
-                   <p className="text-sm text-slate-400">Launch Till System</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+               <button onClick={() => onNavigate('pos')} className="bg-blue-600/20 hover:bg-blue-600/30 p-6 rounded-2xl border border-blue-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <Monitor className="w-10 h-10 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Point of Sale</h3>
+                   <p className="text-xs text-blue-300">Launch Till System</p>
                </button>
-               <button onClick={() => onNavigate('bookings')} className="bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl border border-slate-700 transition-all flex flex-col items-center justify-center text-center group">
-                   <Utensils className="w-12 h-12 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-xl font-bold text-white mb-1">Bookings</h3>
-                   <p className="text-sm text-slate-400">{todaysBookings.length} Today</p>
+               <button onClick={() => onNavigate('bookings')} className="bg-emerald-600/20 hover:bg-emerald-600/30 p-6 rounded-2xl border border-emerald-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <Utensils className="w-10 h-10 text-emerald-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Bookings</h3>
+                   <p className="text-xs text-emerald-300">{todaysBookings.length} Today</p>
                </button>
-               <button onClick={() => onNavigate('tvschedule')} className="bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl border border-slate-700 transition-all flex flex-col items-center justify-center text-center group">
-                   <Tv className="w-12 h-12 text-purple-500 mb-4 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-xl font-bold text-white mb-1">Live Sports</h3>
-                   <p className="text-sm text-slate-400">{todaysTv.length} Games</p>
+               <button onClick={() => onNavigate('functions')} className="bg-amber-600/20 hover:bg-amber-600/30 p-6 rounded-2xl border border-amber-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <Users className="w-10 h-10 text-amber-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Functions</h3>
+                   <p className="text-xs text-amber-300">Events & Groups</p>
                </button>
-               <button onClick={() => onNavigate('entertainment')} className="bg-slate-800 hover:bg-slate-700 p-8 rounded-2xl border border-slate-700 transition-all flex flex-col items-center justify-center text-center group">
-                   <Music className="w-12 h-12 text-pink-500 mb-4 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-xl font-bold text-white mb-1">Entertainment</h3>
-                   <p className="text-sm text-slate-400">Gig Guide & Events</p>
+               <button onClick={() => onNavigate('tvschedule')} className="bg-purple-600/20 hover:bg-purple-600/30 p-6 rounded-2xl border border-purple-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <Tv className="w-10 h-10 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Live Sports</h3>
+                   <p className="text-xs text-purple-300">{todaysTv.length} Games</p>
+               </button>
+               
+               <button onClick={() => onNavigate('entertainment')} className="bg-pink-600/20 hover:bg-pink-600/30 p-6 rounded-2xl border border-pink-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <Music className="w-10 h-10 text-pink-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Entertainment</h3>
+                   <p className="text-xs text-pink-300">Gig Guide</p>
+               </button>
+               <button onClick={() => onNavigate('incidents')} className="bg-red-600/20 hover:bg-red-600/30 p-6 rounded-2xl border border-red-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <ShieldAlert className="w-10 h-10 text-red-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Incidents</h3>
+                   <p className="text-xs text-red-300">Log Report</p>
+               </button>
+               <button onClick={() => onNavigate('lostfound')} className="bg-indigo-600/20 hover:bg-indigo-600/30 p-6 rounded-2xl border border-indigo-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <Umbrella className="w-10 h-10 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Lost & Found</h3>
+                   <p className="text-xs text-indigo-300">Register</p>
+               </button>
+               <button onClick={() => onNavigate('documents')} className="bg-slate-700/50 hover:bg-slate-700 p-6 rounded-2xl border border-slate-600 transition-all flex flex-col items-center justify-center text-center group">
+                   <BookOpen className="w-10 h-10 text-slate-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Documents</h3>
+                   <p className="text-xs text-slate-400">Runsheets</p>
                </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-               <div className="lg:col-span-2 bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               <div className="bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
                    <h3 className="font-semibold text-white mb-4 flex items-center"><Utensils className="w-5 h-5 mr-2 text-emerald-500"/> Today's Bookings</h3>
                    {todaysBookings.length > 0 ? (
                        <div className="space-y-3">
@@ -296,20 +322,19 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                        </div>
                    ) : <p className="text-slate-500 bg-slate-900/50 p-6 rounded-lg text-center">No bookings for today.</p>}
                </div>
-               <div className="space-y-6">
-                   <div className="bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                       <h3 className="font-semibold text-white mb-4 flex items-center"><Tv className="w-5 h-5 mr-2 text-purple-500"/> Live Sports</h3>
-                       {todaysTv.length > 0 ? (
-                           <div className="space-y-3">
-                               {todaysTv.map(tv => (
-                                   <div key={tv.id} className="p-3 bg-slate-900/80 rounded-lg border border-slate-700 border-l-4 border-l-purple-500">
-                                       <p className="font-bold text-white">{tv.match}</p>
-                                       <p className="text-sm text-slate-400 mt-1">{tv.channel} • {formatTime(tv.startTime)}</p>
-                                   </div>
-                               ))}
-                           </div>
-                       ) : <p className="text-slate-500 text-sm bg-slate-900/50 p-4 rounded-lg text-center">No games scheduled today.</p>}
-                   </div>
+               
+               <div className="bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+                   <h3 className="font-semibold text-white mb-4 flex items-center"><Tv className="w-5 h-5 mr-2 text-purple-500"/> Live Sports</h3>
+                   {todaysTv.length > 0 ? (
+                       <div className="space-y-3">
+                           {todaysTv.map(tv => (
+                               <div key={tv.id} className="p-3 bg-slate-900/80 rounded-lg border border-slate-700 border-l-4 border-l-purple-500">
+                                   <p className="font-bold text-white">{tv.match}</p>
+                                   <p className="text-sm text-slate-400 mt-1">{tv.channel} • {formatTime(tv.startTime)}</p>
+                               </div>
+                           ))}
+                       </div>
+                   ) : <p className="text-slate-500 text-sm bg-slate-900/50 p-4 rounded-lg text-center">No games scheduled today.</p>}
                </div>
             </div>
          </div>
@@ -320,7 +345,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   // BOH Mode
   return (
     <div className="flex-1 p-8 overflow-auto">
-         <div className="max-w-6xl mx-auto space-y-8">
+         <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
                <h1 className="text-4xl font-bold text-white">Kitchen Dashboard</h1>
                <div className="flex items-center space-x-6">
@@ -331,11 +356,39 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="md:col-span-2 space-y-6">
+            {/* BOH Quick Actions Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+               <button onClick={() => onNavigate('recipes')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <BookOpen className="w-8 h-8 text-blue-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Recipes</h3>
+               </button>
+               <button onClick={() => onNavigate('stock')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <Boxes className="w-8 h-8 text-emerald-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Stock</h3>
+               </button>
+               <button onClick={() => onNavigate('stocktake')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <ClipboardList className="w-8 h-8 text-amber-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Stocktake</h3>
+               </button>
+               <button onClick={() => onNavigate('ordering')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <Truck className="w-8 h-8 text-indigo-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Ordering</h3>
+               </button>
+               <button onClick={() => onNavigate('maintenance')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <AlertTriangle className="w-8 h-8 text-orange-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Maintenance</h3>
+               </button>
+               <button onClick={() => onNavigate('documents')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <BookOpen className="w-8 h-8 text-slate-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Documents</h3>
+               </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+               <div className="lg:col-span-2 space-y-6">
                   {/* High priority tasks */}
                   <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><ClipboardList className="w-6 h-6 mr-2 text-amber-500"/> Prep & Maintenance</h2>
+                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><ClipboardList className="w-6 h-6 mr-2 text-amber-500"/> Prep & Maintenance Tasks</h2>
                       {pendingTasks.length > 0 ? (
                          <div className="space-y-3">
                              {pendingTasks.map(task => (
@@ -357,42 +410,20 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
                   {/* Recipes to Prep */}
                   <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><BookOpen className="w-6 h-6 mr-2 text-blue-500"/> Recipes to Prep</h2>
+                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><Utensils className="w-6 h-6 mr-2 text-blue-500"/> Kitchen Notices</h2>
                       <div className="space-y-3">
                           <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
                               <div className="flex-1">
-                                  <h4 className="text-white font-medium">Burger Patties</h4>
-                                  <p className="text-sm text-slate-400 mt-1">Prep 50x 150g patties</p>
+                                  <h4 className="text-white font-medium">New Menu Items</h4>
+                                  <p className="text-sm text-slate-400 mt-1">Check the recipes module for the updated winter menu specs.</p>
                               </div>
-                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Morning Prep</span>
-                          </div>
-                          <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
-                              <div className="flex-1">
-                                  <h4 className="text-white font-medium">Napoli Sauce</h4>
-                                  <p className="text-sm text-slate-400 mt-1">Make 5L batch</p>
-                              </div>
-                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Afternoon Prep</span>
+                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Notice</span>
                           </div>
                       </div>
                   </div>
                </div>
 
                <div className="space-y-6">
-                   <button onClick={() => onNavigate('recipes')} className="w-full bg-slate-800 hover:bg-slate-700 p-6 rounded-xl border border-slate-700 transition-colors flex items-center space-x-4">
-                       <div className="p-4 bg-blue-500/20 rounded-lg text-blue-400"><BookOpen className="w-8 h-8" /></div>
-                       <div className="text-left">
-                          <h3 className="text-xl font-bold text-white">Recipes</h3>
-                          <p className="text-sm text-slate-400">View Specs & Prep</p>
-                       </div>
-                   </button>
-                   <button onClick={() => onNavigate('stock')} className="w-full bg-slate-800 hover:bg-slate-700 p-6 rounded-xl border border-slate-700 transition-colors flex items-center space-x-4">
-                       <div className="p-4 bg-emerald-500/20 rounded-lg text-emerald-400"><Boxes className="w-8 h-8" /></div>
-                       <div className="text-left">
-                          <h3 className="text-xl font-bold text-white">Stock</h3>
-                          <p className="text-sm text-slate-400">Inventory Management</p>
-                       </div>
-                   </button>
-
                    {/* Low Stock Widget */}
                    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
                        <h3 className="font-semibold text-white mb-4 flex items-center"><AlertTriangle className="w-5 h-5 mr-2 text-red-500"/> Low Stock Alerts</h3>
