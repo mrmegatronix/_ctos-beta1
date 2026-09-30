@@ -6,7 +6,7 @@ import {
   Users, ClipboardList, Utensils, Boxes, Share2, LayoutGrid, Truck, Wrench,
   Music, PartyPopper, DollarSign, Globe, Monitor, FileText, FolderOpen, Home,
   BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp,
-  Smartphone, Sliders, Crown, Shield, UploadCloud, Database
+  Smartphone, Sliders, Crown, Shield, UploadCloud, Database, ShoppingCart
 } from 'lucide-react';
 import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry, isMasterAdmin, isAdminOrAbove } from './types';
 import MediaView from './components/MediaView';
@@ -38,6 +38,8 @@ import RosterView from './components/RosterView';
 import StaffDirectory from './components/StaffDirectory';
 import FinanceView from './components/FinanceView';
 import BookingsView from './components/BookingsView';
+import VenueInfoView from './components/VenueInfoView';
+import TransportView from './components/TransportView';
 import EntertainmentView from './components/EntertainmentView';
 import FunctionsView from './components/FunctionsView';
 import TVScheduleView from './components/TVScheduleView';
@@ -879,9 +881,6 @@ const App: React.FC = () => {
                 <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Service Hub</span>
                 </button>
-                <button onClick={() => setCurrentModule("pos")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "pos" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Monitor className="w-5 h-5" /><span>POS System</span>
-                </button>
                 <button onClick={() => setCurrentModule("bookings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "bookings" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Utensils className="w-5 h-5" /><span>Table Reservations</span>
                 </button>
@@ -893,6 +892,19 @@ const App: React.FC = () => {
                 </button>
                 <button onClick={() => setCurrentModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <ClockIcon className="w-5 h-5" /><span>Timeclock</span>
+                </button>
+
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-6">Info & Tools</div>
+                <button onClick={() => setCurrentModule("venueinfo")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "venueinfo" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Globe className="w-5 h-5" /><span>Venue Info</span>
+                </button>
+                <button onClick={() => setCurrentModule("transport")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "transport" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Truck className="w-5 h-5" /><span>Local Transport</span>
+                </button>
+
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-6">Future Features</div>
+                <button onClick={() => setCurrentModule("pos")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "pos" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <Monitor className="w-5 h-5" /><span>POS System</span>
                 </button>
             </div>
         ) : appMode === "BOH" ? (
@@ -1037,7 +1049,7 @@ const App: React.FC = () => {
                     </button>
                     {openAccordion === "ops" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
-                            {[{ id: "tvschedule", label: "TV Guide" }, { id: "incidents", label: "Incident Log" }, { id: "maintenance", label: "Maintenance" }, { id: "lostfound", label: "Lost & Found" }, { id: "documents", label: "Documents" }].map(link => (
+                            {[{ id: "tvschedule", label: "TV Guide" }, { id: "incidents", label: "Incident Log" }, { id: "maintenance", label: "Maintenance" }, { id: "lostfound", label: "Lost & Found" }, { id: "documents", label: "Documents" }, { id: "venueinfo", label: "Venue Info" }, { id: "transport", label: "Local Transport" }].map(link => (
                                 <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
@@ -1315,6 +1327,8 @@ const App: React.FC = () => {
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
           {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
           {currentModule === 'settings' && <SettingsView onShowNotification={showNotification} />}
+          {currentModule === 'venueinfo' && <VenueInfoView />}
+          {currentModule === 'transport' && <TransportView />}
 
         </main>
       </div>

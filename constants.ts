@@ -95,7 +95,38 @@ export const INITIAL_BOOKINGS: Booking[] = [];
 // --- RAW PRODUCT CSV DATA ---
 const RAW_PRODUCT_CSV = `ProductID,ProductType,ProductGroup,ProductName,ProductName2,PriceBand,PriceGroup,VATRate,Measure,CostPricePerSKU,GrossSellPrice,BarCode,PLU,PLU2,SKUName,BINNumber,KPText,CommissionPercentage,AllowZeroPrice,UseStandardVAT,AwardCRMPoints,ChargePerMinute,ExcludeFromReceipt,PromptForDescription,SellByWeight,ServiceChargeExempt,PrintToKPStandalone,IsMain,ProductInfo,RezlynxCode,MeasureCostPricePerSKU,ProhibitSalesWhenUnderStocked,IsUseBatchSales,CookTimeSeconds,ShelfLifeSeconds,IsDisplayAfterProduced,IsBatchSalesProduceOnSale,AlcoholPercent,UnitVolume,AllowDiscount,ItemCookCount,SelfServiceFood,SelfServiceDrink,IsChooseLater,KP1,KP2,KP3,KP4,KP5,KP6,KP7,KP8,KP9,KP10,KP11,KP12,KP13,KP14,KP15,KP16,HideMeasureShortNameFromReceipt,ThirdPartyCRMPointsValue,ExtraReceiptText,CRMPointsValue,IsAvailableThroughTevalisAPI,IsAlcohol,CRMCode,ReportCategory,Region,Vintage,StockWarningLevel`;
 
-export const INITIAL_SUPPLIERS: Supplier[] = [];
+export const INITIAL_SUPPLIERS: Supplier[] = [
+  // Suppliers
+  { id: 'sup-1', name: 'Southern Hospo', contactPerson: '', email: '', phone: '', category: 'Suppliers', address: '' },
+  { id: 'sup-2', name: 'Coca-Cola', contactPerson: '', email: '', phone: '', category: 'Suppliers', address: '' },
+  { id: 'sup-3', name: 'NZTS', contactPerson: '', email: '', phone: '', category: 'Suppliers', address: '' },
+  { id: 'sup-4', name: 'BidFood Fresh', contactPerson: '', email: '', phone: '', category: 'Suppliers', address: '' },
+  { id: 'sup-5', name: 'BidFood Dry', contactPerson: '', email: '', phone: '', category: 'Suppliers', address: '' },
+  { id: 'sup-6', name: 'West Meats Butcher', contactPerson: '', email: '', phone: '', category: 'Suppliers', address: '' },
+  
+  // Tradies / Technicians
+  { id: 'sup-7', name: 'Plumber', contactPerson: '', email: '', phone: '', category: 'Tradies / Technicians', address: '' },
+  { id: 'sup-8', name: 'Electrician', contactPerson: '', email: '', phone: '', category: 'Tradies / Technicians', address: '' },
+  { id: 'sup-9', name: 'Landlord', contactPerson: '', email: '', phone: '', category: 'Tradies / Technicians', address: '' },
+  { id: 'sup-10', name: 'Cleaner', contactPerson: '', email: '', phone: '', category: 'Tradies / Technicians', address: '' },
+  
+  // Services / Prox
+  { id: 'sup-11', name: 'TAB (Local Rep)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  { id: 'sup-12', name: 'TAB (Help Desk)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  { id: 'sup-13', name: 'Pub Charity Trust (Local Rep)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  { id: 'sup-14', name: 'Pub Charity Trust (Office)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  { id: 'sup-15', name: 'GMD / IGT Machine Techs (Helpline)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  { id: 'sup-16', name: "Com's (Reel View - Help Centre)", contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  
+  // Neighbourhood
+  { id: 'sup-17', name: 'Caltex Redwood', contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },
+  { id: 'sup-18', name: "PJ's Dairy", contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },
+  { id: 'sup-19', name: 'Coffee Culture', contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },
+  { id: 'sup-20', name: 'New Asia Takeaways', contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },
+  { id: 'sup-21', name: 'Curry Time', contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },
+  { id: 'sup-22', name: 'Harcourts Redwood', contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },
+];
+
 
 export const INITIAL_STOCK: StockItem[] = [
   {
@@ -24354,5 +24385,92 @@ export const INITIAL_MENUS: any[] = [
       { id: 'item-pizza', name: 'Margherita Pizza', description: '12" pizza with napoli sauce, mozzarella and fresh basil', price: 20, allergens: ['Gluten', 'Dairy'] }
     ]
   }
+,
+  {
+    id: 'menu-lunch',
+    name: 'Lunch (Until 3PM)',
+    category: 'Food',
+    items: [
+      { id: 'item-lunch-1', name: 'PUB STYLE TOASTED SANDWICH W. FRIES', description: 'Brioche Bread - Choose 3 fillings served w. fries. Cheese, ham, bacon, tomato, onion, egg, pineapple, relish, mushroom sauce, gravy. Extra fillings $1', price: 16, allergens: ['GFO', 'DFO', 'NF', 'VO'] },
+      { id: 'item-lunch-2', name: 'HOT ROAST BUN W. FRIES', description: 'Freshly toasted roll w. roast meat of the day, gravy, caramelized onion & cheese', price: 18, allergens: ['GFO', 'DFO', 'NF'] },
+      { id: 'item-lunch-3', name: 'GUINNESS HOT POT PIE', description: 'Slow cooked tender Guinness beef stew, served with peas, mash and a pastry top', price: 22, allergens: ['NFO', 'Gluten', 'Dairy'] },
+      { id: 'item-lunch-4', name: 'GRILLED CHICKEN WRAP', description: 'Grilled tortilla filled with grilled chicken, bacon, crispy lettuce, tomato, onion, avocado ranch and tomato relish', price: 22, allergens: ['Gluten', 'Dairy', 'Egg'] },
+      { id: 'item-lunch-5', name: 'OPEN STEAK SANDWICH W. FRIES', description: '125g sirloin on toasted bread w. lettuce, tomato, aioli & caramelized onion w. BBQ or sweet chilli sauce', price: 23, allergens: ['GFO', 'DFO', 'NF', 'Egg'] },
+      { id: 'item-lunch-6', name: 'EGGS BENE', description: 'Hash brown base, bacon, poached eggs, spinach w. mushroom & tomato, hollandaise', price: 24, allergens: ['GFO', 'NFO', 'Egg', 'Dairy'] },
+      { id: 'item-lunch-7', name: 'THE COASTERS BIG BREAKFAST', description: 'Kransky, streaky bacon, fried eggs, mushrooms, hashbrown, cherry tomatoes, garlic butter toasted sourdough, beetroot hummus & tomato relish', price: 28, allergens: ['GFO', 'DFO', 'NF', 'Egg'] }
+    ]
+  },
+,
+  {
+    id: 'menu-pizza',
+    name: 'Pizza',
+    category: 'Food',
+    items: [
+      { id: 'item-pizza-1', name: 'FLAT BREAD', description: 'w. garlic herb butter & oil, dash of mozzarella & parmesan OR sweet chilli, cream cheese & pesto (add $3)', price: 16, allergens: ['GFO', 'DFO', 'NFO', 'VO', 'VGO'] },
+      { id: 'item-pizza-2', name: 'PEPPERONI PIZZA', description: 'Pepperoni Pizza', price: 22, allergens: [] },
+      { id: 'item-pizza-3', name: 'HAWAIIAN PIZZA', description: 'Hawaiian Pizza', price: 22, allergens: [] },
+      { id: 'item-pizza-4', name: 'VEGGIE ATTACK', description: 'Tangy garlic tomato base, red onion, capsicum, corn, spinach, olives, mozzarella, sweet chilli swirl', price: 22, allergens: ['VO'] },
+      { id: 'item-pizza-5', name: 'MEATLOVERS PIZZA', description: 'Napoli sauce, mozzarella, pepperoni, kransky sausage, bacon, pork belly, BBQ swirl', price: 25, allergens: [] },
+      { id: 'item-pizza-6', name: 'CRANBERRY CHICKEN', description: 'Cream cheese base, smoked chicken, baby spinach, red onion, mozzarella, brie & cranberry sauce', price: 25, allergens: [] },
+      { id: 'item-pizza-7', name: 'THE BBQ GRAZIER', description: 'Beef, feta, caramelised onion, mushroom, mozzarella, BBQ swirl', price: 25, allergens: [] }
+    ]
+  },
+  {
+    id: 'menu-starters',
+    name: 'Starters & Bao',
+    category: 'Food',
+    items: [
+      { id: 'item-start-1', name: 'FRIES', description: 'w. house seasoning', price: 12, allergens: [] },
+      { id: 'item-start-2', name: 'MINI GARLIC LOAF', description: 'Trio of white, wholemeal & focaccia mini loaf w. garlic herb butter', price: 14, allergens: ['VO'] },
+      { id: 'item-start-3', name: 'JALAPENO BITES', description: 'Crispy crumb coated chunks w. aioli', price: 15, allergens: ['VO'] },
+      { id: 'item-start-4', name: 'WEDGES', description: 'w. house seasoning, sour cream. Add cheese and bacon $8', price: 16, allergens: [] },
+      { id: 'item-start-5', name: 'CRUMBED CAMEMBERT', description: 'Melted cheese in a crispy crumb w. plum sauce', price: 18, allergens: ['GFO', 'NFO', 'VO'] },
+      { id: 'item-start-6', name: 'PRAWN TWISTERS', description: 'Seasoned prawn in crisp wonton w. sweet chilli sauce & aioli', price: 18, allergens: [] },
+      { id: 'item-start-7', name: 'PORK BELLY BITES', description: 'Hoisin glazed pork belly bites', price: 20, allergens: [] },
+      { id: 'item-start-8', name: 'CHICKEN POPPERS', description: 'Tender thigh marinated in buttermilk until crispy w. sriracha aioli', price: 20, allergens: ['GFO'] },
+      { id: 'item-start-9', name: 'CHILLI GARLIC BUTTER PRAWNS', description: '6 juicy prawns, cooked in a garlic coriander butter', price: 22, allergens: ['NF', 'GF'] },
+      { id: 'item-start-10', name: "COASTER'S BASKET", description: 'Bowl of fries w. squid rings, fish bites, mini hotdogs, chicken nuggets', price: 22, allergens: [] },
+      { id: 'item-start-11', name: 'NACHOS', description: 'Mexican beef or vegetarian w. sour cream, cheese, jalapenos optional. Add guacamole for $3.', price: 25, allergens: ['GFO', 'VO'] },
+      { id: 'item-start-12', name: 'BAO BUNS', description: 'Two bao buns filled with sriracha mayo. Choose ONE: Crispy pork belly w. pickle / Crispy fried chicken / Crispy Cauliflower', price: 20, allergens: [] }
+    ]
+  },
+  {
+    id: 'menu-steaks',
+    name: 'Steaks & Sides',
+    category: 'Food',
+    items: [
+      { id: 'item-steak-1', name: 'RUMP (250g)', description: '250g rump w. slaw, fries & your choice of sauce', price: 28, allergens: ['GFO', 'DFO', 'NFO'] },
+      { id: 'item-steak-2', name: 'SIRLOIN (200g)', description: '200G sirloin steak w. 2 fried eggs, slaw, fries & your choice of sauce', price: 32, allergens: ['GFO', 'DFO', 'NFO'] },
+      { id: 'item-steak-3', name: "SURF 'N' TURF", description: '200g sirloin steak specially seasoned w. garlic, ginger & rosemary topped w. seasoned prawns served w. slaw & fries', price: 40, allergens: ['GFO', 'DFO', 'NFO'] },
+      { id: 'item-side-1', name: 'Roast root veggies / Mash / 2 eggs', description: 'Side', price: 7.5, allergens: [] },
+      { id: 'item-side-2', name: 'Greens / Mushrooms / Salad', description: 'Side', price: 8.5, allergens: [] },
+      { id: 'item-side-3', name: 'Slaw / Mushroom sauce / Garlic butter / Gravy / Sour cream', description: 'Side', price: 5, allergens: [] },
+      { id: 'item-side-4', name: 'Peppercorn sauce / Blue Cheese sauce', description: 'Side', price: 6, allergens: [] },
+      { id: 'item-side-5', name: 'Plum sauce / Sweet chilli sauce', description: 'Side', price: 2, allergens: [] }
+    ]
+  },
+  {
+    id: 'menu-mains-new',
+    name: 'Mains (New)',
+    category: 'Food',
+    items: [
+      { id: 'item-main-1', name: 'BANGERS & MASH', description: 'Two Cumberland pork sausages, house made mash, peas, gravy', price: 23, allergens: [] },
+      { id: 'item-main-2', name: 'CAULI-CRUNCH', description: 'Crispy cauliflower florets w. fresh yoghurt, pomegranate seeds', price: 24, allergens: [] },
+      { id: 'item-main-3', name: 'SEAFOOD CHOWDER', description: 'House made creamy chowder, toasted garlic butter bread', price: 25, allergens: ['NFO'] },
+      { id: 'item-main-4', name: 'ROAST OF THE DAY', description: "See 'Today's Menu' for the cut", price: 28, allergens: [] },
+      { id: 'item-main-5', name: 'COASTERS SIGNATURE PASTA', description: 'Creamy chicken, bacon & mushroom, parmesan', price: 26, allergens: ['VO', 'NFO'] },
+      { id: 'item-main-6', name: 'FISH & CHIPS', description: 'Battered fish w. fries, salad & tartare', price: 30, allergens: ['GFO', 'DFO', 'NFO'] },
+      { id: 'item-main-7', name: 'CHICKEN SCHNITZEL', description: 'Crispy golden crumb served w. fries & slaw. Add parmigiana option.', price: 30, allergens: ['GFO', 'DFO', 'NFO', 'VGO'] },
+      { id: 'item-main-8', name: 'CHICKEN TOSCANA', description: 'Grilled chicken in a creamy house sauce (sundried tomatoes, pesto, spinach) w. greens', price: 34, allergens: [] },
+      { id: 'item-main-9', name: "COASTER'S RIBS", description: 'Long fingered sticky pork ribs served w. fries & slaw', price: 30, allergens: ['GFO', 'DFO'] },
+      { id: 'item-main-10', name: 'PORK BELLY', description: 'Slow cooked crispy skin pork, seasonal veg, rich jus & apple puree', price: 34, allergens: [] },
+      { id: 'item-main-11', name: 'FISH OF THE DAY', description: "See 'Today's Menu' for the cut", price: 34, allergens: [] },
+      { id: 'item-main-12', name: "CHEF'S BEEF CHEEK", description: 'Tender slow braised beef cheek, potato mash & seasonal greens', price: 35, allergens: ['GFO'] }
+    ]
+  },
 ];
-export const INITIAL_FILES: any[] = [];
+export const INITIAL_FILES: any[] = [
+  { id: 'folder-menus', name: 'Menus', type: 'folder', parentId: null, lastModified: new Date() },
+  { id: 'file-menu-lunch', name: 'Lunch Menu.pdf', type: 'pdf', parentId: 'folder-menus', size: '1.2 MB', lastModified: new Date() },
+  { id: 'file-menu-dinner', name: 'Dinner & Starters Menu.pdf', type: 'pdf', parentId: 'folder-menus', size: '2.4 MB', lastModified: new Date() }
+];

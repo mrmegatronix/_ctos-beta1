@@ -301,6 +301,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                    <h3 className="text-lg font-bold text-white mb-1">Lost & Found</h3>
                    <p className="text-xs text-indigo-300">Register</p>
                </button>
+                              <button onClick={() => onNavigate('menus')} className="bg-orange-600/20 hover:bg-orange-600/30 p-6 rounded-2xl border border-orange-500/30 transition-all flex flex-col items-center justify-center text-center group">
+                   <FileText className="w-10 h-10 text-orange-400 mb-3 group-hover:scale-110 transition-transform" />
+                   <h3 className="text-lg font-bold text-white mb-1">Menus & Allergens</h3>
+                   <p className="text-xs text-orange-300">Digital Menus</p>
+               </button>
                <button onClick={() => onNavigate('documents')} className="bg-slate-700/50 hover:bg-slate-700 p-6 rounded-2xl border border-slate-600 transition-all flex flex-col items-center justify-center text-center group">
                    <BookOpen className="w-10 h-10 text-slate-400 mb-3 group-hover:scale-110 transition-transform" />
                    <h3 className="text-lg font-bold text-white mb-1">Documents</h3>
@@ -377,6 +382,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                <button onClick={() => onNavigate('maintenance')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
                    <AlertTriangle className="w-8 h-8 text-orange-400 mb-2" />
                    <h3 className="text-sm font-bold text-white">Maintenance</h3>
+               </button>
+                              <button onClick={() => onNavigate('menus')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
+                   <FileText className="w-8 h-8 text-orange-400 mb-2" />
+                   <h3 className="text-sm font-bold text-white">Menus</h3>
                </button>
                <button onClick={() => onNavigate('documents')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
                    <BookOpen className="w-8 h-8 text-slate-400 mb-2" />

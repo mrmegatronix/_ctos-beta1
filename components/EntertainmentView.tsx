@@ -27,6 +27,8 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events, onSave, o
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingEvent, setEditingEvent] = useState<EntertainmentEvent | null>(null);
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const [formData, setFormData] = useState<Partial<EntertainmentEvent>>({
     title: '',
@@ -131,6 +133,9 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events, onSave, o
           <p className="text-sm text-slate-400 mt-1">
             Manage live bands, resident DJs, weekly trivia, and headline venue events.
           </p>
+          <a href="https://docs.google.com/spreadsheets/" target="_blank" className="text-xs text-indigo-400 hover:underline mt-2 inline-block">
+            Edit Matrix Google Sheet
+          </a>
         </div>
 
         <button
@@ -140,6 +145,10 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events, onSave, o
           <Plus className="w-4 h-4" />
           <span>Add Entertainment Event</span>
         </button>
+        <div className="flex bg-slate-900 border border-slate-700 rounded-lg p-1">
+          <button onClick={() => setViewMode('calendar')} className={`px-3 py-1 text-xs font-bold rounded ${viewMode === 'calendar' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>Calendar</button>
+          <button onClick={() => setViewMode('list')} className={`px-3 py-1 text-xs font-bold rounded ${viewMode === 'list' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>List</button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -172,7 +181,40 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events, onSave, o
         </div>
       </div>
 
-      {/* Events Grid */}
+      
+      {viewMode === 'calendar' ? (
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex-1 flex flex-col min-h-[600px]">
+          <div className="flex justify-between items-center mb-4">
+             <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold">&lt; Prev</button>
+             <h3 className="text-xl font-bold text-white">{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
+             <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold">Next &gt;</button>
+          </div>
+          <div className="grid grid-cols-7 gap-2 flex-1">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d} className="text-center font-bold text-slate-400 py-2">{d}</div>)}
+            {Array.from({ length: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay() }).map((_, i) => <div key={`empty-${i}`} className="p-2 opacity-10"></div>)}
+            {Array.from({ length: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate() }).map((_, i) => {
+               const day = i + 1;
+               const dDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+               const dayEvents = filteredEvents.filter(e => {
+                  const evDate = e.date instanceof Date ? e.date : new Date(e.date);
+                  return evDate.getDate() === day && evDate.getMonth() === currentMonth.getMonth() && evDate.getFullYear() === currentMonth.getFullYear();
+               });
+               return (
+                  <div key={day} className="bg-slate-800/50 border border-slate-700/50 p-2 rounded-lg min-h-[100px] flex flex-col">
+                     <div className="text-right text-sm font-bold text-slate-500 mb-1">{day}</div>
+                     <div className="flex-1 space-y-1 overflow-y-auto">
+                        {dayEvents.map(e => (
+                           <div key={e.id} onClick={() => handleOpenEdit(e as any)} className="bg-purple-600 text-white text-[10px] p-1 rounded cursor-pointer truncate">
+                              {e.title}
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+               )
+            })}
+          </div>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {filteredEvents.map(event => {
           const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
@@ -260,6 +302,7 @@ const EntertainmentView: React.FC<EntertainmentViewProps> = ({ events, onSave, o
           </div>
         )}
       </div>
+      )}
 
       {/* Add / Edit Modal */}
       {isModalOpen && (

@@ -137,6 +137,26 @@ const TVScheduleView: React.FC<TVScheduleViewProps> = ({ schedule, onSave, onDel
         </div>
       </div>
 
+      
+      {/* Live Sky TV Channels Mockup */}
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-sm mb-6">
+        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+           <Radio className="w-5 h-5 mr-2 text-red-500 animate-pulse" />
+           Live Sky TV NZ Sports Channels (Real-Time)
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+           {['Sky Sport 1 (Rugby)', 'Sky Sport 2 (Cricket)', 'Sky Sport 3 (NRL)', 'Sky Sport 4 (Football)'].map((channel, idx) => (
+              <div key={idx} className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-sky-500 transition-colors flex flex-col items-center text-center group cursor-pointer">
+                 <div className="w-12 h-12 bg-sky-900/50 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Tv className="w-6 h-6 text-sky-400" />
+                 </div>
+                 <h4 className="font-bold text-slate-200 text-sm">{channel}</h4>
+                 <p className="text-[10px] text-emerald-400 font-bold uppercase mt-1">Live Now</p>
+              </div>
+           ))}
+        </div>
+      </div>
+
       {/* Filter Bar */}
       <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
