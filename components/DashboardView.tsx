@@ -22,7 +22,8 @@ import {
   Truck,
   Mail,
   Contact,
-  ClipboardList
+  ClipboardList,
+  FileText
 } from 'lucide-react';
 import WeatherWidget from './WeatherWidget';
 
