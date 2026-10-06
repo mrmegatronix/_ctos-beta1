@@ -110,13 +110,13 @@ export const INITIAL_SUPPLIERS: Supplier[] = [
   { id: 'sup-9', name: 'Landlord', contactPerson: '', email: '', phone: '', category: 'Tradies / Technicians', address: '' },
   { id: 'sup-10', name: 'Cleaner', contactPerson: '', email: '', phone: '', category: 'Tradies / Technicians', address: '' },
   
-  // Services / Prox
-  { id: 'sup-11', name: 'TAB (Local Rep)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
-  { id: 'sup-12', name: 'TAB (Help Desk)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
-  { id: 'sup-13', name: 'Pub Charity Trust (Local Rep)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
-  { id: 'sup-14', name: 'Pub Charity Trust (Office)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
-  { id: 'sup-15', name: 'GMD / IGT Machine Techs (Helpline)', contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
-  { id: 'sup-16', name: "Com's (Reel View - Help Centre)", contactPerson: '', email: '', phone: '', category: 'Services / Prox', address: '' },
+  // Services / Proxies
+  { id: 'sup-11', name: 'TAB (Local Rep)', contactPerson: '', email: '', phone: '', category: 'Services / Proxies', address: '' },
+  { id: 'sup-12', name: 'TAB (Help Desk)', contactPerson: '', email: '', phone: '', category: 'Services / Proxies', address: '' },
+  { id: 'sup-13', name: 'Pub Charity Trust (Local Rep)', contactPerson: '', email: '', phone: '', category: 'Services / Proxies', address: '' },
+  { id: 'sup-14', name: 'Pub Charity Trust (Office)', contactPerson: '', email: '', phone: '', category: 'Services / Proxies', address: '' },
+  { id: 'sup-15', name: 'GMD / IGT Machine Techs (Helpline)', contactPerson: '', email: '', phone: '', category: 'Services / Proxies', address: '' },
+  { id: 'sup-16', name: "Com's (Reel View - Help Centre)", contactPerson: '', email: '', phone: '', category: 'Services / Proxies', address: '' },
   
   // Neighbourhood
   { id: 'sup-17', name: 'Caltex Redwood', contactPerson: '', email: '', phone: '', category: 'Neighbourhood', address: '' },

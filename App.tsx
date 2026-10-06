@@ -98,7 +98,7 @@ const App: React.FC = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [stockItems, setStockItems] = useState<StockItem[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>(INITIAL_SUPPLIERS);
   const [maintenanceTasks, setMaintenanceTasks] = useState<MaintenanceTask[]>([]);
   const [entertainmentEvents, setEntertainmentEvents] = useState<EntertainmentEvent[]>([]);
   const [functionBookings, setFunctionBookings] = useState<FunctionBooking[]>([]);
@@ -309,7 +309,7 @@ const App: React.FC = () => {
         setLeaveRequests([]);
         setStockItems(INITIAL_STOCK);
         setBookings([]);
-        setSuppliers([]);
+        setSuppliers(INITIAL_SUPPLIERS);
         setMaintenanceTasks([]);
         setEntertainmentEvents([]);
         setFunctionBookings([]);
@@ -756,7 +756,11 @@ const App: React.FC = () => {
 
 
   // Determine dynamic container classes
-  const containerClasses = "flex h-screen print:h-auto flex-col transition-colors duration-300 relative overflow-hidden bg-gray-50 dark:bg-[#0B0F19] text-gray-900 dark:text-white";
+    // Determine dynamic container classes
+  let bgClass = "bg-gray-50 dark:bg-[#0B0F19]";
+  if (appMode === 'FOH') bgClass = "bg-slate-100 dark:bg-indigo-950/40";
+  if (appMode === 'BOH') bgClass = "bg-slate-100 dark:bg-emerald-950/30";
+  const containerClasses = `flex h-screen print:h-auto flex-col transition-colors duration-300 relative overflow-hidden ${bgClass} text-gray-900 dark:text-white`;
 
   return (
     <div className={`${containerClasses}`}>
@@ -943,26 +947,6 @@ const App: React.FC = () => {
                 <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-indigo-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Dashboard</span>
                 </button>
-                
-                {/* Financials & POS */}
-                <div className="mb-2">
-                    <button onClick={() => setOpenAccordion(openAccordion === "finance" ? null : "finance")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "finance" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                        <div className="flex items-center space-x-3">
-                            <DollarSign className="w-5 h-5" /><span>Financials & POS</span>
-                        </div>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "finance" ? "rotate-180" : ""}`} />
-                    </button>
-                    {openAccordion === "finance" && (
-                        <div className="pl-12 pr-4 py-2 space-y-1">
-                            {[{ id: "pos", label: "POS Terminal" }, { id: "finance", label: "Cashup & Recon" }, { id: "eodsales", label: "EOD Sales Entry" }, { id: "budgeting", label: "Budgeting" }].map(link => (
-                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
-                                    <span>{link.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
                 {/* Events & Bookings */}
                 <div className="mb-2">
                     <button onClick={() => setOpenAccordion(openAccordion === "events" ? null : "events")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "events" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>

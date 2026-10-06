@@ -39,15 +39,15 @@ export const StockInfoModal: React.FC<StockInfoModalProps> = ({ item, suppliers,
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-        <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm rounded-2xl w-full max-w-4xl p-6 shadow-xl animate-in zoom-in-95 duration-200 my-8">
-          <div className="flex justify-between items-start mb-6">
+        <div className="bg-slate-900 border-white/10 shadow-sm rounded-2xl w-full max-w-4xl p-6 shadow-xl animate-in zoom-in-95 duration-200 my-8 max-h-[90vh] flex flex-col">
+          <div className="flex justify-between items-start mb-6 shrink-0">
             <h3 className="text-xl font-bold text-slate-50">{item.id.startsWith('stk-') ? 'Add New Item' : 'Edit Stock Item'}</h3>
             <button onClick={onClose} className="text-gray-400 hover:text-slate-200">
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto pr-2 pb-4">
             {/* Left Column: Image and Basic Info */}
             <div className="space-y-4">
               <div className="w-full h-48 bg-slate-800 rounded-xl flex flex-col items-center justify-center overflow-hidden border border-slate-700 relative">
@@ -224,11 +224,20 @@ export const StockInfoModal: React.FC<StockInfoModalProps> = ({ item, suppliers,
                   >
                     <option value="">Not Applicable</option>
                     <option value="50000">50,000ml (50L Keg)</option>
-                    <option value="1000">1000ml (1L)</option>
-                    <option value="750">750ml</option>
-                    <option value="700">700ml</option>
+                    <option value="30000">30,000ml (30L Keg)</option>
+                    <option value="1000">1000ml (1L Jug)</option>
+                    <option value="750">750ml (Wine Bottle)</option>
+                    <option value="745">745ml (Quart Beer)</option>
+                    <option value="700">700ml (Spirits)</option>
+                    <option value="570">570ml (Pint)</option>
                     <option value="500">500ml</option>
-                    <option value="330">330ml</option>
+                    <option value="340">340ml (12oz Glass)</option>
+                    <option value="330">330ml (Bottle)</option>
+                    <option value="250">250ml (Large Wine)</option>
+                    <option value="200">200ml (7oz Glass)</option>
+                    <option value="150">150ml (Small Wine)</option>
+                    <option value="30">30ml (Double Measure)</option>
+                    <option value="15">15ml (Single Measure)</option>
                   </select>
                 </div>
               </div>

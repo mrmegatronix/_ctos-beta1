@@ -40,15 +40,8 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
     website: ''
   });
 
-  const categories = [
-    'All',
-    'Food & Produce',
-    'Beverage & Brewery',
-    'Equipment & Maintenance',
-    'Cleaning & Hygiene',
-    'POS & Tech',
-    'General'
-  ];
+    const allCategories = ['All', ...Array.from(new Set(suppliers.map(s => s.category)))].filter(Boolean);
+  const categories = allCategories.length > 1 ? allCategories : ['All', 'Suppliers', 'Tradies / Technicians', 'Services / Proxies', 'Neighbourhood'];
 
   const handleOpenAdd = () => {
     setEditingSupplier(null);
@@ -370,12 +363,10 @@ const SuppliersView: React.FC<SuppliersViewProps> = ({ suppliers, onSave, onDele
                     onChange={e => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-950 text-white border border-white/10 rounded-xl text-xs font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    <option value="Food & Produce">Food & Produce</option>
-                    <option value="Beverage & Brewery">Beverage & Brewery</option>
-                    <option value="Equipment & Maintenance">Equipment & Maintenance</option>
-                    <option value="Cleaning & Hygiene">Cleaning & Hygiene</option>
-                    <option value="POS & Tech">POS & Tech</option>
-                    <option value="General">General</option>
+                    {categories.filter(c => c !== 'All').map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                    <option value="Other">Other</option>
                   </select>
                 </div>
               </div>
