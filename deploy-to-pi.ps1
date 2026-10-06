@@ -18,8 +18,8 @@ function Invoke-Ssh {
     if ($env:SSHPASS) { sshpass -e ssh -o StrictHostKeyChecking=no @args } else { ssh -o StrictHostKeyChecking=no @args }
 }
 
-function Invoke-Scp {
-    if ($env:SSHPASS) { sshpass -e scp -o StrictHostKeyChecking=no @args } else { scp -o StrictHostKeyChecking=no @args }
+function Invoke-Rsync {
+    if ($env:SSHPASS) { sshpass -e rsync -avz --exclude="node_modules" -e "ssh -o StrictHostKeyChecking=no" @args } else { rsync -avz --exclude="node_modules" -e "ssh -o StrictHostKeyChecking=no" @args }
 }
 
 function Deploy-Target {
@@ -38,19 +38,20 @@ function Deploy-Target {
     $env:SSHPASS = $Password
 
     Write-Host "`n[1/4] Creating remote directory..." -ForegroundColor Yellow
-    Invoke-Ssh $HostStr "mkdir -p $Dir"
+    Invoke-Ssh $HostStr "mkdir -p $Dir/backend"
 
-    Write-Host "[2/4] Copying production build (dist/)..." -ForegroundColor Yellow
-    Invoke-Scp -r "$LOCAL_DIR/dist" "${HostStr}:${Dir}/"
+    Write-Host "[2/4] Syncing changed files via Rsync..." -ForegroundColor Yellow
+    # Sync dist folder
+    Invoke-Rsync "$LOCAL_DIR/dist/" "${HostStr}:${Dir}/dist/"
+    # Sync backend folder (excluding node_modules so it doesn't transfer 30k files)
+    Invoke-Rsync "$LOCAL_DIR/backend/" "${HostStr}:${Dir}/backend/"
+    # Sync root config files
+    Invoke-Rsync "$LOCAL_DIR/deploy-pi.sh" "$LOCAL_DIR/ctos.service" "$LOCAL_DIR/package.json" "$LOCAL_DIR/.env.local" "${HostStr}:${Dir}/"
 
-    Write-Host "[3/4] Copying deployment files..." -ForegroundColor Yellow
-    Invoke-Scp -r "$LOCAL_DIR/backend" "${HostStr}:${Dir}/"
-    Invoke-Scp "$LOCAL_DIR/deploy-pi.sh" "${HostStr}:${Dir}/"
-    Invoke-Scp "$LOCAL_DIR/ctos.service" "${HostStr}:${Dir}/"
-    Invoke-Scp "$LOCAL_DIR/package.json" "${HostStr}:${Dir}/"
-    Invoke-Scp "$LOCAL_DIR/.env.local" "${HostStr}:${Dir}/"
+    Write-Host "[3/4] Installing backend dependencies remotely..." -ForegroundColor Yellow
+    Invoke-Ssh $HostStr "cd $Dir/backend && npm install --omit=dev"
 
-    Write-Host "[4/4] Setting up and starting CTOS service..." -ForegroundColor Yellow
+    Write-Host "[4/4] Restarting CTOS service..." -ForegroundColor Yellow
     Invoke-Ssh $HostStr "echo `"$env:SSHPASS`" | sudo -S mv ${Dir}/ctos.service /etc/systemd/system/ && echo `"$env:SSHPASS`" | sudo -S systemctl daemon-reload && echo `"$env:SSHPASS`" | sudo -S systemctl enable ctos && echo `"$env:SSHPASS`" | sudo -S systemctl restart ctos"
 
     Write-Host "`n=========================================" -ForegroundColor Green
@@ -64,3 +65,4 @@ Deploy-Target -Name "Raspberry Pi" -HostStr "dietpi@192.168.1.97" -Dir "/home/di
 
 # Deploy to Netbook
 Deploy-Target -Name "Netbook" -HostStr "owner@192.168.1.230" -Dir "/home/owner/ctos-beta" -Password $NETBOOK_PASSWORD -IP "192.168.1.230"
+
