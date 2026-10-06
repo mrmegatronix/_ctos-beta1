@@ -19,7 +19,7 @@ function Invoke-Ssh {
 }
 
 function Invoke-Rsync {
-    if ($env:SSHPASS) { sshpass -e rsync -avz --exclude="node_modules" -e "ssh -o StrictHostKeyChecking=no" @args } else { rsync -avz --exclude="node_modules" -e "ssh -o StrictHostKeyChecking=no" @args }
+    if ($env:SSHPASS) { sshpass -e rsync -avzc --exclude="node_modules" -e "ssh -o StrictHostKeyChecking=no" @args } else { rsync -avzc --exclude="node_modules" -e "ssh -o StrictHostKeyChecking=no" @args }
 }
 
 function Deploy-Target {
