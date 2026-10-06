@@ -251,99 +251,148 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   if (mode === 'FOH') {
     return (
       <div className="flex-1 p-8 overflow-auto">
-         <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
-               <div>
-                 <h1 className="text-4xl font-bold text-white mb-2">Front of House</h1>
-                 <p className="text-slate-400">Select a terminal or module to begin service.</p>
-               </div>
-               <div className="flex items-center space-x-6">
-                   <div className="w-64">
-                       <WeatherWidget />
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center justify-between mb-8">
+             <div>
+                <h1 className="text-3xl font-bold text-white">Front of House</h1>
+                <p className="text-gray-500 dark:text-gray-400">Welcome to the floor.</p>
+             </div>
+             <div className="flex items-center space-x-6">
+                 <div className="w-64">
+                     <WeatherWidget />
+                 </div>
+                 <div className="text-sm font-medium text-gray-200 bg-slate-900/60 backdrop-blur-xl px-4 py-2 rounded-lg border border-white/10 shadow-lg">
+                     {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                 </div>
+             </div>
+          </div>
+
+          {/* KPI Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('bookings')}>
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><Utensils className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Bookings</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{todaysBookings.length}</div>
+             </div>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('tvschedule')}>
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 rounded-lg"><Tv className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Live Sports</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{todaysTv.length}</div>
+             </div>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('entertainment')}>
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-pink-50 dark:bg-pink-900/30 text-pink-600 rounded-lg"><Music className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Entertainment</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{eventsToday.length}</div>
+             </div>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg"><Users className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Staff on Shift</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{staffOnShift.length}</div>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+             <div className="lg:col-span-2 space-y-6">
+                {/* Bookings */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                   <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-bold text-white">Upcoming Bookings</h3>
+                      <button onClick={() => onNavigate('bookings')} className="text-sm text-emerald-400 hover:text-emerald-300">View All</button>
                    </div>
-                   <div className="text-slate-400 text-lg">{today.toLocaleDateString()}</div>
-               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-               <button onClick={() => onNavigate('pos')} className="bg-blue-600/20 hover:bg-blue-600/30 p-6 rounded-2xl border border-blue-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <Monitor className="w-10 h-10 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Point of Sale</h3>
-                   <p className="text-xs text-blue-300">Launch Till System</p>
-               </button>
-               <button onClick={() => onNavigate('bookings')} className="bg-emerald-600/20 hover:bg-emerald-600/30 p-6 rounded-2xl border border-emerald-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <Utensils className="w-10 h-10 text-emerald-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Bookings</h3>
-                   <p className="text-xs text-emerald-300">{todaysBookings.length} Today</p>
-               </button>
-               <button onClick={() => onNavigate('functions')} className="bg-amber-600/20 hover:bg-amber-600/30 p-6 rounded-2xl border border-amber-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <Users className="w-10 h-10 text-amber-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Functions</h3>
-                   <p className="text-xs text-amber-300">Events & Groups</p>
-               </button>
-               <button onClick={() => onNavigate('tvschedule')} className="bg-purple-600/20 hover:bg-purple-600/30 p-6 rounded-2xl border border-purple-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <Tv className="w-10 h-10 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Live Sports</h3>
-                   <p className="text-xs text-purple-300">{todaysTv.length} Games</p>
-               </button>
-               
-               <button onClick={() => onNavigate('entertainment')} className="bg-pink-600/20 hover:bg-pink-600/30 p-6 rounded-2xl border border-pink-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <Music className="w-10 h-10 text-pink-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Entertainment</h3>
-                   <p className="text-xs text-pink-300">Gig Guide</p>
-               </button>
-               <button onClick={() => onNavigate('incidents')} className="bg-red-600/20 hover:bg-red-600/30 p-6 rounded-2xl border border-red-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <ShieldAlert className="w-10 h-10 text-red-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Incidents</h3>
-                   <p className="text-xs text-red-300">Log Report</p>
-               </button>
-               <button onClick={() => onNavigate('lostfound')} className="bg-indigo-600/20 hover:bg-indigo-600/30 p-6 rounded-2xl border border-indigo-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <Umbrella className="w-10 h-10 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Lost & Found</h3>
-                   <p className="text-xs text-indigo-300">Register</p>
-               </button>
-                              <button onClick={() => onNavigate('menus')} className="bg-orange-600/20 hover:bg-orange-600/30 p-6 rounded-2xl border border-orange-500/30 transition-all flex flex-col items-center justify-center text-center group">
-                   <FileText className="w-10 h-10 text-orange-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Menus & Allergens</h3>
-                   <p className="text-xs text-orange-300">Digital Menus</p>
-               </button>
-               <button onClick={() => onNavigate('documents')} className="bg-slate-700/50 hover:bg-slate-700 p-6 rounded-2xl border border-slate-600 transition-all flex flex-col items-center justify-center text-center group">
-                   <BookOpen className="w-10 h-10 text-slate-400 mb-3 group-hover:scale-110 transition-transform" />
-                   <h3 className="text-lg font-bold text-white mb-1">Documents</h3>
-                   <p className="text-xs text-slate-400">Runsheets</p>
-               </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-               <div className="bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                   <h3 className="font-semibold text-white mb-4 flex items-center"><Utensils className="w-5 h-5 mr-2 text-emerald-500"/> Today's Bookings</h3>
                    {todaysBookings.length > 0 ? (
-                       <div className="space-y-3">
-                           {todaysBookings.map(b => (
-                               <div key={b.id} className="p-4 bg-slate-900/80 rounded-lg border border-slate-700 flex justify-between items-center">
-                                   <div><p className="font-bold text-white text-lg">{b.customerName}</p><p className="text-sm text-slate-400">{b.guests} Guests • {b.area}</p></div>
-                                   <div className="text-emerald-400 font-bold text-xl">{b.time}</div>
+                       <div className="space-y-4">
+                           {todaysBookings.map((booking: Booking) => (
+                               <div key={booking.id} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-white/5">
+                                   <div className="flex items-center space-x-4">
+                                       <div className="w-12 h-12 bg-slate-700/50 rounded-full flex items-center justify-center">
+                                           <Users className="w-6 h-6 text-slate-400" />
+                                       </div>
+                                       <div>
+                                           <p className="font-medium text-white">{booking.customerName}</p>
+                                           <p className="text-sm text-slate-400">{booking.partySize} guests • {booking.area || 'Main Floor'}</p>
+                                       </div>
+                                   </div>
+                                   <div className="text-right">
+                                       <p className="font-bold text-emerald-400">{booking.time}</p>
+                                       <p className="text-xs text-slate-500">{booking.status}</p>
+                                   </div>
                                </div>
                            ))}
                        </div>
-                   ) : <p className="text-slate-500 bg-slate-900/50 p-6 rounded-lg text-center">No bookings for today.</p>}
-               </div>
-               
-               <div className="bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                   <h3 className="font-semibold text-white mb-4 flex items-center"><Tv className="w-5 h-5 mr-2 text-purple-500"/> Live Sports</h3>
+                   ) : <p className="text-slate-500 text-center py-4">No bookings scheduled for today.</p>}
+                </div>
+                
+                {/* Notice Board */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                    <h3 className="text-lg font-bold text-white mb-4">Notice Board</h3>
+                    <div className="space-y-3">
+                          <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-500/20 flex justify-between items-center">
+                              <div className="flex-1">
+                                  <h4 className="text-white font-medium">Specials Menu Updated</h4>
+                                  <p className="text-sm text-slate-400 mt-1">Check the Menus module for today's lunch specials.</p>
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Notice</span>
+                          </div>
+                    </div>
+                </div>
+             </div>
+
+             <div className="space-y-6">
+                {/* Quick Actions */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                   <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
+                   <div className="grid grid-cols-2 gap-3">
+                       <button onClick={() => onNavigate('pos')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Monitor className="w-6 h-6 text-blue-400 mb-2" />
+                           <span className="text-sm font-medium text-white">POS</span>
+                       </button>
+                       <button onClick={() => onNavigate('menus')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <FileText className="w-6 h-6 text-orange-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Menus</span>
+                       </button>
+                       <button onClick={() => onNavigate('incidents')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <ShieldAlert className="w-6 h-6 text-red-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Incidents</span>
+                       </button>
+                       <button onClick={() => onNavigate('lostfound')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Umbrella className="w-6 h-6 text-indigo-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Lost Found</span>
+                       </button>
+                       <button onClick={() => onNavigate('transport')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center col-span-2">
+                           <Truck className="w-6 h-6 text-emerald-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Local Transport / Taxis</span>
+                       </button>
+                   </div>
+                </div>
+
+                {/* Live Sports */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                   <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-bold text-white">Live Sports</h3>
+                      <button onClick={() => onNavigate('tvschedule')} className="text-sm text-purple-400 hover:text-purple-300">View Guide</button>
+                   </div>
                    {todaysTv.length > 0 ? (
                        <div className="space-y-3">
-                           {todaysTv.map(tv => (
-                               <div key={tv.id} className="p-3 bg-slate-900/80 rounded-lg border border-slate-700 border-l-4 border-l-purple-500">
-                                   <p className="font-bold text-white">{tv.match}</p>
-                                   <p className="text-sm text-slate-400 mt-1">{tv.channel} • {formatTime(tv.startTime)}</p>
+                           {todaysTv.map((tv: TVScheduleItem) => (
+                               <div key={tv.id} className="p-3 bg-slate-800/50 rounded-lg border border-white/5">
+                                   <p className="font-bold text-white text-sm">{tv.match}</p>
+                                   <p className="text-xs text-purple-400 mt-1">{tv.channel} • {formatTime(tv.startTime)}</p>
                                </div>
                            ))}
                        </div>
-                   ) : <p className="text-slate-500 text-sm bg-slate-900/50 p-4 rounded-lg text-center">No games scheduled today.</p>}
-               </div>
-            </div>
-         </div>
+                   ) : <p className="text-slate-500 text-sm py-4 text-center">No games scheduled today.</p>}
+                </div>
+             </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -351,106 +400,147 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   // BOH Mode
   return (
     <div className="flex-1 p-8 overflow-auto">
-         <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-6 mb-8">
-               <h1 className="text-4xl font-bold text-white">Kitchen Dashboard</h1>
-               <div className="flex items-center space-x-6">
-                   <div className="w-64">
-                       <WeatherWidget />
-                   </div>
-                   <div className="text-slate-400 text-lg">{today.toLocaleDateString()}</div>
-               </div>
-            </div>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center justify-between mb-8">
+             <div>
+                <h1 className="text-3xl font-bold text-white">Kitchen Dashboard</h1>
+                <p className="text-gray-500 dark:text-gray-400">Back of House Operations</p>
+             </div>
+             <div className="flex items-center space-x-6">
+                 <div className="w-64">
+                     <WeatherWidget />
+                 </div>
+                 <div className="text-sm font-medium text-gray-200 bg-slate-900/60 backdrop-blur-xl px-4 py-2 rounded-lg border border-white/10 shadow-lg">
+                     {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                 </div>
+             </div>
+          </div>
 
-            {/* BOH Quick Actions Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-               <button onClick={() => onNavigate('recipes')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <BookOpen className="w-8 h-8 text-blue-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Recipes</h3>
-               </button>
-               <button onClick={() => onNavigate('stock')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <Boxes className="w-8 h-8 text-emerald-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Stock</h3>
-               </button>
-               <button onClick={() => onNavigate('stocktake')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <ClipboardList className="w-8 h-8 text-amber-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Stocktake</h3>
-               </button>
-               <button onClick={() => onNavigate('ordering')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <Truck className="w-8 h-8 text-indigo-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Ordering</h3>
-               </button>
-               <button onClick={() => onNavigate('maintenance')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <AlertTriangle className="w-8 h-8 text-orange-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Maintenance</h3>
-               </button>
-                              <button onClick={() => onNavigate('menus')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <FileText className="w-8 h-8 text-orange-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Menus</h3>
-               </button>
-               <button onClick={() => onNavigate('documents')} className="bg-slate-800 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 transition-colors flex flex-col items-center justify-center text-center">
-                   <BookOpen className="w-8 h-8 text-slate-400 mb-2" />
-                   <h3 className="text-sm font-bold text-white">Documents</h3>
-               </button>
-            </div>
+          {/* KPI Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-lg"><ClipboardList className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Prep</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{pendingTasks.length}</div>
+             </div>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('stock')}>
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 rounded-lg"><AlertTriangle className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Low Stock Alerts</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{lowStock.length}</div>
+             </div>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('bookings')}>
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><Utensils className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Bookings Today</span>
+                </div>
+                <div className="text-2xl font-bold text-white">{todaysBookings.length}</div>
+             </div>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('recipes')}>
+                <div className="flex items-center space-x-3 mb-2">
+                   <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg"><BookOpen className="w-5 h-5"/></div>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Recipes</span>
+                </div>
+                <div className="text-2xl font-bold text-white">24</div>
+             </div>
+          </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-               <div className="lg:col-span-2 space-y-6">
-                  {/* High priority tasks */}
-                  <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><ClipboardList className="w-6 h-6 mr-2 text-amber-500"/> Prep & Maintenance Tasks</h2>
-                      {pendingTasks.length > 0 ? (
-                         <div className="space-y-3">
-                             {pendingTasks.map(task => (
-                                 <div key={task.id} className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
-                                     <div className="flex-1">
-                                         <h4 className="text-white font-medium">{task.title}</h4>
-                                         <p className="text-sm text-slate-400 mt-1">{task.description}</p>
-                                     </div>
-                                     <span className={`text-xs px-2 py-1 rounded font-bold uppercase ml-4 ${task.priority === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                                         {task.priority}
-                                     </span>
-                                 </div>
-                             ))}
-                         </div>
-                      ) : (
-                          <div className="p-8 text-center text-slate-500 bg-slate-900 rounded-lg">All caught up!</div>
-                      )}
-                  </div>
-
-                  {/* Recipes to Prep */}
-                  <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                      <h2 className="text-xl font-bold text-white mb-4 flex items-center"><Utensils className="w-6 h-6 mr-2 text-blue-500"/> Kitchen Notices</h2>
-                      <div className="space-y-3">
-                          <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
-                              <div className="flex-1">
-                                  <h4 className="text-white font-medium">New Menu Items</h4>
-                                  <p className="text-sm text-slate-400 mt-1">Check the recipes module for the updated winter menu specs.</p>
-                              </div>
-                              <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Notice</span>
-                          </div>
-                      </div>
-                  </div>
-               </div>
-
-               <div className="space-y-6">
-                   {/* Low Stock Widget */}
-                   <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                       <h3 className="font-semibold text-white mb-4 flex items-center"><AlertTriangle className="w-5 h-5 mr-2 text-red-500"/> Low Stock Alerts</h3>
-                       {lowStock.length > 0 ? (
-                           <div className="space-y-3">
-                               {lowStock.slice(0,5).map(item => (
-                                   <div key={item.id} className="p-3 bg-slate-900/80 rounded-lg border border-red-500/20">
-                                       <p className="font-medium text-white text-sm">{item.name}</p>
-                                       <p className="text-xs text-red-400 font-bold mt-1">Only {item.quantity} {item.unit} left</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+             <div className="lg:col-span-2 space-y-6">
+                {/* High priority tasks */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-bold text-white">Prep & Maintenance Tasks</h2>
+                    </div>
+                    {pendingTasks.length > 0 ? (
+                       <div className="space-y-3">
+                           {pendingTasks.map((task: MaintenanceTask) => (
+                               <div key={task.id} className="p-4 bg-slate-800/50 rounded-lg border border-white/5 flex justify-between items-center">
+                                   <div className="flex-1">
+                                       <h4 className="text-white font-medium">{task.title}</h4>
+                                       <p className="text-sm text-slate-400 mt-1">{task.description}</p>
                                    </div>
-                               ))}
-                           </div>
-                       ) : <p className="text-slate-500 text-sm bg-slate-900/50 p-4 rounded-lg text-center">Stock levels good.</p>}
+                                   <span className={`text-xs px-2 py-1 rounded font-bold uppercase ml-4 ${task.priority === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                                       {task.priority}
+                                   </span>
+                               </div>
+                           ))}
+                       </div>
+                    ) : (
+                        <div className="p-8 text-center text-slate-500 bg-slate-800/30 rounded-lg border border-white/5">All caught up!</div>
+                    )}
+                </div>
+
+                {/* Kitchen Notices */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                    <h2 className="text-lg font-bold text-white mb-4">Kitchen Notices</h2>
+                    <div className="space-y-3">
+                        <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-500/20 flex justify-between items-center">
+                            <div className="flex-1">
+                                <h4 className="text-white font-medium">New Menu Items</h4>
+                                <p className="text-sm text-slate-400 mt-1">Check the recipes module for the updated winter menu specs.</p>
+                            </div>
+                            <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Notice</span>
+                        </div>
+                    </div>
+                </div>
+             </div>
+
+             <div className="space-y-6">
+                {/* Quick Actions */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                   <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
+                   <div className="grid grid-cols-2 gap-3">
+                       <button onClick={() => onNavigate('recipes')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <BookOpen className="w-6 h-6 text-blue-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Recipes</span>
+                       </button>
+                       <button onClick={() => onNavigate('stock')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Boxes className="w-6 h-6 text-emerald-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Stock</span>
+                       </button>
+                       <button onClick={() => onNavigate('stocktake')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <ClipboardList className="w-6 h-6 text-amber-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Stocktake</span>
+                       </button>
+                       <button onClick={() => onNavigate('ordering')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Truck className="w-6 h-6 text-indigo-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Ordering</span>
+                       </button>
+                       <button onClick={() => onNavigate('menus')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <FileText className="w-6 h-6 text-orange-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Menus</span>
+                       </button>
+                       <button onClick={() => onNavigate('documents')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <BookOpen className="w-6 h-6 text-slate-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Docs</span>
+                       </button>
                    </div>
-               </div>
-            </div>
-         </div>
+                </div>
+
+                {/* Low Stock Widget */}
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-white">Low Stock Alerts</h3>
+                        <button onClick={() => onNavigate('stock')} className="text-sm text-red-400 hover:text-red-300">View Inventory</button>
+                    </div>
+                    {lowStock.length > 0 ? (
+                        <div className="space-y-3">
+                            {lowStock.slice(0,5).map((item: StockItem) => (
+                                <div key={item.id} className="p-3 bg-slate-800/50 rounded-lg border border-red-500/20">
+                                    <p className="font-medium text-white text-sm">{item.name}</p>
+                                    <p className="text-xs text-red-400 font-bold mt-1">Only {item.quantity} {item.unit} left</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : <p className="text-slate-500 text-sm bg-slate-800/30 p-4 rounded-lg text-center border border-white/5">Stock levels good.</p>}
+                </div>
+             </div>
+          </div>
+        </div>
     </div>
   );
 };
