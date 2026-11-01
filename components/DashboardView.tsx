@@ -356,23 +356,19 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                        </button>
                        <button onClick={() => onNavigate('menus')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
                            <FileText className="w-6 h-6 text-orange-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Menus & PDFs</span>
-                       </button>
-                       <button onClick={() => onNavigate('compliance')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
-                           <ClipboardList className="w-6 h-6 text-emerald-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Checklists</span>
-                       </button>
-                       <button onClick={() => onNavigate('wastage')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
-                           <BookOpen className="w-6 h-6 text-amber-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Wastage / DM</span>
+                           <span className="text-sm font-medium text-white">Menus</span>
                        </button>
                        <button onClick={() => onNavigate('incidents')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
                            <ShieldAlert className="w-6 h-6 text-red-400 mb-2" />
                            <span className="text-sm font-medium text-white">Incidents</span>
                        </button>
-                       <button onClick={() => onNavigate('transport')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
-                           <Truck className="w-6 h-6 text-teal-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Taxis / Van</span>
+                       <button onClick={() => onNavigate('lostfound')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Umbrella className="w-6 h-6 text-indigo-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Lost Found</span>
+                       </button>
+                       <button onClick={() => onNavigate('transport')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center col-span-2">
+                           <Truck className="w-6 h-6 text-emerald-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Local Transport / Taxis</span>
                        </button>
                    </div>
                 </div>
@@ -422,12 +418,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('compliance')}>
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                 <div className="flex items-center space-x-3 mb-2">
                    <div className="p-2 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-lg"><ClipboardList className="w-5 h-5"/></div>
-                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">FCP Temps & Checklists</span>
+                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Prep</span>
                 </div>
-                <div className="text-2xl font-bold text-white">Active</div>
+                <div className="text-2xl font-bold text-white">{pendingTasks.length}</div>
              </div>
              <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('stock')}>
                 <div className="flex items-center space-x-3 mb-2">
@@ -498,21 +494,17 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                    <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
                    <div className="grid grid-cols-2 gap-3">
-                       <button onClick={() => onNavigate('compliance')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
-                           <ClipboardList className="w-6 h-6 text-emerald-400 mb-2" />
-                           <span className="text-sm font-medium text-white">FCP Temps</span>
-                       </button>
-                       <button onClick={() => onNavigate('wastage')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
-                           <FileText className="w-6 h-6 text-amber-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Wastage</span>
-                       </button>
                        <button onClick={() => onNavigate('recipes')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
                            <BookOpen className="w-6 h-6 text-blue-400 mb-2" />
                            <span className="text-sm font-medium text-white">Recipes</span>
                        </button>
                        <button onClick={() => onNavigate('stock')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
-                           <Boxes className="w-6 h-6 text-teal-400 mb-2" />
+                           <Boxes className="w-6 h-6 text-emerald-400 mb-2" />
                            <span className="text-sm font-medium text-white">Stock</span>
+                       </button>
+                       <button onClick={() => onNavigate('stocktake')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <ClipboardList className="w-6 h-6 text-amber-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Stocktake</span>
                        </button>
                        <button onClick={() => onNavigate('ordering')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
                            <Truck className="w-6 h-6 text-indigo-400 mb-2" />
@@ -520,7 +512,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                        </button>
                        <button onClick={() => onNavigate('menus')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
                            <FileText className="w-6 h-6 text-orange-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Menus & 86</span>
+                           <span className="text-sm font-medium text-white">Menus</span>
+                       </button>
+                       <button onClick={() => onNavigate('documents')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <BookOpen className="w-6 h-6 text-slate-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Docs</span>
                        </button>
                    </div>
                 </div>
