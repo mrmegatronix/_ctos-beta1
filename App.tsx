@@ -71,6 +71,8 @@ import { CTClockView } from './components/CTClockView';
 import StocktakeView from './components/StocktakeView';
 import OrderingView from './components/OrderingView';
 import BudgetingView from './components/BudgetingView';
+import ComplianceView from './components/ComplianceView';
+import WastageAndHandoverView from './components/WastageAndHandoverView';
 import { StocktakeSession, PurchaseOrder, TimePunch, BudgetTracker } from './types';
 import { INITIAL_STOCKTAKES, INITIAL_ORDERS, INITIAL_TIME_PUNCHES, INITIAL_BUDGETS } from './constants';
 
@@ -891,6 +893,12 @@ const App: React.FC = () => {
                 <button onClick={() => setCurrentModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <BookOpen className="w-5 h-5" /><span>Menus & Allergens</span>
                 </button>
+                <button onClick={() => setCurrentModule("compliance")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "compliance" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <ClipboardList className="w-5 h-5" /><span>Checklists & Temps</span>
+                </button>
+                <button onClick={() => setCurrentModule("wastage")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "wastage" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <FileText className="w-5 h-5" /><span>Wastage & DM Log</span>
+                </button>
                 <button onClick={() => setCurrentModule("tvschedule")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "tvschedule" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Tv className="w-5 h-5" /><span>TV Guide</span>
                 </button>
@@ -917,11 +925,17 @@ const App: React.FC = () => {
                 <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Kitchen Hub</span>
                 </button>
+                <button onClick={() => setCurrentModule("compliance")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "compliance" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <ClipboardList className="w-5 h-5" /><span>FCP Temps & Checklists</span>
+                </button>
                 <button onClick={() => setCurrentModule("recipes")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "recipes" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <BookOpen className="w-5 h-5" /><span>Recipes</span>
                 </button>
                 <button onClick={() => setCurrentModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <BookOpen className="w-5 h-5" /><span>Menus & Allergens</span>
+                </button>
+                <button onClick={() => setCurrentModule("wastage")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "wastage" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <FileText className="w-5 h-5" /><span>Wastage & Spoilage</span>
                 </button>
                 <button onClick={() => setCurrentModule("maintenance")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "maintenance" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Wrench className="w-5 h-5" /><span>Maintenance</span>
@@ -995,7 +1009,7 @@ const App: React.FC = () => {
                     </button>
                     {openAccordion === "inventory" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
-                            {[{ id: "stock", label: "Products & Stock" }, { id: "menus", label: "Menus & Allergens" }, { id: "ordering", label: "Purchase Orders" }, { id: "stocktake", label: "Stocktaking" }, { id: "suppliers", label: "Suppliers" }, { id: "recipes", label: "Recipes" }].map(link => (
+                            {[{ id: "stock", label: "Products & Stock" }, { id: "menus", label: "Menus & Allergens" }, { id: "wastage", label: "Wastage & Ullage" }, { id: "ordering", label: "Purchase Orders" }, { id: "stocktake", label: "Stocktaking" }, { id: "suppliers", label: "Suppliers" }, { id: "recipes", label: "Recipes" }].map(link => (
                                 <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
@@ -1033,7 +1047,26 @@ const App: React.FC = () => {
                     </button>
                     {openAccordion === "ops" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
-                            {[{ id: "tvschedule", label: "TV Guide" }, { id: "incidents", label: "Incident Log" }, { id: "maintenance", label: "Maintenance" }, { id: "lostfound", label: "Lost & Found" }, { id: "documents", label: "Documents" }, { id: "venueinfo", label: "Venue Info" }, { id: "transport", label: "Local Transport" }].map(link => (
+                            {[{ id: "compliance", label: "FCP Temps & Checklists" }, { id: "wastage", label: "Duty Manager Logbook" }, { id: "tvschedule", label: "TV Guide" }, { id: "incidents", label: "Incident Log" }, { id: "maintenance", label: "Maintenance" }, { id: "lostfound", label: "Lost & Found" }, { id: "documents", label: "Documents" }, { id: "venueinfo", label: "Venue Info" }, { id: "transport", label: "Local Transport" }].map(link => (
+                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                    <span>{link.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Financials & POS */}
+                <div className="mb-2">
+                    <button onClick={() => setOpenAccordion(openAccordion === "finance" ? null : "finance")} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${openAccordion === "finance" ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                        <div className="flex items-center space-x-3">
+                            <DollarSign className="w-5 h-5" /><span>Financials & POS</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${openAccordion === "finance" ? "rotate-180" : ""}`} />
+                    </button>
+                    {openAccordion === "finance" && (
+                        <div className="pl-12 pr-4 py-2 space-y-1">
+                            {[{ id: "pos", label: "POS Terminal" }, { id: "finance", label: "Cashup & Recon" }, { id: "eodsales", label: "EOD Sales Entry" }, { id: "budgeting", label: "Budgeting" }].map(link => (
                                 <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
@@ -1068,6 +1101,14 @@ const App: React.FC = () => {
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col overflow-hidden print:h-auto print:overflow-visible relative">
           
+          {currentModule === 'compliance' && (
+              <ComplianceView currentUser={currentUser} />
+          )}
+
+          {currentModule === 'wastage' && (
+              <WastageAndHandoverView stockItems={stockItems} currentUser={currentUser} />
+          )}
+
           {currentModule === 'category-hub' && currentCategoryHub && (
             <CategoryHubView 
                 title={currentCategoryHub.title}
