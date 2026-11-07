@@ -60,20 +60,30 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
   const handleCommit = () => {
     const sessionItems = items.map(item => {
       const actual = counts[item.id] !== undefined ? counts[item.id] : item.quantity;
+      const variance = actual - item.quantity;
+      const unitCost = item.cost || item.price || 0;
+      const varianceCost = variance * unitCost;
       return {
         stockId: item.id,
+        stockName: item.name,
+        unit: item.unit,
         expected: item.quantity,
         actual: actual,
-        variance: actual - item.quantity
+        variance: variance,
+        unitCost: unitCost,
+        varianceCost: varianceCost
       };
     });
+
+    const totalVarianceCost = sessionItems.reduce((sum, i) => sum + (i.varianceCost || 0), 0);
 
     const session: StocktakeSession = {
       id: generateId(),
       date: new Date(),
       staffId: currentUser.id,
       status: 'completed',
-      items: sessionItems
+      items: sessionItems,
+      totalVarianceCost
     };
 
     onCommit(session);
@@ -153,13 +163,16 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                   <th className="px-6 py-4 font-semibold">Location</th>
                   <th className="px-6 py-4 font-semibold text-center">System Qty</th>
                   <th className="px-6 py-4 font-semibold text-center w-32">Actual Count</th>
-                  <th className="px-6 py-4 font-semibold text-right">Variance</th>
+                  <th className="px-6 py-4 font-semibold text-right">Variance (Qty)</th>
+                  <th className="px-6 py-4 font-semibold text-right">Variance ($)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                 {filteredItems.map(item => {
                   const actual = counts[item.id] !== undefined ? counts[item.id] : (isActive ? '' : item.quantity);
                   const variance = isActive && counts[item.id] !== undefined ? counts[item.id] - item.quantity : 0;
+                  const unitCost = item.cost || item.price || 0;
+                  const varianceCost = variance * unitCost;
                   
                   return (
                     <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${item.isDemo ? 'demo-highlight' : ''}`}>
@@ -192,6 +205,15 @@ const StocktakeView: React.FC<StocktakeViewProps> = ({ items, currentUser, onCom
                           <span className={`inline-flex items-center space-x-1 font-bold ${variance === 0 ? 'text-green-500' : 'text-red-500'}`}>
                              {variance === 0 ? <CheckCircle className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                              <span>{variance > 0 ? '+' : ''}{variance}</span>
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {isActive && counts[item.id] !== undefined ? (
+                          <span className={`font-bold ${varianceCost >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                             {varianceCost >= 0 ? '+' : ''}${varianceCost.toFixed(2)}
                           </span>
                         ) : (
                           <span className="text-gray-400">-</span>

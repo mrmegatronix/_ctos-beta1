@@ -32,7 +32,8 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
     if (field === 'stockId') {
       const stock = stockItems.find(s => s.id === value);
       if (stock) {
-        items[index].unitPrice = stock.price;
+        items[index].unitPrice = stock.cost || stock.price || 0;
+        (items[index] as any).stockName = stock.name;
       }
     }
     
@@ -84,8 +85,9 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
         const orderQty = Math.max(1, Math.ceil(shortfall * 1.2));
         return {
           stockId: item.id,
+          stockName: item.name,
           quantity: orderQty,
-          unitPrice: item.price || 0
+          unitPrice: item.cost || item.price || 0
         };
       });
 
@@ -256,8 +258,12 @@ const OrderingView: React.FC<OrderingViewProps> = ({ orders, suppliers, stockIte
                              </button>
                              {order.status === 'sent' && (
                                  <button 
-                                     onClick={() => onSaveOrder({...order, status: 'received'})}
-                                     className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center justify-end w-full"
+                                     onClick={() => {
+                                       if (confirm(`Confirm receipt of PO from ${getSupplierName(order.supplierId)}? This will auto-increment stock and log an invoice to COGS.`)) {
+                                         onSaveOrder({...order, status: 'received', receivedDate: new Date()});
+                                       }
+                                     }}
+                                     className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center justify-end"
                                  >
                                      <CheckCircle className="w-4 h-4 mr-1" /> Mark Received
                                  </button>

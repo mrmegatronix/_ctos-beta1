@@ -3,15 +3,29 @@ import { firestore } from './firebase';
 import {
   collection, doc, getDocs, setDoc, deleteDoc, writeBatch, getDoc
 } from 'firebase/firestore';
-import { TeamMember, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, CalendarEvent, EntertainmentEvent, FunctionBooking, CashUpRecord, BrowserBookmark, IntegrationConfig, FileItem, LeaveRequest, Invoice, Recipe, IncidentReport, LostItem, TVScheduleItem, StocktakeSession, PurchaseOrder, TimePunch, BudgetTracker } from '../types';
-import { INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE, INITIAL_STOCKTAKES, INITIAL_ORDERS, INITIAL_TIME_PUNCHES, INITIAL_BUDGETS } from '../constants';
+import { 
+  TeamMember, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, 
+  CalendarEvent, EntertainmentEvent, FunctionBooking, CashUpRecord, BrowserBookmark, 
+  IntegrationConfig, FileItem, LeaveRequest, Invoice, Recipe, IncidentReport, 
+  LostItem, TVScheduleItem, StocktakeSession, PurchaseOrder, TimePunch, BudgetTracker,
+  TimesheetEntry, DetailedCashUpRecord, EODSalesData, WastageRecord, Menu
+} from '../types';
+import { 
+  INITIAL_EVENTS, INITIAL_SHIFTS, INITIAL_STOCK, INITIAL_BOOKINGS, INITIAL_SUPPLIERS, 
+  INITIAL_MAINTENANCE, INITIAL_ENTERTAINMENT, INITIAL_FUNCTIONS, INITIAL_FINANCE, 
+  TEAM_MEMBERS, INITIAL_FILES, INITIAL_LEAVE, INITIAL_INVOICES, INITIAL_RECIPES, 
+  INITIAL_INCIDENTS, INITIAL_LOST_FOUND, INITIAL_TV_SCHEDULE, INITIAL_STOCKTAKES, 
+  INITIAL_ORDERS, INITIAL_TIME_PUNCHES, INITIAL_BUDGETS, INITIAL_MENUS 
+} from '../constants';
 
-// This service uses Firebase Firestore as the backend database.
-// Each collection maps to a Firestore collection.
+// This service implements a Tri-Layer Dual-Write architecture:
+// 1. Local LAN API server on port 5000 (Raspberry Pi/Local machine)
+// 2. Non-destructive Firestore cloud sync
+// 3. High-speed zero-latency localStorage cache and offline queue
 
-const DB_VERSION = '2.5';
+const DB_VERSION = '2.6';
 
-// Firestore collection names
+// Collection identifiers across Firestore and LAN API
 const COLLECTIONS = {
   META: '_meta',
   STAFF: 'staff',
@@ -37,13 +51,18 @@ const COLLECTIONS = {
   ORDERS: 'orders',
   TIMEPUNCHES: 'timepunches',
   BUDGETS: 'budgets',
+  TIMESHEETS: 'timesheets',
+  DETAILED_CASHUPS: 'detailedCashups',
+  EOD_SALES: 'eodSales',
+  WASTAGE: 'wastage',
+  MENUS: 'menus',
 };
 
 // Helper: convert Firestore Timestamps or ISO strings back to Dates
 const reviveDates = (obj: any): any => {
   if (obj === null || obj === undefined) return obj;
   if (typeof obj === 'object' && obj.toDate && typeof obj.toDate === 'function') {
-    return obj.toDate(); // Firestore Timestamp → JS Date
+    return obj.toDate();
   }
   if (typeof obj === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(obj)) {
     return new Date(obj);
@@ -61,7 +80,7 @@ const reviveDates = (obj: any): any => {
   return obj;
 };
 
-// Helper: convert Dates to ISO strings for Firestore storage
+// Helper: convert Dates to ISO strings for storage
 const prepareDates = (obj: any): any => {
   if (obj === null || obj === undefined) return obj;
   if (obj instanceof Date) {
@@ -80,49 +99,77 @@ const prepareDates = (obj: any): any => {
   return obj;
 };
 
+// Determine active LAN API Base URL (Raspberry Pi or host IP)
+const getLanApiBase = (): string => {
+  if (typeof window === 'undefined') return 'http://192.168.1.97:5000';
+  const hostname = window.location.hostname;
+  if (!hostname || hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5000';
+  }
+  return `http://${hostname}:5000`;
+};
+
+// Fast timeout helper for LAN requests so UI never stalls if LAN server is unreachable
+const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeoutMs = 1500): Promise<Response> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, credentials: 'omit', signal: controller.signal });
+    clearTimeout(timer);
+    return response;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+};
+
 class DatabaseService {
   private _initialized = false;
 
   async init(): Promise<void> {
     if (this._initialized) return;
 
-    // Check version doc to decide if we need to seed
-    const metaRef = doc(firestore, COLLECTIONS.META, 'version');
-    const metaSnap = await getDoc(metaRef);
+    try {
+      const metaRef = doc(firestore, COLLECTIONS.META, 'version');
+      const metaSnap = await getDoc(metaRef);
 
-    if (!metaSnap.exists() || metaSnap.data()?.version !== DB_VERSION) {
-      console.log('[CTOS DB] Seeding Firestore with initial data...');
-      await this.seed();
-      await setDoc(metaRef, { version: DB_VERSION });
-      console.log('[CTOS DB] Seed complete.');
+      if (!metaSnap.exists() || metaSnap.data()?.version !== DB_VERSION) {
+        console.log('[CTOS DB] Seeding initial data non-destructively...');
+        await this.seed();
+        await setDoc(metaRef, { version: DB_VERSION }, { merge: true });
+        console.log('[CTOS DB] Seed complete.');
+      }
+    } catch (err) {
+      console.warn('[CTOS DB] Initialization check warning (using local):', err);
     }
 
     this._initialized = true;
   }
 
+  // Non-destructive seed: merges missing items without deleting user data
   private async seed(): Promise<void> {
-    // Batch writes in groups of 500 (Firestore limit)
     const seedCollection = async <T extends { id: string }>(
       collectionName: string,
       items: T[]
     ) => {
-      // Delete existing docs first
-      const existing = await getDocs(collection(firestore, collectionName));
-      if (!existing.empty) {
-        const delBatch = writeBatch(firestore);
-        existing.docs.forEach(d => delBatch.delete(d.ref));
-        await delBatch.commit();
-      }
+      try {
+        const existing = await getDocs(collection(firestore, collectionName));
+        const existingIds = new Set(existing.docs.map(d => d.id));
 
-      // Write in batches of 450 to stay under the 500 limit
-      for (let i = 0; i < items.length; i += 450) {
-        const batch = writeBatch(firestore);
-        const chunk = items.slice(i, i + 450);
-        chunk.forEach(item => {
-          const ref = doc(firestore, collectionName, item.id);
-          batch.set(ref, prepareDates({ ...item }));
-        });
-        await batch.commit();
+        const missingItems = items.filter(item => !existingIds.has(item.id));
+        if (missingItems.length === 0) return;
+
+        for (let i = 0; i < missingItems.length; i += 450) {
+          const batch = writeBatch(firestore);
+          const chunk = missingItems.slice(i, i + 450);
+          chunk.forEach(item => {
+            const ref = doc(firestore, collectionName, item.id);
+            batch.set(ref, prepareDates({ ...item }), { merge: true });
+          });
+          await batch.commit();
+        }
+      } catch (e) {
+        console.warn(`[CTOS DB] Cloud seed skipped for ${collectionName}:`, e);
       }
     };
 
@@ -146,13 +193,12 @@ class DatabaseService {
     await seedCollection(COLLECTIONS.ORDERS, INITIAL_ORDERS);
     await seedCollection(COLLECTIONS.TIMEPUNCHES, INITIAL_TIME_PUNCHES);
     await seedCollection(COLLECTIONS.BUDGETS, INITIAL_BUDGETS);
+    await seedCollection(COLLECTIONS.MENUS, INITIAL_MENUS);
 
-    // Seed leave (may be empty array)
     if (INITIAL_LEAVE.length > 0) {
       await seedCollection(COLLECTIONS.LEAVE, INITIAL_LEAVE);
     }
 
-    // Seed bookmarks (these don't follow the same pattern — use id field)
     const bookmarks = [
       { id: 'b1', title: 'Tevalis POS', url: 'https://www.tevalis.com/login', icon: 'monitor' },
       { id: 'b2', title: 'NowBookIt', url: 'https://admin.nowbookit.com', icon: 'calendar' },
@@ -160,15 +206,18 @@ class DatabaseService {
     ];
     await seedCollection(COLLECTIONS.BOOKMARKS, bookmarks);
 
-    // Seed integrations as a single doc
-    await setDoc(doc(firestore, COLLECTIONS.INTEGRATIONS, 'config'), {
-      tevalis: { connected: true, siteId: 'CT-001' },
-      nowBookIt: { connected: true, venueId: 'VN-992' },
-      google: { connected: true },
-    });
+    try {
+      await setDoc(doc(firestore, COLLECTIONS.INTEGRATIONS, 'config'), {
+        tevalis: { connected: true, siteId: 'CT-001' },
+        nowBookIt: { connected: true, venueId: 'VN-992' },
+        google: { connected: true },
+      }, { merge: true });
+    } catch (e) {
+      // ignore
+    }
   }
 
-  // --- Generic helpers with offline localStorage fallback ---
+  // --- Local & Remote Sync Helpers ---
 
   private getLocalKey(collectionName: string): string {
     return `ctos_db_${collectionName}`;
@@ -194,6 +243,23 @@ class DatabaseService {
   }
 
   private async loadCollection<T extends { id: string }>(collectionName: string): Promise<T[]> {
+    // 1. Try Local LAN API first (Fast LAN Sync)
+    try {
+      const lanUrl = `${getLanApiBase()}/api/db/${collectionName}`;
+      const res = await fetchWithTimeout(lanUrl, { method: 'GET' }, 1200);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const items = reviveDates(json.data) as T[];
+          this.saveLocal(collectionName, items);
+          return items;
+        }
+      }
+    } catch (lanErr) {
+      // LAN offline or unreachable, fall through to cloud
+    }
+
+    // 2. Try Firestore Cloud
     try {
       const snap = await getDocs(collection(firestore, collectionName));
       if (!snap.empty) {
@@ -202,8 +268,10 @@ class DatabaseService {
         return items;
       }
     } catch (err) {
-      console.warn(`[CTOS DB] Firestore read failed for ${collectionName}, falling back to local storage:`, err);
+      console.warn(`[CTOS DB] Firestore read failed for ${collectionName}, falling back to local:`, err);
     }
+
+    // 3. Fallback to localStorage
     return this.loadLocal<T>(collectionName);
   }
 
@@ -211,7 +279,7 @@ class DatabaseService {
     collectionName: string,
     item: T
   ): Promise<void> {
-    // Update local immediately
+    // 1. Immediate local write (zero UI latency)
     const current = this.loadLocal<T>(collectionName);
     const index = current.findIndex(i => i.id === item.id);
     if (index >= 0) {
@@ -221,22 +289,34 @@ class DatabaseService {
     }
     this.saveLocal(collectionName, current);
 
-    // Try persisting to Firestore
+    // 2. Asynchronous LAN API Push
+    fetchWithTimeout(`${getLanApiBase()}/api/db/${collectionName}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prepareDates(item))
+    }, 2000).catch(() => {});
+
+    // 3. Asynchronous Firestore Push
     try {
       const ref = doc(firestore, collectionName, item.id);
-      await setDoc(ref, prepareDates({ ...item }));
+      await setDoc(ref, prepareDates({ ...item }), { merge: true });
     } catch (err) {
       console.warn(`[CTOS DB] Firestore upsert failed for ${collectionName}/${item.id}:`, err);
     }
   }
 
   private async removeDoc(collectionName: string, id: string): Promise<void> {
-    // Remove from local immediately
+    // 1. Immediate local deletion
     const current = this.loadLocal<{ id: string }>(collectionName);
     const filtered = current.filter(i => i.id !== id);
     this.saveLocal(collectionName, filtered);
 
-    // Try deleting from Firestore
+    // 2. LAN API Delete
+    fetchWithTimeout(`${getLanApiBase()}/api/db/${collectionName}/${id}`, {
+      method: 'DELETE'
+    }, 2000).catch(() => {});
+
+    // 3. Firestore Delete
     try {
       await deleteDoc(doc(firestore, collectionName, id));
     } catch (err) {
@@ -586,6 +666,61 @@ class DatabaseService {
   }
   async deleteRecipe(id: string): Promise<void> {
     await this.removeDoc(COLLECTIONS.RECIPES, id);
+  }
+
+  // --- Timesheets (Timeclock & Labour) ---
+  async getTimesheets(): Promise<TimesheetEntry[]> {
+    return this.loadCollection<TimesheetEntry>(COLLECTIONS.TIMESHEETS);
+  }
+  async saveTimesheet(entry: TimesheetEntry): Promise<void> {
+    await this.upsert(COLLECTIONS.TIMESHEETS, entry);
+  }
+  async saveTimesheets(entries: TimesheetEntry[]): Promise<void> {
+    for (const entry of entries) {
+      await this.upsert(COLLECTIONS.TIMESHEETS, entry);
+    }
+  }
+  async deleteTimesheet(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.TIMESHEETS, id);
+  }
+
+  // --- Detailed Cashup & Reconciliation ---
+  async getDetailedCashups(): Promise<DetailedCashUpRecord[]> {
+    return this.loadCollection<DetailedCashUpRecord>(COLLECTIONS.DETAILED_CASHUPS);
+  }
+  async saveDetailedCashup(record: DetailedCashUpRecord): Promise<void> {
+    await this.upsert(COLLECTIONS.DETAILED_CASHUPS, record);
+  }
+
+  // --- EOD Sales & POS Ingestion ---
+  async getEODSales(): Promise<EODSalesData[]> {
+    return this.loadCollection<EODSalesData>(COLLECTIONS.EOD_SALES);
+  }
+  async saveEODSale(sale: EODSalesData): Promise<void> {
+    await this.upsert(COLLECTIONS.EOD_SALES, sale);
+  }
+
+  // --- Wastage & Shrinkage ---
+  async getWastage(): Promise<WastageRecord[]> {
+    return this.loadCollection<WastageRecord>(COLLECTIONS.WASTAGE);
+  }
+  async saveWastage(record: WastageRecord): Promise<void> {
+    await this.upsert(COLLECTIONS.WASTAGE, record);
+  }
+  async deleteWastage(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.WASTAGE, id);
+  }
+
+  // --- Menus & Pricing ---
+  async getMenus(): Promise<Menu[]> {
+    const menus = await this.loadCollection<Menu>(COLLECTIONS.MENUS);
+    return menus.length > 0 ? menus : (INITIAL_MENUS as Menu[]);
+  }
+  async saveMenu(menu: Menu): Promise<void> {
+    await this.upsert(COLLECTIONS.MENUS, menu);
+  }
+  async deleteMenu(id: string): Promise<void> {
+    await this.removeDoc(COLLECTIONS.MENUS, id);
   }
 }
 

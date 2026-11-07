@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Recipe } from '../types';
+import { Recipe, StockItem, RecipeIngredient } from '../types';
 import { generateId } from '../utils';
 import { 
   Search, ChefHat, Martini, Coffee, Info, X, Plus, Trash2, Edit3, 
-  Clock, AlertCircle, Sparkles, Check, Image as ImageIcon, Utensils
+  Clock, AlertCircle, Sparkles, Check, Image as ImageIcon, Utensils,
+  DollarSign, Percent, TrendingUp
 } from 'lucide-react';
 
 interface RecipesViewProps {
   recipes: Recipe[];
+  stockItems?: StockItem[];
   onSave: (item: Recipe) => void;
   onDelete?: (id: string) => void;
 }
@@ -17,7 +19,7 @@ const ALLERGEN_OPTIONS = [
   'Shellfish', 'Fish', 'Soy', 'Sesame', 'Sulfites', 'Mustard', 'Celery'
 ];
 
-const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) => {
+const RecipesView: React.FC<RecipesViewProps> = ({ recipes, stockItems = [], onSave, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -29,13 +31,20 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
     name: '',
     category: 'Cocktail',
     ingredients: [],
+    recipeIngredients: [],
     method: '',
     allergens: [],
     glassware: '',
     garnish: '',
-    image: ''
+    image: '',
+    cost: 0,
+    sellPrice: 0,
+    targetGpPercent: 70
   });
   const [ingredientInput, setIngredientInput] = useState('');
+  const [selectedStockId, setSelectedStockId] = useState('');
+  const [stockMeasure, setStockMeasure] = useState<number>(30);
+  const [stockMeasureUnit, setStockMeasureUnit] = useState<'ml' | 'grams' | 'items'>('ml');
 
   const openCreateModal = () => {
     setEditingRecipe(null);
@@ -43,13 +52,18 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
       name: '',
       category: 'Cocktail',
       ingredients: [],
+      recipeIngredients: [],
       method: '',
       allergens: [],
       glassware: '',
       garnish: '',
-      image: ''
+      image: '',
+      cost: 0,
+      sellPrice: 0,
+      targetGpPercent: 70
     });
     setIngredientInput('');
+    setSelectedStockId('');
     setIsModalOpen(true);
   };
 
@@ -57,12 +71,59 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
     setEditingRecipe(recipe);
     setFormData({
       ...recipe,
-      allergens: recipe.allergens || [],
-      ingredients: recipe.ingredients || []
+      recipeIngredients: recipe.recipeIngredients || [],
+      cost: recipe.cost || 0,
+      sellPrice: recipe.sellPrice || 0,
+      targetGpPercent: recipe.targetGpPercent || 70,
+      allergens: recipe.allergens || []
     });
     setIngredientInput('');
+    setSelectedStockId('');
     setIsModalOpen(true);
-    setSelectedRecipe(null);
+  };
+
+  const handleAddStockIngredient = () => {
+    if (!selectedStockId) return;
+    const stock = stockItems.find(s => s.id === selectedStockId);
+    if (!stock) return;
+
+    const baseMeasure = stockMeasureUnit === 'ml' 
+      ? (stock.volumeMl || 1000) 
+      : (stock.weightGrams || 1000);
+    const wholesaleCost = stock.cost || stock.price || 0;
+    const portionCost = parseFloat(((stockMeasure / baseMeasure) * wholesaleCost).toFixed(2));
+
+    const newIng: RecipeIngredient = {
+      stockItemId: stock.id,
+      stockName: stock.name,
+      quantity: stockMeasure,
+      unit: stockMeasureUnit,
+      cost: portionCost
+    };
+
+    const currentIngs = formData.recipeIngredients || [];
+    const updated = [...currentIngs, newIng];
+    const totalCost = updated.reduce((sum, item) => sum + (item.cost || 0), 0);
+    const textDesc = `${stockMeasure}${stockMeasureUnit} ${stock.name} ($${portionCost.toFixed(2)})`;
+
+    setFormData({
+      ...formData,
+      recipeIngredients: updated,
+      cost: parseFloat(totalCost.toFixed(2)),
+      ingredients: [...(formData.ingredients || []), textDesc]
+    });
+    setSelectedStockId('');
+  };
+
+  const handleRemoveStockIngredient = (idx: number) => {
+    const updated = [...(formData.recipeIngredients || [])];
+    updated.splice(idx, 1);
+    const totalCost = updated.reduce((sum, item) => sum + (item.cost || 0), 0);
+    setFormData({
+      ...formData,
+      recipeIngredients: updated,
+      cost: parseFloat(totalCost.toFixed(2))
+    });
   };
 
   const handleAddIngredient = () => {
@@ -93,16 +154,28 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
     e.preventDefault();
     if (!formData.name?.trim() || !formData.method?.trim()) return;
 
+    const dishCost = formData.cost || (formData.recipeIngredients || []).reduce((sum, i) => sum + (i.cost || 0), 0);
+    const sellPrice = formData.sellPrice || 0;
+    const targetGp = formData.targetGpPercent || 70;
+    const actualGp = (sellPrice > 0 && dishCost > 0) 
+      ? parseFloat(((((sellPrice / 1.15) - dishCost) / (sellPrice / 1.15)) * 100).toFixed(1))
+      : undefined;
+
     const finalRecipe: Recipe = {
       id: editingRecipe?.id || `rec-${generateId()}`,
       name: formData.name.trim(),
       category: formData.category || 'Cocktail',
       ingredients: formData.ingredients && formData.ingredients.length > 0 ? formData.ingredients : ['Standard prep specs'],
+      recipeIngredients: formData.recipeIngredients || [],
       method: formData.method.trim(),
       allergens: formData.allergens || [],
       glassware: formData.glassware?.trim() || undefined,
       garnish: formData.garnish?.trim() || undefined,
-      image: formData.image?.trim() || undefined
+      image: formData.image?.trim() || undefined,
+      cost: dishCost,
+      sellPrice: sellPrice > 0 ? sellPrice : undefined,
+      targetGpPercent: targetGp,
+      actualGpPercent: actualGp
     };
 
     onSave(finalRecipe);
@@ -267,6 +340,19 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                 <div className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                   {recipe.ingredients.slice(0, 3).join(', ')}
                   {recipe.ingredients.length > 3 ? ` + ${recipe.ingredients.length - 3} more` : ''}
+                </div>
+
+                <div className="flex items-center justify-between text-xs mt-3 pt-2 border-t border-white/5">
+                  <span className="font-semibold text-emerald-400">
+                    Cost: ${recipe.cost ? recipe.cost.toFixed(2) : '0.00'}
+                  </span>
+                  {recipe.sellPrice && recipe.sellPrice > 0 ? (
+                    <span className="font-semibold text-blue-400">
+                      Sell: ${recipe.sellPrice.toFixed(2)} ({recipe.cost ? ((((recipe.sellPrice / 1.15) - recipe.cost) / (recipe.sellPrice / 1.15)) * 100).toFixed(0) : 0}% GP)
+                    </span>
+                  ) : (
+                    <span className="text-slate-500 text-[11px]">Uncosted</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -478,6 +564,99 @@ const RecipesView: React.FC<RecipesViewProps> = ({ recipes, onSave, onDelete }) 
                     onChange={e => setFormData({ ...formData, garnish: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-slate-950 text-white border border-white/10 rounded-xl text-sm font-semibold text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
+                </div>
+              </div>
+
+              {/* Stock Inventory Costing & Portion Linking */}
+              <div className="p-4 bg-slate-950/80 rounded-2xl border border-white/10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1.5" /> Stock Item Portion Costing (LoadedHub Integration)
+                  </span>
+                  <span className="text-xs font-bold text-slate-300">
+                    Calculated Dish Cost: <span className="text-emerald-400 font-black text-sm">${(formData.cost || 0).toFixed(2)}</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  <div className="md:col-span-2">
+                    <select
+                      value={selectedStockId}
+                      onChange={e => setSelectedStockId(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-900 text-white border border-white/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="">Select Inventory Stock Item...</option>
+                      {stockItems.map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.volumeMl ? `${s.volumeMl}ml` : s.weightGrams ? `${s.weightGrams}g` : s.unit}) - Cost: ${((s.cost || s.price || 0)).toFixed(2)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="Measure (e.g. 30)"
+                      value={stockMeasure}
+                      onChange={e => setStockMeasure(parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 bg-slate-900 text-white border border-white/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <select
+                      value={stockMeasureUnit}
+                      onChange={e => setStockMeasureUnit(e.target.value as any)}
+                      className="w-20 px-2 py-2 bg-slate-900 text-white border border-white/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="ml">ml</option>
+                      <option value="grams">g</option>
+                      <option value="items">pcs</option>
+                    </select>
+                    <button
+                      type="button"
+                      disabled={!selectedStockId}
+                      onClick={handleAddStockIngredient}
+                      className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Pricing & GP% Target Matrix */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-white/10">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Target GP %</label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="99"
+                        value={formData.targetGpPercent || 70}
+                        onChange={e => setFormData({ ...formData, targetGpPercent: parseFloat(e.target.value) || 70 })}
+                        className="w-full px-3 py-2 bg-slate-900 text-white border border-white/10 rounded-xl text-xs outline-none"
+                      />
+                      <span className="text-xs text-slate-400">%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Recommended Sell (Incl GST)</label>
+                    <div className="text-sm font-black text-indigo-400 py-2">
+                      ${(formData.cost && formData.cost > 0 ? (formData.cost / (1 - (formData.targetGpPercent || 70) / 100)) * 1.15 : 0).toFixed(2)}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Actual Sell Price ($)</label>
+                    <input
+                      type="number"
+                      step="0.10"
+                      placeholder="Retail Price"
+                      value={formData.sellPrice || ''}
+                      onChange={e => setFormData({ ...formData, sellPrice: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 bg-slate-900 text-white border border-white/10 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
                 </div>
               </div>
 

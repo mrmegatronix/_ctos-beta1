@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Check, Save } from 'lucide-react';
-import { DetailedCashUpRecord, Denominations, DenominationCounts, TillReconciliation, SafeCounts } from '../types';
+import { DetailedCashUpRecord, Denominations, DenominationCounts, TillReconciliation, SafeCounts, CashUpRecord, BudgetTracker } from '../types';
+import { db } from '../services/database';
+import { generateId } from '../utils';
 
 const INITIAL_DENOMINATIONS: DenominationCounts = {
   '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '2': 0, '1': 0, '0.5': 0, '0.2': 0, '0.1': 0
@@ -229,6 +231,62 @@ const CashUpView: React.FC = () => {
     );
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const recordId = record.id || `cashup-${record.date}`;
+      const toSave = { ...record, id: recordId };
+      await db.saveDetailedCashup(toSave);
+
+      // Compute takings per department
+      const fb1Takings = Math.max(0, calculateTillTotal(record.tills.fb1.counts.close) - (calculateTillTotal(record.tills.fb1.counts.open) || record.tills.fb1.expectedFloat));
+      const fb2Takings = Math.max(0, calculateTillTotal(record.tills.fb2.counts.close) - (calculateTillTotal(record.tills.fb2.counts.open) || record.tills.fb2.expectedFloat));
+      const fb3Takings = Math.max(0, calculateTillTotal(record.tills.fb3.counts.close) - (calculateTillTotal(record.tills.fb3.counts.open) || record.tills.fb3.expectedFloat));
+      const fbTotal = fb1Takings + fb2Takings + fb3Takings;
+
+      const gamingTakings = Math.max(0, calculateTillTotal(record.tills.gaming.counts.close) - (calculateTillTotal(record.tills.gaming.counts.open) || record.tills.gaming.expectedFloat));
+      const tabTakings = Math.max(0, calculateTillTotal(record.tills.tab.counts.close) - (calculateTillTotal(record.tills.tab.counts.open) || record.tills.tab.expectedFloat));
+      const totalRevenue = fbTotal + gamingTakings + tabTakings;
+
+      // Auto-post to Finance CashUpRecord
+      const financeRecord: CashUpRecord = {
+        id: `cashup-${record.date}`,
+        date: new Date(record.date),
+        staffId: 'admin',
+        expectedCash: totalRevenue,
+        actualCash: totalRevenue,
+        variance: 0,
+        breakdown: {
+          fb: fbTotal,
+          gaming: gamingTakings,
+          tab: tabTakings
+        },
+        status: 'Approved'
+      };
+      await db.saveFinance(financeRecord);
+
+      // Auto-update BudgetTracker actual revenue for period
+      const period = record.date.substring(0, 7);
+      const budgets = await db.getBudgets();
+      const currentBudget = budgets.find(b => b.period === period);
+      if (currentBudget) {
+        await db.saveBudget({
+          ...currentBudget,
+          actualRevenue: (currentBudget.actualRevenue || 0) + totalRevenue
+        });
+      }
+
+      alert(`Cashup reconciled successfully!\nActual Revenue: $${totalRevenue.toFixed(2)} posted to Finance and Budgeting.`);
+    } catch (e: any) {
+      console.error("Save cashup failed:", e);
+      alert(`Failed to save cashup: ${e.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -239,8 +297,12 @@ const CashUpView: React.FC = () => {
                <span className="text-slate-400">Date:</span>
                <input type="date" className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm border border-white/10 rounded-lg px-4 py-2 text-slate-50 outline-none" 
                       value={record.date} onChange={e => setRecord({...record, date: e.target.value})} />
-               <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-all flex items-center">
-                   <Save className="w-4 h-4 mr-2" /> Save Draft
+               <button 
+                  onClick={handleSave} 
+                  disabled={isSaving}
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 disabled:opacity-50 shadow-lg shadow-indigo-500/20 transition-all flex items-center"
+               >
+                   <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Reconciling...' : 'Save & Reconcile'}
                </button>
            </div>
        </div>

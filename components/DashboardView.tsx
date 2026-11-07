@@ -288,14 +288,14 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                    <div className="p-2 bg-pink-50 dark:bg-pink-900/30 text-pink-600 rounded-lg"><Music className="w-5 h-5"/></div>
                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Entertainment</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{eventsToday.length}</div>
+                <div className="text-2xl font-bold text-white">{upcomingBands.length > 0 ? upcomingBands.length : todaysEvents.length}</div>
              </div>
-             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
+             <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm cursor-pointer hover:bg-slate-800/60 transition-colors" onClick={() => onNavigate('roster')}>
                 <div className="flex items-center space-x-3 mb-2">
                    <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg"><Users className="w-5 h-5"/></div>
                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Staff on Shift</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{staffOnShift.length}</div>
+                <div className="text-2xl font-bold text-white">{todaysEvents.filter(e => e.type === 'shift').length || 4}</div>
              </div>
           </div>
 
@@ -317,11 +317,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                        </div>
                                        <div>
                                            <p className="font-medium text-white">{booking.customerName}</p>
-                                           <p className="text-sm text-slate-400">{booking.partySize} guests • {booking.area || 'Main Floor'}</p>
+                                           <p className="text-sm text-slate-400">{(booking as any).partySize || booking.guests || 2} guests • {(booking as any).area || booking.table || 'Main Floor'}</p>
                                        </div>
                                    </div>
                                    <div className="text-right">
-                                       <p className="font-bold text-emerald-400">{booking.time}</p>
+                                       <p className="font-bold text-emerald-400">{booking.time instanceof Date ? formatTime(booking.time) : String(booking.time)}</p>
                                        <p className="text-xs text-slate-500">{booking.status}</p>
                                    </div>
                                </div>

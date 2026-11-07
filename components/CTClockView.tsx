@@ -191,11 +191,37 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const inTime = new Date(active.clockInTime);
-    const diffHours = ((now.getTime() - inTime.getTime()) / (1000 * 60 * 60)).toFixed(2);
+    const rawHours = (now.getTime() - inTime.getTime()) / (1000 * 60 * 60);
+    // Hospitality break rule: shifts >= 5 hours auto-deduct 30m unpaid break
+    const unpaidBreakMinutes = rawHours >= 5 ? 30 : 0;
+    const paidHours = Math.max(0, rawHours - (unpaidBreakMinutes / 60));
+    const hourlyRate = selectedStaff.hourlyRate || 25.00;
+    const totalWage = paidHours * hourlyRate;
+    const diffHours = rawHours.toFixed(2);
 
     const updatedActive = { ...activeShifts };
     delete updatedActive[selectedStaff.id];
     persistActiveShifts(updatedActive);
+
+    const timesheetEntry: TimesheetEntry = {
+      id: `ts-${Date.now()}-${selectedStaff.id}`,
+      staffId: selectedStaff.id,
+      employeeId: selectedStaff.pinCode || selectedStaff.id,
+      employeeName: selectedStaff.name,
+      date: now,
+      clockIn: inTime,
+      clockOut: now,
+      hoursWorked: parseFloat(rawHours.toFixed(2)),
+      unpaidBreakMinutes,
+      paidHours: parseFloat(paidHours.toFixed(2)),
+      hourlyRate,
+      totalWage: parseFloat(totalWage.toFixed(2)),
+      status: 'pending',
+      isVerified: false
+    };
+
+    db.saveTimesheet(timesheetEntry).catch(e => console.error("Failed to persist timesheet:", e));
+    if (onPunchSuccess) onPunchSuccess(timesheetEntry);
 
     const logEntry = {
       id: `log-${Date.now()}`,
@@ -204,12 +230,12 @@ export const CTClockView: React.FC<CTClockViewProps> = ({
       type: 'Clock-Out',
       time: timeStr,
       dept: active.department,
-      duration: `${diffHours} hrs`,
+      duration: `${diffHours} hrs (${paidHours.toFixed(2)} paid)`,
       date: now.toLocaleDateString()
     };
     persistLogs([logEntry, ...recentLogs.slice(0, 29)]);
 
-    showNotification(`Goodbye, ${selectedStaff.name}! Clocked OUT at ${timeStr}. Total Shift: ${diffHours} hrs.`, 'success');
+    showNotification(`Goodbye, ${selectedStaff.name}! Clocked OUT at ${timeStr}. Paid: ${paidHours.toFixed(2)} hrs ($${totalWage.toFixed(2)}).`, 'success');
     setSelectedStaff(null);
     setPin('');
   };

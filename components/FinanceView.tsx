@@ -28,7 +28,15 @@ const FinanceView: React.FC<FinanceViewProps> = ({ records, staff }) => {
   });
 
   useEffect(() => {
-      setInvoices(db.getInvoices());
+    const loadInvoices = async () => {
+      try {
+        const invs = await db.getInvoices();
+        setInvoices(invs);
+      } catch (err) {
+        console.error('Failed to load invoices:', err);
+      }
+    };
+    loadInvoices();
   }, []);
 
   const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Unknown';

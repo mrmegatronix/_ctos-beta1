@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { BudgetTracker } from '../types';
-import { TrendingUp, DollarSign, Percent, Target, Save } from 'lucide-react';
+import { BudgetTracker, TeamMember, canViewBudgets } from '../types';
+import { TrendingUp, DollarSign, Percent, Target, Save, Lock } from 'lucide-react';
 import { generateId } from '../utils';
 
 interface BudgetingViewProps {
   budgets: BudgetTracker[];
+  currentUser?: TeamMember | null;
   onSaveBudget: (budget: BudgetTracker) => void;
 }
 
-const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) => {
+const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, currentUser, onSaveBudget }) => {
   const currentPeriod = new Date().toISOString().substring(0, 7); // e.g. "2026-06"
   const existingBudget = budgets.find(b => b.period === currentPeriod);
+  const userCanViewBudgets = canViewBudgets(currentUser);
   
   const [budget, setBudget] = useState<Partial<BudgetTracker>>(existingBudget || {
     period: currentPeriod,
@@ -52,9 +54,15 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
              </h2>
              <p className="text-slate-400 ">Set financial targets and track performance for {currentPeriod}.</p>
          </div>
-         <button onClick={handleSave} className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-            <Save className="w-4 h-4" /> <span>Save Targets</span>
-         </button>
+         {userCanViewBudgets ? (
+           <button onClick={handleSave} className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+              <Save className="w-4 h-4" /> <span>Save Targets</span>
+           </button>
+         ) : (
+           <span className="flex items-center space-x-1 text-xs text-amber-400 bg-amber-950/40 border border-amber-800/60 px-3 py-1.5 rounded-lg">
+              <Lock className="w-3.5 h-3.5" /> <span>Owner PIN Protected</span>
+           </span>
+         )}
        </div>
 
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -66,13 +74,17 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                </div>
                <div className="flex items-end mb-2">
                    <span className="text-3xl font-bold text-slate-50  mr-2">
-                       $<input type="number" value={budget.targetRevenue} onChange={e => setBudget({...budget, targetRevenue: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/10  w-32 focus:outline-none focus:border-indigo-500" />
+                       {userCanViewBudgets ? (
+                         <span>$<input type="number" value={budget.targetRevenue} onChange={e => setBudget({...budget, targetRevenue: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/10  w-32 focus:outline-none focus:border-indigo-500" /></span>
+                       ) : (
+                         <span>$••••••••</span>
+                       )}
                    </span>
                </div>
                <div className="w-full bg-gray-100  rounded-full h-2.5 mt-4">
                    <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${revProgress}%` }}></div>
                </div>
-               <p className="text-sm text-slate-400 mt-2">Actual: ${budget.actualRevenue?.toFixed(2) || '0.00'} ({revProgress.toFixed(1)}%)</p>
+               <p className="text-sm text-slate-400 mt-2">Actual: ${userCanViewBudgets ? (budget.actualRevenue?.toFixed(2) || '0.00') : '••••'} ({revProgress.toFixed(1)}%)</p>
            </div>
 
            <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  p-6 rounded-xl border border-white/10  shadow-lg">
@@ -83,11 +95,15 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                </div>
                <div className="flex items-end mb-2">
                    <span className="text-3xl font-bold text-slate-50  mr-2">
-                       $<input type="number" value={budget.targetCogs} onChange={e => setBudget({...budget, targetCogs: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/10  w-32 focus:outline-none focus:border-rose-500" />
+                       {userCanViewBudgets ? (
+                         <span>$<input type="number" value={budget.targetCogs} onChange={e => setBudget({...budget, targetCogs: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/10  w-32 focus:outline-none focus:border-rose-500" /></span>
+                       ) : (
+                         <span>$••••••••</span>
+                       )}
                    </span>
                </div>
                <p className="text-sm font-medium text-rose-600 dark:text-rose-400 mt-2">Target: {cogsPercent.toFixed(1)}% of Revenue</p>
-               <p className="text-sm text-slate-400 mt-1">Actual: ${budget.actualCogs?.toFixed(2) || '0.00'} ({actualCogsPercent.toFixed(1)}%)</p>
+               <p className="text-sm text-slate-400 mt-1">Actual: ${userCanViewBudgets ? (budget.actualCogs?.toFixed(2) || '0.00') : '••••'} ({actualCogsPercent.toFixed(1)}%)</p>
            </div>
 
            <div className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm  p-6 rounded-xl border border-white/10  shadow-lg">
@@ -98,11 +114,15 @@ const BudgetingView: React.FC<BudgetingViewProps> = ({ budgets, onSaveBudget }) 
                </div>
                <div className="flex items-end mb-2">
                    <span className="text-3xl font-bold text-slate-50  mr-2">
-                       $<input type="number" value={budget.targetLabour} onChange={e => setBudget({...budget, targetLabour: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/10  w-32 focus:outline-none focus:border-blue-500" />
+                       {userCanViewBudgets ? (
+                         <span>$<input type="number" value={budget.targetLabour} onChange={e => setBudget({...budget, targetLabour: parseFloat(e.target.value) || 0})} className="bg-transparent border-b border-white/10  w-32 focus:outline-none focus:border-blue-500" /></span>
+                       ) : (
+                         <span>$••••••••</span>
+                       )}
                    </span>
                </div>
                <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-2">Target: {labourPercent.toFixed(1)}% of Revenue</p>
-               <p className="text-sm text-slate-400 mt-1">Actual: ${budget.actualLabour?.toFixed(2) || '0.00'} ({actualLabourPercent.toFixed(1)}%)</p>
+               <p className="text-sm text-slate-400 mt-1">Actual: ${userCanViewBudgets ? (budget.actualLabour?.toFixed(2) || '0.00') : '••••'} ({actualLabourPercent.toFixed(1)}%)</p>
            </div>
        </div>
 

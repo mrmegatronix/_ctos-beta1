@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { FileText, Save, CheckCircle, AlertCircle, Calendar as CalendarIcon, Users, Clock, Table } from 'lucide-react';
-import { TeamMember, TimesheetEntry, RosterShift } from '../types';
+import { FileText, Save, CheckCircle, AlertCircle, Calendar as CalendarIcon, Users, Clock, Table, DollarSign, Lock } from 'lucide-react';
+import { TeamMember, TimesheetEntry, RosterShift, canViewWageRates } from '../types';
 import { formatTime } from '../utils';
 import { exportToGoogleSheets } from '../services/googleService';
 
 interface TimesheetsViewProps {
   staff: TeamMember[];
   shifts: RosterShift[];
+  currentUser?: TeamMember | null;
   onSave: (entry: TimesheetEntry) => void;
 }
 
-const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }) => {
+const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, currentUser, onSave }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [entries, setEntries] = useState<Record<string, number>>({});
   const [isExporting, setIsExporting] = useState(false);
+  const canSeeWages = canViewWageRates(currentUser);
 
   const shiftsForDay = shifts.filter(s => 
     new Date(s.start).toISOString().split('T')[0] === selectedDate
@@ -120,6 +122,8 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Rostered Shift</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Rostered Hrs</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Actual Hours</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Rate</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Wage Cost</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Action</th>
             </tr>
@@ -130,6 +134,10 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
               const rosteredHrs = shift ? calculateRosteredHours(shift.start, shift.end) : 0;
               const actualHrs = entries[member.id] || 0;
               const variance = actualHrs - rosteredHrs;
+              const rate = member.hourlyRate || 25.00;
+              const unpaidBreak = actualHrs >= 5 ? 30 : 0;
+              const paidHrs = Math.max(0, actualHrs - (unpaidBreak / 60));
+              const wageCost = paidHrs * rate;
               
               return (
                 <tr key={member.id} className="hover:bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-sm dark:hover:bg-slate-700/30 transition-colors">
@@ -171,6 +179,12 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                         />
                     </div>
                   </td>
+                  <td className="px-6 py-4 text-center text-xs font-semibold text-slate-300">
+                    {canSeeWages ? `$${rate.toFixed(2)}` : '••••'}
+                  </td>
+                  <td className="px-6 py-4 text-center text-xs font-bold text-emerald-400">
+                    {canSeeWages ? `$${wageCost.toFixed(2)}` : '••••'}
+                  </td>
                   <td className="px-6 py-4">
                     {actualHrs > 0 ? (
                         <div className={`flex items-center space-x-1 text-xs font-bold ${Math.abs(variance) < 0.1 ? 'text-emerald-500' : 'text-amber-500'}`}>
@@ -187,8 +201,15 @@ const TimesheetsView: React.FC<TimesheetsViewProps> = ({ staff, shifts, onSave }
                         onClick={() => actualHrs > 0 && onSave({
                             id: `ts-${Date.now()}-${member.id}`,
                             staffId: member.id,
+                            employeeId: member.pinCode || member.id,
+                            employeeName: member.name,
                             date: new Date(selectedDate),
                             hoursWorked: actualHrs,
+                            unpaidBreakMinutes: unpaidBreak,
+                            paidHours: paidHrs,
+                            hourlyRate: rate,
+                            totalWage: wageCost,
+                            status: 'verified',
                             isVerified: true
                         })}
                     >

@@ -9,7 +9,7 @@ export type AppModule = 'dashboard' | 'calendar' | 'roster' | 'bookings' | 'stoc
 
 export type AppMode = 'OFFICE' | 'FOH' | 'BOH';
 
-export type AccessLevel = 'master-admin' | 'admin' | 'standard';
+export type AccessLevel = 'super-admin' | 'admin' | 'supervisor' | 'user' | 'master-admin' | 'standard';
 
 export type StaffRole = 'Master Admin' | 'Admin' | 'Duty Manager' | 'Front of House' | 'Head Chef' | 'Chef' | 'Kitchen Hand';
 
@@ -29,14 +29,35 @@ export interface TeamMember {
   isDemo?: boolean;
 }
 
-export const isMasterAdmin = (user?: TeamMember | null): boolean => {
+export const isSuperAdmin = (user?: TeamMember | null): boolean => {
   if (!user) return false;
-  return user.accessLevel === 'master-admin' || user.id === 'admin-nikko' || user.pinCode === '5551' || user.name.toLowerCase() === 'nikko';
+  return user.accessLevel === 'super-admin' || user.accessLevel === 'master-admin' || user.id === 'admin-nikko' || user.pinCode === '5551' || user.name.toLowerCase() === 'nikko';
 };
 
-export const isAdminOrAbove = (user?: TeamMember | null): boolean => {
+export const isMasterAdmin = isSuperAdmin;
+
+export const isAdmin = (user?: TeamMember | null): boolean => {
   if (!user) return false;
-  return isMasterAdmin(user) || user.accessLevel === 'admin' || user.role === 'Duty Manager' || user.role === 'Admin';
+  return isSuperAdmin(user) || user.accessLevel === 'admin' || user.role === 'Admin' || user.role === 'Master Admin';
+};
+
+export const isSupervisorOrAbove = (user?: TeamMember | null): boolean => {
+  if (!user) return false;
+  return isAdmin(user) || user.accessLevel === 'supervisor' || user.role === 'Duty Manager' || user.role === 'Head Chef';
+};
+
+export const isAdminOrAbove = isSupervisorOrAbove;
+
+export const canViewWageRates = (user?: TeamMember | null): boolean => {
+  return isAdmin(user);
+};
+
+export const canViewBudgets = (user?: TeamMember | null): boolean => {
+  return isAdmin(user);
+};
+
+export const canAccessOffice = (user?: TeamMember | null): boolean => {
+  return isSupervisorOrAbove(user);
 };
 
 export interface UserProfile {
@@ -95,18 +116,20 @@ export interface StockItem {
   quantity: number;
   unit: string;
   volumeMl?: number; // Total volume in ml (e.g. 1000 for 1L bottle, 50000 for 50L keg)
+  weightGrams?: number; // Total weight in grams (e.g. 5000 for 5kg bag)
   minLevel: number; 
-  price: number;
+  price: number; // Retail sell price
+  cost?: number; // Wholesale supplier cost
   supplierId?: string;
   image?: string;
   allergens?: string[];
   description?: string;
-  cost?: number;
   productType?: string;
   barcode?: string;
   expiryDate?: Date;
   location?: string;
   status?: 'In Stock' | 'Sold Out' | 'Back Order' | 'Deprecated' | 'No Longer Stocked';
+  isDemo?: boolean;
 }
 
 
@@ -207,16 +230,30 @@ export interface FileItem {
   lastModified: Date;
 }
 
+export interface RecipeIngredient {
+  stockItemId: string;
+  stockName?: string;
+  quantity: number; // e.g. 30, 425, 150
+  unit: 'ml' | 'grams' | 'items' | 'dash';
+  cost?: number; // calculated portion cost
+}
+
 export interface Recipe {
   id: string;
   name: string;
   category: 'Cocktail' | 'Food' | 'Coffee' | 'Prep';
   ingredients: string[];
+  recipeIngredients?: RecipeIngredient[];
   method: string;
   allergens?: string[];
   glassware?: string;
   garnish?: string;
   image?: string;
+  cost?: number;
+  sellPrice?: number;
+  targetGpPercent?: number;
+  actualGpPercent?: number;
+  isDemo?: boolean;
 }
 
 export interface IncidentReport {
@@ -271,11 +308,31 @@ export interface MediaSlide {
 export interface TimesheetEntry {
   id: string;
   staffId: string;
+  employeeId?: string;
+  employeeName?: string;
   date: Date;
+  clockIn?: Date | string;
+  clockOut?: Date | string;
+  unpaidBreakMinutes?: number;
+  paidHours?: number;
   hoursWorked: number;
+  hourlyRate?: number;
+  totalWage?: number;
+  status?: 'pending' | 'verified' | 'approved';
   notes?: string;
   isVerified: boolean;
   isDemo?: boolean;
+}
+
+export interface StocktakeItem {
+  stockId: string;
+  stockName?: string;
+  unit?: string;
+  expected: number;
+  actual: number;
+  variance: number;
+  unitCost?: number;
+  varianceCost?: number;
 }
 
 export interface StocktakeSession {
@@ -283,17 +340,44 @@ export interface StocktakeSession {
   date: Date;
   staffId: string;
   status: 'draft' | 'completed';
-  items: { stockId: string; expected: number; actual: number; variance: number }[];
+  items: StocktakeItem[];
+  totalVarianceCost?: number;
+  notes?: string;
   isDemo?: boolean;
+}
+
+export interface PurchaseOrderItem {
+  stockId: string;
+  stockName?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice?: number;
 }
 
 export interface PurchaseOrder {
   id: string;
   supplierId: string;
+  supplierName?: string;
   date: Date;
   status: 'draft' | 'sent' | 'received';
-  items: { stockId: string; quantity: number; unitPrice: number }[];
+  items: PurchaseOrderItem[];
   total: number;
+  invoiceNumber?: string;
+  receivedDate?: Date;
+  isDemo?: boolean;
+}
+
+export interface WastageRecord {
+  id: string;
+  date: Date;
+  stockId: string;
+  stockName?: string;
+  quantity: number;
+  unit: string;
+  cost: number;
+  reason: 'spoilage' | 'spill' | 'comp' | 'staff' | 'other';
+  staffId: string;
+  notes?: string;
   isDemo?: boolean;
 }
 
@@ -317,57 +401,6 @@ export interface BudgetTracker {
   isDemo?: boolean;
 }
 
-// Add isDemo to existing interfaces where needed
-export interface TeamMember {
-  id: string;
-  name: string;
-  avatar: string;
-  color: string;
-  visible: boolean;
-  role: StaffRole;
-  email?: string;
-  phone?: string;
-  address?: string;
-  pinCode: string;
-  hourlyRate?: number;
-  isDemo?: boolean;
-}
-
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  description?: string;
-  attendeeIds: string[];
-  location?: string;
-  isMeeting?: boolean;
-  source?: 'local' | 'google';
-  type?: 'event' | 'shift';
-  isDemo?: boolean;
-}
-
-export interface StockItem {
-  id: string;
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  volumeMl?: number; // Total volume in ml (e.g. 1000 for 1L bottle, 50000 for 50L keg)
-  minLevel: number; 
-  price: number;
-  supplierId?: string;
-  image?: string;
-  allergens?: string[];
-  description?: string;
-  cost?: number;
-  productType?: string;
-  isDemo?: boolean;
-  barcode?: string;
-  expiryDate?: Date;
-  location?: string;
-}
-
 export interface StockMovement {
   id: string;
   stockId: string;
@@ -376,19 +409,6 @@ export interface StockMovement {
   type: 'consume' | 'purchase' | 'inventory-correction' | 'transfer';
   staffId: string;
   notes?: string;
-  isDemo?: boolean;
-}
-
-export interface Booking {
-  id: string;
-  customerName: string;
-  time: Date;
-  guests: number;
-  table: string;
-  phone: string;
-  status: 'confirmed' | 'pending' | 'seated' | 'completed';
-  notes?: string;
-  source?: 'nowbookit' | 'phone' | 'walkin' | 'email';
   isDemo?: boolean;
 }
 
@@ -482,10 +502,23 @@ export interface Menu {
   isDemo?: boolean;
 }
 
+export interface EODSalesItem {
+  stockId: string;
+  recipeId?: string;
+  name?: string;
+  quantity: number;
+  sellPrice?: number;
+  totalRevenue?: number;
+  pourMl?: number;
+  portionGrams?: number;
+}
+
 export interface EODSalesData {
   id: string;
   date: Date;
   staffId: string;
-  itemsSold: { stockId: string; quantity: number }[];
+  totalRevenue?: number;
+  itemsSold: { stockId: string; quantity: number; recipeId?: string; name?: string; sellPrice?: number; totalRevenue?: number; pourMl?: number; portionGrams?: number }[];
+  source?: 'manual' | 'csv' | 'tevalis' | 'posview';
   isDemo?: boolean;
 }

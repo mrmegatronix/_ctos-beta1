@@ -1,0 +1,20 @@
+{
+  "stockItems": [],
+  "suppliers": [],
+  "purchaseOrders": [],
+  "stocktakes": [],
+  "recipes": [],
+  "teamMembers": [],
+  "timesheets": [],
+  "timePunches": [],
+  "rosterShifts": [],
+  "eodSales": [],
+  "detailedCashups": [],
+  "cashups": [],
+  "invoices": [],
+  "wastage": [],
+  "menus": [],
+  "bookings": [],
+  "calendarEvents": [],
+  "budgetTrackers": []
+}

@@ -8,7 +8,7 @@ import {
   BookOpen, ShieldAlert, Umbrella, Tv, Loader2, Clock as ClockIcon, TrendingUp,
   Smartphone, Sliders, Crown, Shield, UploadCloud, Database, ShoppingCart
 } from 'lucide-react';
-import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry, isMasterAdmin, isAdminOrAbove } from './types';
+import { TeamMember, CalendarEvent, ViewMode, UserProfile, AppModule, AppMode, RosterShift, StockItem, Booking, Supplier, MaintenanceTask, EntertainmentEvent, FunctionBooking, CashUpRecord, FileItem, LeaveRequest, Recipe, IncidentReport, LostItem, TVScheduleItem, MediaSlide, TimesheetEntry, isMasterAdmin, isAdminOrAbove, Invoice, canAccessOffice, isSupervisorOrAbove, isAdmin, isSuperAdmin, WastageRecord } from './types';
 import MediaView from './components/MediaView';
 import TimesheetsView from './components/TimesheetsView';
 import { db } from './services/database';
@@ -380,10 +380,10 @@ const App: React.FC = () => {
   };
 
   const setExplicitMode = (mode: AppMode) => {
-       // Permission Check
+       // 4-Tier Role-Based Access Control
        if (mode === 'OFFICE' && currentUser) {
-           if (currentUser.role !== 'Admin' && currentUser.role !== 'Duty Manager') {
-               showNotification("Access Denied: Office Mode restricted to Managers.", 'error');
+           if (!canAccessOffice(currentUser)) {
+               showNotification("Access Denied: Office Mode restricted to Supervisors, Admins, and Super Admins.", 'error');
                return;
            }
        }
@@ -659,11 +659,27 @@ const App: React.FC = () => {
     for (const item of session.items) {
       if (item.variance !== 0) {
         await db.updateStock(item.stockId, item.actual);
+        // Shrinkage/wastage logging for negative variance
+        if (item.variance < 0) {
+          await db.saveWastage({
+            id: `wst-${Date.now()}-${item.stockId}`,
+            date: session.date,
+            stockId: item.stockId,
+            stockName: item.stockName || '',
+            quantity: Math.abs(item.variance),
+            unit: item.unit || 'units',
+            cost: Math.abs(item.varianceCost || 0),
+            reason: 'spoilage',
+            staffId: session.staffId,
+            notes: `Stocktake variance adjustment (${item.variance})`,
+            isDemo: session.isDemo
+          });
+        }
       }
     }
     setStocktakes(await db.getStocktakes());
     setStockItems(await db.getStock());
-    showNotification("Stocktake completed", 'success');
+    showNotification("Stocktake committed & variance logged", 'success');
   };
 
   const handleSaveOrder = async (order: PurchaseOrder) => {
@@ -687,6 +703,39 @@ const App: React.FC = () => {
            showNotification(`Supplier ${supplier?.name} has no email address`, 'warning');
         }
       }
+    } else if (order.status === 'received') {
+      // Auto-increment stock items & update wholesale cost
+      const currentStock = await db.getStock();
+      for (const item of order.items) {
+        const stock = currentStock.find(s => s.id === item.stockId);
+        if (stock) {
+          const updatedQty = stock.quantity + item.quantity;
+          const updatedCost = item.unitPrice > 0 ? item.unitPrice : stock.cost;
+          await db.saveStock({
+            ...stock,
+            quantity: updatedQty,
+            cost: updatedCost
+          });
+        }
+      }
+      setStockItems(await db.getStock());
+
+      // Auto-generate approved invoice in Finance
+      const invoiceNumber = order.invoiceNumber || `PO-${order.id.slice(-6).toUpperCase()}`;
+      const newInvoice: Invoice = {
+        id: `inv-${Date.now()}`,
+        invoiceNumber,
+        supplierId: order.supplierId,
+        date: order.receivedDate || new Date(),
+        dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        amount: order.total,
+        status: 'Approved',
+        category: 'Food & Beverage',
+        isDemo: order.isDemo
+      };
+      await db.saveInvoice(newInvoice);
+      setInvoices(await db.getInvoices());
+      showNotification(`Order Received: Stock incremented & Invoice ${invoiceNumber} logged`, 'success');
     }
     await db.saveOrder(order);
     setOrders(await db.getOrders());
@@ -875,9 +924,17 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden print:overflow-visible">
+      <div className="flex flex-1 overflow-hidden print:overflow-visible relative">
+        {/* Mobile Drawer Backdrop */}
+        {isSidebarOpen && (
+          <div 
+            onClick={() => setIsSidebarOpen(false)} 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-200"
+          />
+        )}
+
         {/* Module Sidebar */}
-        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 transition-all duration-300 ease-in-out bg-white dark:bg-[#111827]/80 backdrop-blur-xl border-r border-gray-200 dark:border-white/5 overflow-y-auto custom-scrollbar relative z-20 print:hidden`}>
+        <aside className={`fixed md:relative inset-y-0 left-0 z-40 md:z-20 ${isSidebarOpen ? 'w-72 md:w-64 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-0'} flex-shrink-0 transition-all duration-300 ease-in-out bg-slate-900 md:bg-white md:dark:bg-[#111827]/80 backdrop-blur-xl border-r border-gray-200 dark:border-white/5 shadow-2xl md:shadow-none overflow-y-auto custom-scrollbar print:hidden`}>
     <div className="p-4 space-y-2">
         {isFohMode ? (
             <div className="space-y-2">
@@ -1080,19 +1137,24 @@ const App: React.FC = () => {
           {currentModule === 'eodsales' && (
               <EODSalesView 
                   stockItems={stockItems}
-                  onSalesSubmitted={(data) => {
-                      const newEodSales = [...eodSales, data];
-                      setEodSales(newEodSales);
-                      // Also deduct stock items
-                      const updatedStock = [...stockItems];
-                      data.itemsSold.forEach(sold => {
-                          const item = updatedStock.find(i => i.id === sold.stockId);
+                  onSalesSubmitted={async (data) => {
+                      await db.saveEODSale(data);
+                      setEodSales(await db.getEODSales());
+                      const currentStock = await db.getStock();
+                      for (const sold of data.itemsSold) {
+                          const item = currentStock.find(i => i.id === sold.stockId);
                           if (item) {
-                              item.quantity = Math.max(0, item.quantity - sold.quantity);
+                              const depletion = sold.pourMl && item.volumeMl
+                                  ? (sold.pourMl * sold.quantity) / item.volumeMl
+                                  : sold.portionGrams && item.weightGrams
+                                  ? (sold.portionGrams * sold.quantity) / item.weightGrams
+                                  : sold.quantity;
+                              const updatedQty = Math.max(0, parseFloat((item.quantity - depletion).toFixed(2)));
+                              await db.saveStock({ ...item, quantity: updatedQty });
                           }
-                      });
-                      setStockItems(updatedStock);
-                      setNotification({ message: 'EOD Sales Processed Successfully', type: 'success' });
+                      }
+                      setStockItems(await db.getStock());
+                      showNotification('EOD Sales Processed & Inventory Depleted', 'success');
                   }}
               />
           )}
@@ -1263,7 +1325,7 @@ const App: React.FC = () => {
              />
           )}
 
-          {currentModule === 'recipes' && <RecipesView recipes={recipes} onSave={handleSaveRecipe} onDelete={handleDeleteRecipe} />}
+          {currentModule === 'recipes' && <RecipesView recipes={recipes} stockItems={stockItems} onSave={handleSaveRecipe} onDelete={handleDeleteRecipe} />}
           {currentModule === 'incidents' && <IncidentLogView incidents={incidents} staff={teamMembers} currentUser={currentUser} onSave={handleSaveIncident} />}
           {currentModule === 'lostfound' && <LostAndFoundView items={lostFound} staff={teamMembers} currentUser={currentUser} onSave={handleSaveLostItem} />}
           {currentModule === 'tvschedule' && <TVScheduleView schedule={tvSchedule} onSave={handleSaveTVSchedule} onDelete={handleDeleteTVSchedule} />}
@@ -1272,7 +1334,7 @@ const App: React.FC = () => {
           {currentModule === 'ctmatrix' && <CTMatrixControlView />}
 
           {currentModule === 'media' && <MediaView />}
-          {currentModule === 'timesheets' && <TimesheetsView staff={teamMembers} shifts={shifts} onSave={handleSaveTimesheet} />}
+          {currentModule === 'timesheets' && <TimesheetsView staff={teamMembers} shifts={shifts} currentUser={currentUser} onSave={handleSaveTimesheet} />}
 
           {currentModule === 'entertainment' && <EntertainmentView events={entertainmentEvents} onSave={handleSaveEntertainment} onDelete={handleDeleteEntertainment} />}
           {currentModule === 'functions' && <FunctionsView functions={functionBookings} onSaveFunction={handleSaveFunction} />}
@@ -1309,7 +1371,7 @@ const App: React.FC = () => {
           
           {currentModule === 'stocktake' && <StocktakeView items={stockItems} currentUser={currentUser!} onCommit={handleSaveStocktake} />}
           {currentModule === 'ordering' && <OrderingView orders={orders} suppliers={suppliers} stockItems={stockItems} onSaveOrder={handleSaveOrder} />}
-          {currentModule === 'budgeting' && <BudgetingView budgets={budgets} onSaveBudget={handleSaveBudget} />}
+          {currentModule === 'budgeting' && <BudgetingView budgets={budgets} currentUser={currentUser} onSaveBudget={handleSaveBudget} />}
           {currentModule === 'settings' && <SettingsView onShowNotification={showNotification} />}
           {currentModule === 'venueinfo' && <VenueInfoView />}
           {currentModule === 'transport' && <TransportView />}

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && rm -rf dist/_ct-CLOCK/.git dist/_ct-CLOCK/.vscode",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node backend/server.js"
   },
   "dependencies": {
     "@google/genai": "^1.39.0",
