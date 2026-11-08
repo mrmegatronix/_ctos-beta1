@@ -390,9 +390,7 @@ const App: React.FC = () => {
        setAppMode(mode);
        showNotification(`Switched to ${mode} Mode`, 'success');
        setIsSidebarOpen(true);
-       
-       if (mode === 'FOH') setCurrentModule('browser');
-       else setCurrentModule('dashboard');
+       setCurrentModule('dashboard');
   };
 
   const handleLogin = (member: TeamMember) => {
@@ -411,8 +409,6 @@ const App: React.FC = () => {
       
       if (urlModule) {
           setCurrentModule(urlModule);
-      } else if (mode === 'FOH') {
-          setCurrentModule('browser');
       } else {
           setCurrentModule('dashboard');
       }

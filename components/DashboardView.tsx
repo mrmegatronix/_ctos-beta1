@@ -36,10 +36,6 @@ interface DashboardViewProps {
   lowStock: StockItem[];
   bookings: Booking[];
   tvSchedule: TVScheduleItem[];
-  tasks?: MaintenanceTask[];
-  lowStock?: StockItem[];
-  bookings?: Booking[];
-  tvSchedule?: TVScheduleItem[];
   onNavigate: (module: AppModule) => void;
 }
 
@@ -254,8 +250,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between mb-8">
              <div>
-                <h1 className="text-3xl font-bold text-white">Front of House</h1>
-                <p className="text-gray-500 dark:text-gray-400">Welcome to the floor.</p>
+                <h1 className="text-3xl font-bold text-white">Service Dashboard</h1>
+                <p className="text-gray-500 dark:text-gray-400">Front of House Operations</p>
              </div>
              <div className="flex items-center space-x-6">
                  <div className="w-64">
@@ -304,11 +300,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 {/* Bookings */}
                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-bold text-white">Upcoming Bookings</h3>
+                      <h2 className="text-lg font-bold text-white">Upcoming Bookings</h2>
                       <button onClick={() => onNavigate('bookings')} className="text-sm text-emerald-400 hover:text-emerald-300">View All</button>
                    </div>
                    {todaysBookings.length > 0 ? (
-                       <div className="space-y-4">
+                       <div className="space-y-3">
                            {todaysBookings.map((booking: Booking) => (
                                <div key={booking.id} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-white/5">
                                    <div className="flex items-center space-x-4">
@@ -327,17 +323,19 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                </div>
                            ))}
                        </div>
-                   ) : <p className="text-slate-500 text-center py-4">No bookings scheduled for today.</p>}
+                   ) : (
+                       <div className="p-8 text-center text-slate-500 bg-slate-800/30 rounded-lg border border-white/5">No bookings scheduled for today.</div>
+                   )}
                 </div>
                 
-                {/* Notice Board */}
+                {/* FOH Notices */}
                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
-                    <h3 className="text-lg font-bold text-white mb-4">Notice Board</h3>
+                    <h2 className="text-lg font-bold text-white mb-4">Service Notices</h2>
                     <div className="space-y-3">
                           <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-500/20 flex justify-between items-center">
                               <div className="flex-1">
                                   <h4 className="text-white font-medium">Specials Menu Updated</h4>
-                                  <p className="text-sm text-slate-400 mt-1">Check the Menus module for today's lunch specials.</p>
+                                  <p className="text-sm text-slate-400 mt-1">Check the Menus module for today's lunch and dinner specials.</p>
                               </div>
                               <span className="text-xs px-2 py-1 rounded font-bold uppercase ml-4 bg-blue-500/20 text-blue-400">Notice</span>
                           </div>
@@ -350,6 +348,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
                    <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
                    <div className="grid grid-cols-2 gap-3">
+                       <button onClick={() => onNavigate('bookings')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Utensils className="w-6 h-6 text-emerald-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Bookings</span>
+                       </button>
                        <button onClick={() => onNavigate('pos')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
                            <Monitor className="w-6 h-6 text-blue-400 mb-2" />
                            <span className="text-sm font-medium text-white">POS</span>
@@ -366,17 +368,17 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                            <Umbrella className="w-6 h-6 text-indigo-400 mb-2" />
                            <span className="text-sm font-medium text-white">Lost Found</span>
                        </button>
-                       <button onClick={() => onNavigate('transport')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center col-span-2">
-                           <Truck className="w-6 h-6 text-emerald-400 mb-2" />
-                           <span className="text-sm font-medium text-white">Local Transport / Taxis</span>
+                       <button onClick={() => onNavigate('transport')} className="bg-slate-800/50 hover:bg-slate-700 p-4 rounded-xl border border-white/5 transition-colors flex flex-col items-center text-center">
+                           <Truck className="w-6 h-6 text-amber-400 mb-2" />
+                           <span className="text-sm font-medium text-white">Transport</span>
                        </button>
                    </div>
                 </div>
 
                 {/* Live Sports */}
                 <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-sm">
-                   <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-bold text-white">Live Sports</h3>
+                   <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-white">Live Sports</h3>
                       <button onClick={() => onNavigate('tvschedule')} className="text-sm text-purple-400 hover:text-purple-300">View Guide</button>
                    </div>
                    {todaysTv.length > 0 ? (
@@ -388,7 +390,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                                </div>
                            ))}
                        </div>
-                   ) : <p className="text-slate-500 text-sm py-4 text-center">No games scheduled today.</p>}
+                   ) : <p className="text-slate-500 text-sm bg-slate-800/30 p-4 rounded-lg text-center border border-white/5">No games scheduled today.</p>}
                 </div>
              </div>
           </div>
