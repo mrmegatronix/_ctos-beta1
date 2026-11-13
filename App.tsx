@@ -253,7 +253,7 @@ const App: React.FC = () => {
           stockData, bookingsData, suppliersData, maintenanceData,
           entertainmentData, functionsData, financeData, filesData,
           recipesData, incidentsData, lostFoundData, tvData,
-          stocktakeData, orderData, timePunchData, budgetData
+          stocktakeData, orderData, timePunchData, budgetData, menusData
         ] = await Promise.race([
           Promise.all([
             db.getStaff(),
@@ -276,9 +276,18 @@ const App: React.FC = () => {
             db.getOrders(),
             db.getTimePunches(),
             db.getBudgets(),
+            db.getMenus(),
           ]),
           timeout(10000) as Promise<never>,
         ]);
+
+        const mergedMenus = [...menusData];
+        for (const seedMenu of INITIAL_MENUS) {
+          if (!mergedMenus.some(m => m.id === seedMenu.id)) {
+            mergedMenus.unshift(seedMenu);
+          }
+        }
+        setMenus(mergedMenus);
 
         setTeamMembers(staffData);
         setEvents(eventsData);
@@ -352,11 +361,11 @@ const App: React.FC = () => {
   const filteredEvents = useMemo(() => events.filter(e => (e.attendeeIds || []).length === 0 || (e.attendeeIds || []).some(id => visibleMemberIds.includes(id))), [events, visibleMemberIds]);
   const isFohMode = appMode === 'FOH';
   
-  // Theme Logic - Accents: Office (Red), FOH (Gold/Amber), BOH (Blue)
+  // Theme Logic - Accents: Office (Indigo/Red), FOH (Emerald), BOH (Amber/Blue)
   const getThemeColor = (mode: AppMode) => {
       switch (mode) {
           case 'OFFICE': return 'red';
-          case 'FOH': return 'amber';
+          case 'FOH': return 'emerald';
           case 'BOH': return 'blue';
           default: return 'indigo';
       }
@@ -366,7 +375,7 @@ const App: React.FC = () => {
   const getThemeLightBg = (mode: AppMode) => {
       switch (mode) {
           case 'OFFICE': return 'bg-red-100';
-          case 'FOH': return 'bg-amber-100';
+          case 'FOH': return 'bg-emerald-100';
           case 'BOH': return 'bg-blue-100';
           default: return 'bg-indigo-100';
       }
@@ -374,6 +383,13 @@ const App: React.FC = () => {
   const themeLightBg = getThemeLightBg(appMode);
 
   // --- Handlers ---
+  const navigateModule = (mod: AppModule) => {
+    setCurrentModule(mod);
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   const showNotification = (message: string, type: 'success' | 'error') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 4000);
@@ -803,7 +819,7 @@ const App: React.FC = () => {
   // Determine dynamic container classes
     // Determine dynamic container classes
   let bgClass = "bg-gray-50 dark:bg-[#0B0F19]";
-  if (appMode === 'FOH') bgClass = "bg-slate-100 dark:bg-indigo-950/40";
+  if (appMode === 'FOH') bgClass = "bg-slate-100 dark:bg-[#071312]";
   if (appMode === 'BOH') bgClass = "bg-slate-100 dark:bg-emerald-950/30";
   const containerClasses = `flex h-screen print:h-auto flex-col transition-colors duration-300 relative overflow-hidden ${bgClass} text-gray-900 dark:text-white`;
 
@@ -818,14 +834,14 @@ const App: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className={`flex items-center justify-between border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-xl px-6 py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm`}>
-        <div className="flex items-center space-x-4 flex-shrink-0">
+      <header className={`flex items-center justify-between border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-xl px-3 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-30 overflow-x-auto custom-scrollbar flex-shrink-0 print:hidden shadow-sm gap-2`}>
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400">
             <Menu className="w-6 h-6" />
           </button>
           
-          <div className="flex items-center space-x-3">
-             <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${
+          <div className="flex items-center space-x-2 sm:space-x-3">
+             <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 ${
                  appMode === "OFFICE" ? "border-indigo-500" : appMode === "FOH" ? "border-emerald-500" : "border-amber-500"
              } shadow-sm bg-black flex items-center justify-center flex-shrink-0`}>
                <img src="https://placehold.co/400x400/000000/D4AF37?text=CT" alt="Logo" className="w-full h-full object-cover" />
@@ -841,39 +857,39 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
+          <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-1 sm:mx-2 hidden md:block"></div>
           
           {/* Mode Selection Buttons */}
-          <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+          <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg flex-shrink-0">
               <button 
                   onClick={() => setExplicitMode('OFFICE')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'OFFICE' ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-2 sm:px-3 py-1.5 rounded-md text-[11px] sm:text-xs font-bold transition-colors whitespace-nowrap ${appMode === 'OFFICE' ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   OFFICE
               </button>
               <button 
                   onClick={() => setExplicitMode('FOH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'FOH' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-2 sm:px-3 py-1.5 rounded-md text-[11px] sm:text-xs font-bold transition-colors whitespace-nowrap ${appMode === 'FOH' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   FOH
               </button>
               <button 
                   onClick={() => setExplicitMode('BOH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${appMode === 'BOH' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`px-2 sm:px-3 py-1.5 rounded-md text-[11px] sm:text-xs font-bold transition-colors whitespace-nowrap ${appMode === 'BOH' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
               >
                   BOH
               </button>
           </div>
 
-          <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
+          <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2 hidden lg:block"></div>
           
-          <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+          <div className="hidden lg:flex items-center space-x-2 text-gray-600 dark:text-gray-300 whitespace-nowrap">
              <CalendarIcon className="w-5 h-5" />
              <span className="font-medium">{formatDate(currentDate)}</span>
           </div>
-           <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-mono">
-             <ClockIcon className="w-5 h-5" />
-             <span className="font-bold">
+           <div className="hidden sm:flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-mono whitespace-nowrap">
+             <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+             <span className="font-bold text-sm sm:text-base">
                {currentTime.getHours().toString().padStart(2, '0')}
                <span className="animate-[pulse_1s_ease-in-out_infinite] opacity-100">:</span>
                {currentTime.getMinutes().toString().padStart(2, '0')}
@@ -933,71 +949,83 @@ const App: React.FC = () => {
         <aside className={`fixed md:relative inset-y-0 left-0 z-40 md:z-20 ${isSidebarOpen ? 'w-72 md:w-64 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-0'} flex-shrink-0 transition-all duration-300 ease-in-out bg-slate-900 md:bg-white md:dark:bg-[#111827]/80 backdrop-blur-xl border-r border-gray-200 dark:border-white/5 shadow-2xl md:shadow-none overflow-y-auto custom-scrollbar print:hidden`}>
     <div className="p-4 space-y-2">
         {isFohMode ? (
-            <div className="space-y-2">
-                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Front of House</div>
-                <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Home className="w-5 h-5" /><span>Service Hub</span>
+            <div className="space-y-1.5 pb-8">
+                <div className="text-[10px] font-bold text-emerald-400/80 uppercase tracking-widest mb-2 px-3 mt-3 whitespace-nowrap">Floor Operations</div>
+                <button onClick={() => navigateModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "dashboard" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Home className="w-5 h-5 flex-shrink-0" /><span className="truncate">Service Hub</span>
                 </button>
-                <button onClick={() => setCurrentModule("bookings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "bookings" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Utensils className="w-5 h-5" /><span>Table Reservations</span>
+                <button onClick={() => navigateModule("bookings")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "bookings" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Utensils className="w-5 h-5 flex-shrink-0" /><span className="truncate">Table Reservations</span>
                 </button>
-                <button onClick={() => setCurrentModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <BookOpen className="w-5 h-5" /><span>Menus & Allergens</span>
+                <button onClick={() => navigateModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "menus" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <BookOpen className="w-5 h-5 flex-shrink-0" /><span className="truncate">Menus & Allergens</span>
                 </button>
-                <button onClick={() => setCurrentModule("tvschedule")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "tvschedule" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Tv className="w-5 h-5" /><span>TV Guide</span>
-                </button>
-                <button onClick={() => setCurrentModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <ClockIcon className="w-5 h-5" /><span>Timeclock</span>
+                <button onClick={() => navigateModule("pos")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "pos" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Monitor className="w-5 h-5 flex-shrink-0" /><span className="truncate">POS System</span>
                 </button>
 
-                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-6">Info & Tools</div>
-                <button onClick={() => setCurrentModule("venueinfo")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "venueinfo" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Globe className="w-5 h-5" /><span>Venue Info</span>
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-3 mt-5 whitespace-nowrap">Guest & Venue</div>
+                <button onClick={() => navigateModule("tvschedule")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "tvschedule" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Tv className="w-5 h-5 flex-shrink-0" /><span className="truncate">TV Guide</span>
                 </button>
-                <button onClick={() => setCurrentModule("transport")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "transport" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Truck className="w-5 h-5" /><span>Local Transport</span>
+                <button onClick={() => navigateModule("entertainment")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "entertainment" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Music className="w-5 h-5 flex-shrink-0" /><span className="truncate">Entertainment</span>
+                </button>
+                <button onClick={() => navigateModule("venueinfo")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "venueinfo" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Globe className="w-5 h-5 flex-shrink-0" /><span className="truncate">Venue Info</span>
+                </button>
+                <button onClick={() => navigateModule("transport")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "transport" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Truck className="w-5 h-5 flex-shrink-0" /><span className="truncate">Local Transport</span>
                 </button>
 
-                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-6">Future Features</div>
-                <button onClick={() => setCurrentModule("pos")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "pos" ? "bg-emerald-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
-                    <Monitor className="w-5 h-5" /><span>POS System</span>
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-3 mt-5 whitespace-nowrap">Shift & Compliance</div>
+                <button onClick={() => navigateModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "timeclock" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <ClockIcon className="w-5 h-5 flex-shrink-0" /><span className="truncate">Timeclock</span>
+                </button>
+                <button onClick={() => navigateModule("roster")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "roster" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Users className="w-5 h-5 flex-shrink-0" /><span className="truncate">Staff Roster</span>
+                </button>
+                <button onClick={() => navigateModule("incidents")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "incidents" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <ShieldAlert className="w-5 h-5 flex-shrink-0" /><span className="truncate">Incident Log</span>
+                </button>
+                <button onClick={() => navigateModule("lostfound")} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${currentModule === "lostfound" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-slate-300 md:text-slate-700 md:dark:text-slate-300 hover:bg-slate-800 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"}`}>
+                    <Umbrella className="w-5 h-5 flex-shrink-0" /><span className="truncate">Lost & Found</span>
                 </button>
             </div>
         ) : appMode === "BOH" ? (
             <div className="space-y-2">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Back of House</div>
-                <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Kitchen Hub</span>
                 </button>
-                <button onClick={() => setCurrentModule("recipes")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "recipes" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("recipes")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "recipes" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <BookOpen className="w-5 h-5" /><span>Recipes</span>
                 </button>
-                <button onClick={() => setCurrentModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("menus")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "menus" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <BookOpen className="w-5 h-5" /><span>Menus & Allergens</span>
                 </button>
-                <button onClick={() => setCurrentModule("maintenance")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "maintenance" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("maintenance")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "maintenance" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Wrench className="w-5 h-5" /><span>Maintenance</span>
                 </button>
-                <button onClick={() => setCurrentModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("timeclock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "timeclock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <ClockIcon className="w-5 h-5" /><span>Timeclock</span>
                 </button>
 
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-6">Inventory Hub</div>
-                <button onClick={() => setCurrentModule("stock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "stock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("stock")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "stock" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Boxes className="w-5 h-5" /><span>Products & Stock</span>
                 </button>
-                <button onClick={() => setCurrentModule("stocktake")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "stocktake" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("stocktake")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "stocktake" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <ClipboardList className="w-5 h-5" /><span>Stocktaking</span>
                 </button>
-                <button onClick={() => setCurrentModule("ordering")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "ordering" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("ordering")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "ordering" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <ShoppingCart className="w-5 h-5" /><span>Purchase Orders</span>
                 </button>
             </div>
         ) : (
             <div className="space-y-2 pb-10">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 mt-4">Management</div>
-                <button onClick={() => setCurrentModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-indigo-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                <button onClick={() => navigateModule("dashboard")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "dashboard" ? "bg-indigo-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                     <Home className="w-5 h-5" /><span>Dashboard</span>
                 </button>
                 {/* Events & Bookings */}
@@ -1011,7 +1039,7 @@ const App: React.FC = () => {
                     {openAccordion === "events" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
                             {[{ id: "calendar", label: "Venue Calendar" }, { id: "bookings", label: "Table Reservations" }, { id: "functions", label: "Private Functions" }, { id: "entertainment", label: "Entertainment" }].map(link => (
-                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                <button key={link.id} onClick={() => navigateModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
                             ))}
@@ -1030,7 +1058,7 @@ const App: React.FC = () => {
                     {openAccordion === "staff" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
                             {[{ id: "staff", label: "Team Directory" }, { id: "roster", label: "Rostering" }, { id: "timeclock", label: "Timeclock" }, { id: "timesheets", label: "Timesheets" }].map(link => (
-                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                <button key={link.id} onClick={() => navigateModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
                             ))}
@@ -1049,7 +1077,7 @@ const App: React.FC = () => {
                     {openAccordion === "inventory" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
                             {[{ id: "stock", label: "Products & Stock" }, { id: "menus", label: "Menus & Allergens" }, { id: "ordering", label: "Purchase Orders" }, { id: "stocktake", label: "Stocktaking" }, { id: "suppliers", label: "Suppliers" }, { id: "recipes", label: "Recipes" }].map(link => (
-                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                <button key={link.id} onClick={() => navigateModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
                             ))}
@@ -1068,7 +1096,7 @@ const App: React.FC = () => {
                     {openAccordion === "integrations" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
                             {[{ id: "media", label: "Adverts & Media" }, { id: "ctmatrix", label: "CT Matrix" }, { id: "ctsc", label: "CTSC Console" }].map(link => (
-                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                <button key={link.id} onClick={() => navigateModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
                             ))}
@@ -1087,7 +1115,7 @@ const App: React.FC = () => {
                     {openAccordion === "ops" && (
                         <div className="pl-12 pr-4 py-2 space-y-1">
                             {[{ id: "tvschedule", label: "TV Guide" }, { id: "incidents", label: "Incident Log" }, { id: "maintenance", label: "Maintenance" }, { id: "lostfound", label: "Lost & Found" }, { id: "documents", label: "Documents" }, { id: "venueinfo", label: "Venue Info" }, { id: "transport", label: "Local Transport" }].map(link => (
-                                <button key={link.id} onClick={() => setCurrentModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
+                                <button key={link.id} onClick={() => navigateModule(link.id)} className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${currentModule === link.id ? "bg-indigo-600 text-white" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}>
                                     <span>{link.label}</span>
                                 </button>
                             ))}
@@ -1101,10 +1129,10 @@ const App: React.FC = () => {
                       <Crown className="w-3.5 h-3.5" />
                       <span>Master Admin</span>
                     </div>
-                    <button onClick={() => setCurrentModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <button onClick={() => navigateModule("settings")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "settings" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                         <Settings className="w-5 h-5" /><span>System & Permissions</span>
                     </button>
-                    <button onClick={() => setCurrentModule("masterdata")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "masterdata" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
+                    <button onClick={() => navigateModule("masterdata")} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${currentModule === "masterdata" ? "bg-amber-600 text-white shadow-md" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}>
                         <Database className="w-5 h-5" /><span>Master Data Editor</span>
                     </button>
                     <button onClick={() => setIsPublicUploadOpen(true)} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 transition-all mt-1">
@@ -1158,15 +1186,19 @@ const App: React.FC = () => {
           {currentModule === 'menus' && (
               <MenuView 
                   menus={menus}
-                  onSaveMenu={(menu) => {
+                  defaultMatrixMode={appMode === 'BOH'}
+                  onSaveMenu={async (menu) => {
+                      await db.saveMenu(menu);
                       const exists = menus.find(m => m.id === menu.id);
                       if (exists) {
                           setMenus(menus.map(m => m.id === menu.id ? menu : m));
                       } else {
                           setMenus([...menus, menu]);
                       }
+                      showNotification('Menu & allergens saved', 'success');
                   }}
-                  onDeleteMenu={(id) => {
+                  onDeleteMenu={async (id) => {
+                      await db.deleteMenu(id);
                       setMenus(menus.filter(m => m.id !== id));
                   }}
               />
@@ -1211,7 +1243,10 @@ const App: React.FC = () => {
                lowStock={(stockItems || []).filter(i => i.quantity <= i.minLevel)}
                bookings={bookings}
                tvSchedule={tvSchedule}
-               onNavigate={setCurrentModule}
+               shifts={shifts}
+               incidents={incidents}
+               recipesCount={recipes.length}
+               onNavigate={navigateModule}
              />
           )}
 

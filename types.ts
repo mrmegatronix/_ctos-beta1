@@ -469,16 +469,24 @@ export interface Allergen {
 }
 
 export const STANDARD_ALLERGENS: Allergen[] = [
+  { id: 'wheat', name: 'Gluten / Wheat', category: 'food' },
   { id: 'dairy', name: 'Dairy', category: 'both' },
   { id: 'eggs', name: 'Eggs', category: 'food' },
+  { id: 'garlic', name: 'Garlic', category: 'food' },
+  { id: 'onion', name: 'Onion', category: 'food' },
   { id: 'nuts', name: 'Tree Nuts', category: 'both' },
   { id: 'peanuts', name: 'Peanuts', category: 'food' },
   { id: 'shellfish', name: 'Shellfish', category: 'food' },
   { id: 'fish', name: 'Fish', category: 'food' },
   { id: 'soy', name: 'Soy', category: 'both' },
-  { id: 'wheat', name: 'Wheat/Gluten', category: 'food' },
   { id: 'sesame', name: 'Sesame', category: 'food' },
+  { id: 'chilli', name: 'Chilli / Spice', category: 'food' },
+  { id: 'alcohol', name: 'Alcohol', category: 'both' },
   { id: 'sulphites', name: 'Sulphites', category: 'beverage' }
+];
+
+export const STANDARD_DIETARY_OPTIONS: string[] = [
+  'GF', 'GFO', 'DF', 'DFO', 'NF', 'NFO', 'V', 'VO', 'VG', 'VGO'
 ];
 
 export interface MenuItem {
@@ -488,6 +496,8 @@ export interface MenuItem {
   price: number;
   category: string;
   allergens: string[]; // array of allergen IDs
+  dietaryOptions?: string[]; // e.g., ['GFO', 'DFO', 'VO']
+  allergenNotes?: string;
   isAvailable: boolean;
   stockItemId?: string; // ID of the StockItem to deduct from
   deductionMl?: number; // Amount to deduct (e.g., 15 for 15ml, 425 for Pint)

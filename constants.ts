@@ -3041,9 +3041,293 @@ export const SOCIAL_LINKS = [];
 export const HOURS: number[] = Array.from({ length: 24 }, (_, i) => i);
 export const INITIAL_MENUS: any[] = [
   {
+    "id": "menu-food-main",
+    "title": "Main Food Menu",
+    "isActive": true,
+    "items": [
+      // PIZZA
+      {
+        "id": "food-pizza-flatbread",
+        "name": "Flat Bread",
+        "description": "w. garlic herb butter & oil, dash of mozzarella & parmesan OR sweet chilli, cream cheese & pesto (add $3)",
+        "price": 16,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "garlic", "nuts", "chilli"],
+        "dietaryOptions": ["GFO", "DFO", "NFO", "VO", "VGO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-pizza-pepperoni",
+        "name": "Pepperoni Pizza",
+        "description": "Classic pepperoni & mozzarella on Napoli base",
+        "price": 22,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "garlic", "onion"],
+        "dietaryOptions": ["GFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-pizza-hawaiian",
+        "name": "Hawaiian Pizza",
+        "description": "Ham, pineapple & mozzarella on Napoli base",
+        "price": 22,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "garlic", "onion"],
+        "dietaryOptions": ["GFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-pizza-veggie-attack",
+        "name": "Veggie Attack",
+        "description": "Tangy garlic tomato base, red onion, capsicum, corn, spinach, olives, mozzarella, sweet chilli swirl",
+        "price": 22,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "garlic", "onion", "chilli"],
+        "dietaryOptions": ["GFO", "VO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-pizza-meatlovers",
+        "name": "Meatlovers Pizza",
+        "description": "Napoli sauce, mozzarella, pepperoni, kransky sausage, bacon, pork belly, BBQ swirl",
+        "price": 25,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "garlic", "onion", "soy"],
+        "dietaryOptions": ["GFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-pizza-cranberry-chicken",
+        "name": "Cranberry Chicken",
+        "description": "Cream cheese base, smoked chicken, baby spinach, red onion, mozzarella, brie & cranberry sauce",
+        "price": 25,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "onion"],
+        "dietaryOptions": ["GFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-pizza-bbq-grazier",
+        "name": "The BBQ Grazier",
+        "description": "Beef, feta, caramelised onion, mushroom, mozzarella, BBQ swirl",
+        "price": 25,
+        "category": "Pizza",
+        "allergens": ["wheat", "dairy", "onion", "garlic"],
+        "dietaryOptions": ["GFO"],
+        "isAvailable": true
+      },
+      // STARTERS
+      {
+        "id": "food-starter-fries",
+        "name": "Fries",
+        "description": "w. house seasoning (ADD loaded flavour of the day option $10)",
+        "price": 12,
+        "category": "Starters",
+        "allergens": ["garlic", "onion"],
+        "dietaryOptions": ["GF", "DF", "V", "VG"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-garlic-loaf",
+        "name": "Mini Garlic Loaf",
+        "description": "Trio of white, wholemeal & focaccia formed into a mini loaf w. garlic herb butter",
+        "price": 14,
+        "category": "Starters",
+        "allergens": ["wheat", "dairy", "garlic"],
+        "dietaryOptions": ["VO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-jalapeno-bites",
+        "name": "Jalapeno Bites",
+        "description": "Crispy crumb coated chunks w. spiced jalapeno chilli & corn w. aioli",
+        "price": 15,
+        "category": "Starters",
+        "allergens": ["wheat", "dairy", "eggs", "garlic", "chilli"],
+        "dietaryOptions": ["VO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-wedges",
+        "name": "Wedges",
+        "description": "w. house seasoning, sour cream & sweet chilli (ADD cheese and bacon $8)",
+        "price": 16,
+        "category": "Starters",
+        "allergens": ["dairy", "garlic", "onion", "chilli"],
+        "dietaryOptions": ["VO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-crumbed-camembert",
+        "name": "Crumbed Camembert",
+        "description": "Melted cheese in a crispy crumbed coating w. plum sauce",
+        "price": 18,
+        "category": "Starters",
+        "allergens": ["wheat", "dairy", "eggs"],
+        "dietaryOptions": ["GFO", "NFO", "VO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-prawn-twisters",
+        "name": "Prawn Twisters",
+        "description": "Seasoned prawn in crisp wonton style pastry w. sweet chilli sauce & aioli",
+        "price": 18,
+        "category": "Starters",
+        "allergens": ["wheat", "shellfish", "eggs", "garlic", "chilli"],
+        "dietaryOptions": [],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-pork-belly-bites",
+        "name": "Pork Belly Bites",
+        "description": "Hoisin glazed pork belly bites",
+        "price": 20,
+        "category": "Starters",
+        "allergens": ["soy", "wheat", "garlic", "sesame"],
+        "dietaryOptions": ["DF"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-chicken-poppers",
+        "name": "Chicken Poppers",
+        "description": "Tender thigh marinated in buttermilk & fried until crispy w. sriracha aioli",
+        "price": 20,
+        "category": "Starters",
+        "allergens": ["wheat", "dairy", "eggs", "garlic", "chilli"],
+        "dietaryOptions": ["GFO", "NFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-chilli-prawns",
+        "name": "Chilli Garlic Butter Prawns",
+        "description": "6 juicy prawns, cooked in a garlic chilli & coriander butter",
+        "price": 21,
+        "category": "Starters",
+        "allergens": ["shellfish", "dairy", "garlic", "chilli"],
+        "dietaryOptions": ["NF", "GF"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-coasters-basket",
+        "name": "Coaster's Basket",
+        "description": "Bowl of fries w. squid rings, fish bites, spring rolls, mini hotdogs, chicken nuggets w. aioli",
+        "price": 22,
+        "category": "Starters",
+        "allergens": ["wheat", "fish", "shellfish", "eggs", "soy", "garlic"],
+        "dietaryOptions": [],
+        "isAvailable": true
+      },
+      {
+        "id": "food-starter-nachos",
+        "name": "Nachos",
+        "description": "Mexican beef or vegetarian w. sour cream, salsa, cheese, jalapenos optional (Add guacamole for $3)",
+        "price": 25,
+        "category": "Starters",
+        "allergens": ["dairy", "garlic", "onion", "chilli"],
+        "dietaryOptions": ["GFO", "VO"],
+        "isAvailable": true
+      },
+      // BAO BUNS
+      {
+        "id": "food-bao-buns",
+        "name": "Bao Buns",
+        "description": "Two bao buns filled with tangy slaw, sriracha mayo (Crispy pork belly w. pickled ginger / Crispy fried chicken / Crispy Cauliflower)",
+        "price": 20,
+        "category": "Bao Buns",
+        "allergens": ["wheat", "eggs", "soy", "sesame", "garlic", "chilli"],
+        "dietaryOptions": ["VO"],
+        "isAvailable": true
+      },
+      // BURGERS
+      {
+        "id": "food-burger-fish",
+        "name": "Fish Burger",
+        "description": "Battered fish, cheese, slaw, tartare sauce w. fries & onion rings",
+        "price": 25,
+        "category": "Burgers",
+        "allergens": ["wheat", "fish", "dairy", "eggs", "onion", "garlic"],
+        "dietaryOptions": ["GFO", "DFO", "NF"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-burger-chicken",
+        "name": "Chicken Burger",
+        "description": "Chicken schnitzel, bacon, cheese, lettuce, tomato, tomato relish, aioli w. fries & onion rings",
+        "price": 25,
+        "category": "Burgers",
+        "allergens": ["wheat", "dairy", "eggs", "garlic", "onion"],
+        "dietaryOptions": ["GFO", "DFO", "NF", "VO", "VGO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-burger-coasters",
+        "name": "The Coaster's Burger",
+        "description": "220g homemade beef patty, bacon, cheese, lettuce, tomato, beetroot, gherkin, onion jam, BBQ sauce, aioli w. fries & onion rings",
+        "price": 26,
+        "category": "Burgers",
+        "allergens": ["wheat", "dairy", "eggs", "onion", "garlic", "soy"],
+        "dietaryOptions": ["NF"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-burger-pork-belly",
+        "name": "Pork Belly Burger",
+        "description": "Crispy pork belly, bacon, slaw, grilled pineapple, cheese, capsicum & apricot chutney w. fries & onion rings",
+        "price": 27,
+        "category": "Burgers",
+        "allergens": ["wheat", "dairy", "eggs", "onion", "garlic", "soy"],
+        "dietaryOptions": ["GFO", "DFO", "NFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-burger-peri-peri",
+        "name": "Peri Peri Burger",
+        "description": "Grilled chicken breast, lettuce, red onion, tomato, gherkin, cheese, avocado ranch & peri peri sauce w. fries & onion rings",
+        "price": 27,
+        "category": "Burgers",
+        "allergens": ["wheat", "dairy", "eggs", "onion", "garlic", "chilli"],
+        "dietaryOptions": ["NF", "GFO", "DFO"],
+        "isAvailable": true
+      },
+      // SALADS
+      {
+        "id": "food-salad-roast-veggie",
+        "name": "Roast Veggie Salad",
+        "description": "Warm roasted root veggies w. salad, feta, red onion & balsamic dressing (Add chicken $8)",
+        "price": 22,
+        "category": "Salads",
+        "allergens": ["dairy", "onion"],
+        "dietaryOptions": ["GFO", "DFO", "VO", "VGO", "NFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-salad-thai",
+        "name": "Thai Salad",
+        "description": "Lettuce, mesclun, beetroot, carrot, crispy noodles, capsicum, red onion, honey roasted peanuts w. homemade thai dressing (Add beef $8 / prawns $8 / Crispy cauliflower $8)",
+        "price": 22,
+        "category": "Salads",
+        "allergens": ["wheat", "peanuts", "onion", "garlic", "soy", "chilli"],
+        "dietaryOptions": ["GFO", "DFO"],
+        "isAvailable": true
+      },
+      {
+        "id": "food-salad-pork-belly",
+        "name": "Pork Belly Salad",
+        "description": "Glazed pork belly bites on a bed of tangy salad of mesclun, carrot, beetroot with sesame seeds",
+        "price": 28,
+        "category": "Salads",
+        "allergens": ["soy", "sesame", "wheat", "garlic"],
+        "dietaryOptions": ["DF"],
+        "isAvailable": true
+      }
+    ]
+  },
+  {
     "id": "menu-beverages",
+    "title": "Beverages",
     "name": "Beverages",
     "category": "Beverages",
+    "isActive": true,
     "items": [
       {
         "id": "menu-1816-15ml",
