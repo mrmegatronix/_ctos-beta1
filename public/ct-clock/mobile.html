@@ -375,6 +375,12 @@
             font-weight: 700;
         }
 
+        .geofence-badge.warning {
+            background: rgba(245,158,11,0.2);
+            color: #fbbf24;
+            border-color: rgba(245,158,11,0.3);
+        }
+
         .geofence-badge.flagged {
             background: var(--color-danger-glow);
             color: #fb7185;
@@ -722,6 +728,9 @@
                     <span class="geofence-dist" id="distance-readout-val">8m</span>
                     <span class="geofence-desc" id="distance-readout-desc">Inside venue boundaries</span>
                 </div>
+                <button id="qr-scan-btn" class="btn-submit" style="display:none; margin-top:12px; align-items:center; justify-content:center; gap:8px;" onclick="simulateQRScan()">
+                    <i data-lucide="qr-code" size="16"></i> Scan Counter QR Code
+                </button>
             </div>
 
         </div>
@@ -893,6 +902,7 @@
             if (el) el.textContent = `${hrs}${sep}${mins}${sep}${secs}`;
             const dateEl = document.getElementById('live-date');
             if (dateEl) dateEl.textContent = now.toLocaleDateString('en-NZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            if (typeof updateShiftDurationDisplay === 'function') updateShiftDurationDisplay(!colonVisible);
         }, 500);
 
         // Tab views controller
@@ -949,6 +959,8 @@
                     console.warn('Geolocation error:', err.message);
                     const descEl = document.getElementById('distance-readout-desc');
                     if (descEl) descEl.textContent = 'GPS unavailable: ' + err.message;
+                    const qrBtn = document.getElementById('qr-scan-btn');
+                    if (qrBtn && !qrBypassed && !activeShifts[currentUser.id]) qrBtn.style.display = 'flex';
                 },
                 { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
             );
@@ -965,18 +977,22 @@
                 barFill.style.width = `${Math.max(pct, 5)}%`;
                 barFill.className = 'geofence-bar-fill';
             }
+            const qrBtn = document.getElementById('qr-scan-btn');
             if (distance <= GEOFENCE_LIMIT_REAL) {
                 if (badge) { badge.textContent = 'Within Bounds'; badge.className = 'geofence-badge'; }
-                if (barFill) barFill.style.background = 'var(--color-success)';
+                if (barFill) { barFill.className = 'geofence-bar-fill'; barFill.style.background = ''; }
                 if (distDesc) distDesc.textContent = `Inside venue (${lat.toFixed(4)}, ${lng.toFixed(4)}) Acc: ${accuracy}`;
+                if (qrBtn) qrBtn.style.display = 'none';
             } else if (distance <= WARNING_LIMIT_REAL) {
-                if (badge) { badge.textContent = 'Near Venue'; badge.className = 'geofence-badge'; badge.style.background = 'rgba(245,158,11,0.2)'; badge.style.color = '#fbbf24'; badge.style.borderColor = 'rgba(245,158,11,0.3)'; }
-                if (barFill) barFill.className = 'geofence-bar-fill warning';
+                if (badge) { badge.textContent = 'Near Venue'; badge.className = 'geofence-badge warning'; }
+                if (barFill) { barFill.className = 'geofence-bar-fill warning'; barFill.style.background = ''; }
                 if (distDesc) distDesc.textContent = `Near boundary (${lat.toFixed(4)}, ${lng.toFixed(4)}) Acc: ${accuracy}`;
+                if (qrBtn) qrBtn.style.display = (!qrBypassed && !activeShifts[currentUser.id]) ? 'flex' : 'none';
             } else {
                 if (badge) { badge.textContent = 'Out of Range'; badge.className = 'geofence-badge flagged'; }
-                if (barFill) barFill.className = 'geofence-bar-fill flagged';
+                if (barFill) { barFill.className = 'geofence-bar-fill flagged'; barFill.style.background = ''; }
                 if (distDesc) distDesc.textContent = `Far from venue (${lat.toFixed(4)}, ${lng.toFixed(4)}) Acc: ${accuracy}`;
+                if (qrBtn) qrBtn.style.display = (!qrBypassed && !activeShifts[currentUser.id]) ? 'flex' : 'none';
             }
         }
 
@@ -1043,6 +1059,8 @@
                     html5QrScanner.stop().catch(console.error);
                     document.getElementById('qr-success-message').style.display = 'flex';
                     qrBypassed = true;
+                    const qrBtn = document.getElementById('qr-scan-btn');
+                    if (qrBtn) qrBtn.style.display = 'none';
                     setTimeout(() => {
                         closeQRModal();
                         const descEl = document.getElementById('distance-readout-desc');
@@ -1070,6 +1088,7 @@
         };
 
         updateSimulatedLocation = function() {};
+        startLiveClocks = function() {};
 
         const select = document.getElementById('employee-select');
         if (select) {

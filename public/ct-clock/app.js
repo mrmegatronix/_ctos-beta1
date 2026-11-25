@@ -282,24 +282,23 @@ function saveActiveShifts() {
 }
 
 // 3. Clock & UI view controls
+let globalColonVisible = true;
 function startLiveClocks() {
-    let colonVisible = true;
     setInterval(() => {
         const now = new Date();
         const hrs = String(now.getHours()).padStart(2, '0');
         const mins = String(now.getMinutes()).padStart(2, '0');
         const secs = String(now.getSeconds()).padStart(2, '0');
-        const sep = colonVisible ? ':' : ' ';
+        const sep = globalColonVisible ? ':' : ' ';
 
         const liveTimeEl = document.getElementById('live-time');
         if (liveTimeEl) liveTimeEl.textContent = `${hrs}${sep}${mins}${sep}${secs}`;
 
         const phoneTimeEl = document.getElementById('phone-time');
-        if (phoneTimeEl) phoneTimeEl.textContent = `${hrs}${colonVisible ? ':' : ' '}${mins}`;
+        if (phoneTimeEl) phoneTimeEl.textContent = `${hrs}${sep}${mins}`;
 
-        colonVisible = !colonVisible;
-
-        updateShiftDurationDisplay();
+        updateShiftDurationDisplay(globalColonVisible);
+        globalColonVisible = !globalColonVisible;
     }, 500);
 }
 
@@ -315,7 +314,8 @@ function checkAdminAccess() {
     const pin = prompt("Enter Admin/Manager PIN to access portal:");
     if (pin) {
         const emp = EMPLOYEES[pin];
-        if (emp && emp.role === "Administrator") {
+        const allowedRoles = ["Administrator", "Duty Manager", "Venue Manager"];
+        if (emp && allowedRoles.includes(emp.role)) {
             switchView('admin');
         } else {
             alert("Access Denied: Invalid PIN or insufficient privileges.");
@@ -342,22 +342,26 @@ function switchAdminTab(tabId) {
 // 4. Geofencing Engine
 function updateSimulatedLocation(meters) {
     simulatedDistance = parseInt(meters);
-    document.getElementById("slider-val").textContent = `${simulatedDistance}m`;
-    document.getElementById("distance-readout-val").textContent = `${simulatedDistance}m`;
+    const sliderVal = document.getElementById("slider-val");
+    const distVal = document.getElementById("distance-readout-val");
+    const simCoords = document.getElementById("sim-coords");
+    const gaugeBar = document.getElementById("gauge-bar");
+    const gaugeBadge = document.getElementById("gauge-badge");
+    const distanceDesc = document.getElementById("distance-readout-desc");
+    const qrCard = document.getElementById("qr-bypass-card");
+    const clockBtn = document.getElementById("clock-btn");
+
+    if (!sliderVal || !gaugeBar || !gaugeBadge) return;
+
+    sliderVal.textContent = `${simulatedDistance}m`;
+    if (distVal) distVal.textContent = `${simulatedDistance}m`;
 
     // Calculate simulated coordinates based on offset
     // approx 1 meter is ~0.000009 degrees
     const latOffset = (simulatedDistance * 0.000009);
     const simulatedLat = (VENUE_LAT + latOffset).toFixed(6);
     const simulatedLng = (VENUE_LNG + latOffset).toFixed(6);
-    document.getElementById("sim-coords").textContent = `${simulatedLat}, ${simulatedLng}`;
-
-    // Update gauge styling (Green / Orange / Red)
-    const gaugeBar = document.getElementById("gauge-bar");
-    const gaugeBadge = document.getElementById("gauge-badge");
-    const distanceDesc = document.getElementById("distance-readout-desc");
-    const qrCard = document.getElementById("qr-bypass-card");
-    const clockBtn = document.getElementById("clock-btn");
+    if (simCoords) simCoords.textContent = `${simulatedLat}, ${simulatedLng}`;
 
     // Remove existing state classes
     gaugeBadge.className = "badge";
@@ -372,11 +376,11 @@ function updateSimulatedLocation(meters) {
         gaugeBar.style.backgroundColor = "var(--color-success)";
         gaugeBadge.classList.add("badge-success");
         gaugeBadge.textContent = "In Range";
-        distanceDesc.textContent = "Within tavern geofence (<=20m)";
-        qrCard.style.display = "none";
+        if (distanceDesc) distanceDesc.textContent = "Within tavern geofence (<=20m)";
+        if (qrCard) qrCard.style.display = "none";
         
         // Clear red class on clock button if inside range
-        if (clockBtn.classList.contains("flagged")) {
+        if (clockBtn && clockBtn.classList.contains("flagged")) {
             clockBtn.classList.remove("flagged");
         }
     } else if (simulatedDistance <= WARNING_LIMIT) {
@@ -384,26 +388,30 @@ function updateSimulatedLocation(meters) {
         gaugeBar.style.backgroundColor = "var(--color-warning)";
         gaugeBadge.classList.add("badge-warning");
         gaugeBadge.textContent = "Near Venue";
-        distanceDesc.textContent = "Slightly outside boundary (21m-50m)";
+        if (distanceDesc) distanceDesc.textContent = "Slightly outside boundary (21m-50m)";
         
         // Show QR code validation prompt if not already QR bypassed or clocked in
-        if (!qrBypassed && !activeShifts[currentUser.id]) {
-            qrCard.style.display = "block";
-        } else {
-            qrCard.style.display = "none";
+        if (qrCard) {
+            if (!qrBypassed && !activeShifts[currentUser.id]) {
+                qrCard.style.display = "block";
+            } else {
+                qrCard.style.display = "none";
+            }
         }
     } else {
         // Red State: Far Away
         gaugeBar.style.backgroundColor = "var(--color-danger)";
         gaugeBadge.classList.add("badge-danger");
         gaugeBadge.textContent = "Out of Range";
-        distanceDesc.textContent = "Far from venue (>50m). Clock-in will be FLAGGED.";
+        if (distanceDesc) distanceDesc.textContent = "Far from venue (>50m). Clock-in will be FLAGGED.";
         
         // Show QR scan requirement to authenticate
-        if (!qrBypassed && !activeShifts[currentUser.id]) {
-            qrCard.style.display = "block";
-        } else {
-            qrCard.style.display = "none";
+        if (qrCard) {
+            if (!qrBypassed && !activeShifts[currentUser.id]) {
+                qrCard.style.display = "block";
+            } else {
+                qrCard.style.display = "none";
+            }
         }
     }
 }
@@ -553,25 +561,28 @@ function toggleClock() {
     renderAll();
 }
 
-function updateShiftDurationDisplay() {
+function updateShiftDurationDisplay(colonOn = true) {
     const timerValEl = document.getElementById("shift-duration-val");
     if (!timerValEl || !activeShifts[currentUser.id]) return;
 
     const shift = activeShifts[currentUser.id];
-    const diffMs = new Date() - new Date(shift.clockInTime);
+    const diffMs = Math.max(0, new Date() - new Date(shift.clockInTime));
     
     const sec = Math.floor((diffMs / 1000) % 60);
     const min = Math.floor((diffMs / (1000 * 60)) % 60);
     const hrs = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+    const sep = colonOn ? ':' : ' ';
 
-    timerValEl.textContent = `${String(hrs).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    timerValEl.textContent = `${String(hrs).padStart(2, '0')}${sep}${String(min).padStart(2, '0')}${sep}${String(sec).padStart(2, '0')}`;
 }
 
 // 7. PIN Terminal Logic
 function appendPin(num) {
+    const pinInput = document.getElementById("pin-input");
+    if (!pinInput) return;
     if (currentPinInput.length < 4) {
         currentPinInput += num;
-        document.getElementById("pin-input").value = currentPinInput;
+        pinInput.value = currentPinInput;
         if (currentPinInput.length === 4) {
             setTimeout(submitPin, 100);
         }
@@ -580,17 +591,23 @@ function appendPin(num) {
 
 function clearPin() {
     currentPinInput = "";
-    document.getElementById("pin-input").value = "";
+    const pinInput = document.getElementById("pin-input");
+    if (pinInput) pinInput.value = "";
 }
 
 window.addEventListener('keydown', (e) => {
-    // Only capture digits when we don't focus another text input
-    if (document.activeElement.tagName === 'INPUT' && document.activeElement.id !== 'pin-input') return;
+    const pinInput = document.getElementById("pin-input");
+    const terminalView = document.getElementById("terminal-view");
+    if (!pinInput || !terminalView || !terminalView.classList.contains("active")) return;
+
+    const tag = document.activeElement ? document.activeElement.tagName : '';
+    if ((tag === 'INPUT' && document.activeElement.id !== 'pin-input') || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
     if (e.key >= '0' && e.key <= '9') {
         appendPin(e.key);
     } else if (e.key === 'Backspace') {
         currentPinInput = currentPinInput.slice(0, -1);
-        document.getElementById("pin-input").value = currentPinInput;
+        pinInput.value = currentPinInput;
     } else if (e.key === 'Escape' || e.key === 'Delete') {
         clearPin();
     } else if (e.key === 'Enter') {
@@ -893,12 +910,14 @@ function calculatePAYEData() {
         // Group into shifts and breaks
         const shifts = [];
         let activeIn = null;
+        let activeInRaw = null;
         let activeBreaks = [];
         let currentBreakStart = null;
 
         chronLogs.forEach(log => {
             if (log.event === "Clock-In") {
                 activeIn = new Date(log.timestamp);
+                activeInRaw = log.timestamp;
                 activeBreaks = [];
             } else if (log.event === "Break-Start" && activeIn) {
                 currentBreakStart = new Date(log.timestamp);
@@ -912,19 +931,22 @@ function calculatePAYEData() {
                 const outTime = new Date(log.timestamp);
                 shifts.push({
                     in: activeIn,
+                    rawIn: activeInRaw,
                     out: outTime,
                     breaks: [...activeBreaks]
                 });
                 activeIn = null;
+                activeInRaw = null;
                 activeBreaks = [];
             }
         });
 
         // Group completed shifts by local date
         const dayHours = {}; // keyed by "YYYY-MM-DD"
-                shifts.forEach(shift => {
-            const shiftId = `shift_${empId}_${shift.in.toISOString()}`;
-            const approval = approvalStates[shiftId] || { status: "Pending" };
+        shifts.forEach(shift => {
+            const shiftIdRaw = `shift_${empId}_${shift.rawIn}`;
+            const shiftIdIso = `shift_${empId}_${shift.in.toISOString()}`;
+            const approval = approvalStates[shiftIdRaw] || approvalStates[shiftIdIso] || { status: "Pending" };
             
             if (approval.status === "Authorised") {
                 const localDate = new Date(shift.in).toISOString().split('T')[0];
@@ -1319,7 +1341,7 @@ function submitRosterShift(event) {
 }
 
 function deleteRosterShift(shiftId) {
-    rosterShifts = rosterShifts.filter(s => s.id !== shiftId);
+    rosterShifts = rosterShifts.filter(s => String(s.id) !== String(shiftId));
     localStorage.setItem("ct_roster", JSON.stringify(rosterShifts));
     renderAll();
 }
@@ -1345,7 +1367,7 @@ function renderRosterPlanner() {
                 <td>${shift.start} - ${shift.end}</td>
                 <td><span class="badge badge-success">Scheduled</span></td>
                 <td class="no-print">
-                    <button class="btn btn-sm btn-outline" style="color:var(--color-danger); border-color:rgba(239,68,68,0.2)" onclick="deleteRosterShift(${shift.id})">Cancel</button>
+                    <button class="btn btn-sm btn-outline" style="color:var(--color-danger); border-color:rgba(239,68,68,0.2)" onclick="deleteRosterShift('${shift.id}')">Cancel</button>
                 </td>
             </tr>
         `;
